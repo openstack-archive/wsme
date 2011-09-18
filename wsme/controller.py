@@ -79,11 +79,11 @@ class validate(object):
 class WSRoot(object):
     def __init__(self, protocols=None):
         if protocols is None:
-            protocols = registered_protocols.values()
+            protocols = registered_protocols.keys()
         self.protocols = {}
         for protocol in protocols:
             if isinstance(protocol, str):
-                protocol = registered_protocols[protocol]
+                protocol = registered_protocols[protocol]()
             self.protocols[protocol.name] = protocol
 
     def _handle_request(self, request):

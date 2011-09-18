@@ -10,4 +10,11 @@ class RestProtocol(object):
         
     def handle(self, root, request):
         path = request.path.split('/')
+        a = root
+        for name in path:
+            a = getattr(a, name)
+        if not hasattr(a, '_ews_description'):
+            raise ValueError('Invalid path')
+        fonc = a
+        kw = self.get_args(req)
 
