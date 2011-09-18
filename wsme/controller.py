@@ -9,8 +9,8 @@ def scan_api(controller, path=[]):
         if name.startswith('_'):
             continue
         a = getattr(controller, name)
-        if hasattr(a, '_ews_definition'):
-            yield path, a._ews_definition
+        if hasattr(a, '_wsme_definition'):
+            yield path, a._wsme_definition
         else:
             for i in scan_api(a, path + [name]):
                 yield i
@@ -32,10 +32,10 @@ class FunctionDefinition(object):
     
     @classmethod
     def get(cls, func):
-        fd = getattr(func, '_ews_definition', None)
+        fd = getattr(func, '_wsme_definition', None)
         if fd is None:
             fd = FunctionDefinition(func.__name__)
-            func._ews_definition = fd
+            func._wsme_definition = fd
         return fd
 
 
@@ -88,8 +88,8 @@ class WSRoot(object):
 
     def _handle_request(self, request):
         protocol = None
-        if 'ewsproto' in request.params:
-            protocol = self.protocols[request.params['ewsproto']]
+        if 'wsmeproto' in request.params:
+            protocol = self.protocols[request.params['wsmeproto']]
         else:
             for p in self.protocols.values():
                 if p.accept(self, request):

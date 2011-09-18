@@ -1,7 +1,7 @@
 from setuptools import setup
 
 setup(
-    name='EWS',
-    packages=['ews'],
+    name='WSME',
+    packages=['wsme'],
     install_requires=['webob'],
 )

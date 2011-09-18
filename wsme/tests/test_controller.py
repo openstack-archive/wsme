@@ -3,8 +3,8 @@ import webob
 from webob.dec import wsgify
 import webtest
 
-from ews import *
-from ews.controller import scan_api
+from wsme import *
+from wsme.controller import scan_api
 
 class DummyProtocol(object):
     name = 'dummy'
@@ -34,7 +34,7 @@ class TestController(unittest.TestCase):
             def getint(self):
                 return 1
 
-        assert MyWS.getint._ews_definition.return_type == int
+        assert MyWS.getint._wsme_definition.return_type == int
 
     def test_validate(self):
         class MyWS(object):
@@ -43,7 +43,7 @@ class TestController(unittest.TestCase):
             def add(self, a, b, c=0):
                 return a + b + c
 
-        args = MyWS.add._ews_definition.arguments
+        args = MyWS.add._wsme_definition.arguments
 
         assert args[0].name == 'a'
         assert args[0].datatype == int
@@ -62,9 +62,9 @@ class TestController(unittest.TestCase):
 
     def test_register_protocol(self):
         p = DummyProtocol()
-        import ews.controller
-        ews.controller.register_protocol(p)
-        assert ews.controller.registered_protocols['dummy'] == p
+        import wsme.controller
+        wsme.controller.register_protocol(p)
+        assert wsme.controller.registered_protocols['dummy'] == p
 
         r = WSRoot()
         assert r.protocols['dummy']
@@ -103,7 +103,7 @@ class TestController(unittest.TestCase):
         assert p.lastroot == r
         assert p.hits == 1
 
-        res = app.get('/?ewsproto=dummy')
+        res = app.get('/?wsmeproto=dummy')
 
         assert p.lastreq.path == '/'
         assert p.lastroot == r
