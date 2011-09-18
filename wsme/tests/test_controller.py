@@ -69,6 +69,9 @@ class TestController(unittest.TestCase):
         r = WSRoot()
         assert r.protocols['dummy']
 
+        r = WSRoot(['dummy'])
+        assert r.protocols['dummy']
+
     def test_scan_api(self):
         class NS(object):
             @expose(int)
