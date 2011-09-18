@@ -1,0 +1,14 @@
+syntax: glob
+
+*.pyc
+*.pyo
+*.egg-info
+.coverage
+
+syntax: regexp
+
+^lib
+^bin
+^include
+^dist
+
