@@ -17,6 +17,8 @@ def scan_api(controller, path=[]):
         if hasattr(a, '_wsme_definition'):
             yield path, a._wsme_definition
         else:
+            if len(path) < 10:
+                print path
             for i in scan_api(a, path + [name]):
                 yield i
 
@@ -83,7 +85,7 @@ class validate(object):
 
 class WSRoot(object):
     def __init__(self, protocols=None):
-        self.debug = True
+        self._debug = True
         if protocols is None:
             protocols = registered_protocols.keys()
         self.protocols = {}
@@ -112,7 +114,7 @@ class WSRoot(object):
         else:
             r = dict(faultcode="Server",
                      faultstring=str(excinfo[1]))
-            if self.debug:
+            if self._debug:
                 r['debuginfo'] = ("Traceback:\n%s\n" %
                                   "\n".join(traceback.format_exception(*excinfo)))
             return r
