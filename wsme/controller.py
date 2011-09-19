@@ -1,4 +1,8 @@
 import inspect
+import traceback
+import weakref
+
+from wsme import exc
 
 __all__ = ['expose', 'validate', 'WSRoot']
 
@@ -26,8 +30,8 @@ class FunctionArgument(object):
 
 
 class FunctionDefinition(object):
-    def __init__(self, name):
-        self.name = name
+    def __init__(self, func):
+        self.name = func.__name__
         self.return_type = None
         self.arguments = []
 
@@ -35,7 +39,7 @@ class FunctionDefinition(object):
     def get(cls, func):
         fd = getattr(func, '_wsme_definition', None)
         if fd is None:
-            fd = FunctionDefinition(func.__name__)
+            fd = FunctionDefinition(func)
             func._wsme_definition = fd
         return fd
 
@@ -79,6 +83,7 @@ class validate(object):
 
 class WSRoot(object):
     def __init__(self, protocols=None):
+        self.debug = True
         if protocols is None:
             protocols = registered_protocols.keys()
         self.protocols = {}
@@ -98,3 +103,30 @@ class WSRoot(object):
                     break
 
         return protocol.handle(self, request)
+
+    def _format_exception(self, excinfo):
+        """Extract informations that can be sent to the client."""
+        if isinstance(excinfo[1], exc.ClientSideError):
+            return dict(faultcode="Client",
+                        faultstring=unicode(excinfo[1]))
+        else:
+            r = dict(faultcode="Server",
+                     faultstring=str(excinfo[1]))
+            if self.debug:
+                r['debuginfo'] = ("Traceback:\n%s\n" %
+                                  "\n".join(traceback.format_exception(*excinfo)))
+            return r
+
+    def _lookup_function(self, path):
+        a = self
+
+        for name in path:
+            a = getattr(a, name, None)
+            if a is None:
+                break
+
+        if not hasattr(a, '_wsme_definition'):
+            raise exc.UnknownFunction('/'.join(path))
+
+        return a, a._wsme_definition
+

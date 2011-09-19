@@ -1,4 +1,7 @@
 import webob
+import sys
+
+from wsme.exc import UnknownFunction
 
 class RestProtocol(object):
     name = None
@@ -12,20 +15,20 @@ class RestProtocol(object):
 
     def handle(self, root, request):
         path = request.path.strip('/').split('/')
-        a = root
-        for name in path:
-            a = getattr(a, name)
 
-        if not hasattr(a, '_wsme_definition'):
-            raise ValueError('Invalid path')
-        fonc = a
-
-        kw = self.get_args(request)
-        
         res = webob.Response()
         res.headers['Content-Type'] = 'application/json'
-        res.status = "200 OK"
 
-        res.body = self.encode_response(a(**kw))
+        try:
+            func, funcdef = root._lookup_function(path)
+            kw = self.get_args(request)
+            result = func(**kw)
+            # TODO make sure result type == a._wsme_definition.return_type
+            res.body = self.encode_result(result, funcdef.return_type)
+            res.status = "200 OK"
+        except Exception, e:
+            res.status = "500 Error"
+            res.body = self.encode_error(
+                root._format_exception(sys.exc_info()))
 
         return res

@@ -12,6 +12,15 @@ from wsme import *
 
 warnings.filterwarnings('ignore', module='webob.dec')
 
+class CallException(RuntimeError):
+    def __init__(self, faultcode, faultstring, debuginfo):
+        self.faultcode = faultcode
+        self.faultstring = faultstring
+        self.debuginfo = debuginfo
+
+    def __str__(self):
+        return 'faultcode=%s, faultstring=%s, debuginfo=%s' % (
+                self.faultcode, self.faultstring, self.debuginfo)
 
 class ReturnTypes(object):
     @expose(str)
@@ -46,8 +55,15 @@ class ReturnTypes(object):
     def getdate(self):
         return datetime.datetime(1994, 1, 26, 12, 0, 0)
 
+
+class WithErrors(object):
+    @expose()
+    def divide_by_zero(self):
+        1 / 0
+
 class WSTestRoot(WSRoot):
     returntypes = ReturnTypes()
+    witherrors = WithErrors()
 
     def reset(self):
         self.touched = False
@@ -64,9 +80,23 @@ class ProtocolTestCase(unittest.TestCase):
 
             self.app = TestApp(wsgify(self.root._handle_request))
 
-    def _call(self, fpath, **kw):
-        pass
-    
+    def test_invalid_path(self):
+        try:
+            res = self.call('invalid_function')
+            assert "No error raised"
+        except CallException, e:
+            assert e.faultcode == 'Client'
+            assert e.faultstring == u'Unknown function name: invalid_function'
+
+    def test_serverside_error(self):
+        try:
+            res = self.call('witherrors/divide_by_zero')
+            assert "No error raised"
+        except CallException, e:
+            print e
+            assert e.faultcode == 'Server'
+            assert e.faultstring == u'integer division or modulo by zero'
+
     def test_touch(self):
         assert self.call('touch') is None
 
@@ -85,4 +115,5 @@ class ProtocolTestCase(unittest.TestCase):
     def test_return_float(self):
         r = self.call('returntypes/getfloat')
         assert r == 3.14159265, r
+
 

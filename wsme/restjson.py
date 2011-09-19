@@ -15,7 +15,10 @@ class RestJsonProtocol(RestProtocol):
         kw = json.loads(req.body)
         return kw
 
-    def encode_response(self, response):
-        return json.dumps(response)
+    def encode_result(self, result, return_type):
+        return json.dumps({'result': result})
+
+    def encode_error(self, errordetail):
+        return json.dumps(errordetail)
 
 register_protocol(RestJsonProtocol)

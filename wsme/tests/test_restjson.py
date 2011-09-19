@@ -15,6 +15,16 @@ class TestRestJson(wsme.tests.protocol.ProtocolTestCase):
             content,
             headers={
                 'Content-Type': 'application/json',
-            })
+            },
+            expect_errors=True)
+        r = json.loads(res.body)
+        if 'result' in r:
+            return r['result']
+        else:
+            raise wsme.tests.protocol.CallException(
+                    r['faultcode'],
+                    r['faultstring'],
+                    r.get('debuginfo'))
+            
         return json.loads(res.body)
 

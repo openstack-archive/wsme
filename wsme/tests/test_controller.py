@@ -61,10 +61,9 @@ class TestController(unittest.TestCase):
         assert args[2].default == 0
 
     def test_register_protocol(self):
-        p = DummyProtocol()
         import wsme.controller
-        wsme.controller.register_protocol(p)
-        assert wsme.controller.registered_protocols['dummy'] == p
+        wsme.controller.register_protocol(DummyProtocol)
+        assert wsme.controller.registered_protocols['dummy'] == DummyProtocol
 
         r = WSRoot()
         assert r.protocols['dummy']
