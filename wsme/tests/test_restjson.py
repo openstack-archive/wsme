@@ -1,14 +1,20 @@
-from wsme.tests.protocol import TestProtocol
-import json
+import wsme.tests.protocol
+try:
+    import simplejson as json
+except:
+    import json
 
-class TestRestJson(TestProtocol):
+
+class TestRestJson(wsme.tests.protocol.ProtocolTestCase):
     protocol = 'REST+Json'
+
     def call(self, fpath, **kw):
         content = json.dumps(kw)
         res = self.app.post(
             '/' + fpath,
             content,
             headers={
-                'Content-Type': 'application/json'
+                'Content-Type': 'application/json',
             })
         return json.loads(res.body)
+

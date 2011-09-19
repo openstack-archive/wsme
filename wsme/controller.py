@@ -4,6 +4,7 @@ __all__ = ['expose', 'validate', 'WSRoot']
 
 registered_protocols = {}
 
+
 def scan_api(controller, path=[]):
     for name in dir(controller):
         if name.startswith('_'):
@@ -29,7 +30,7 @@ class FunctionDefinition(object):
         self.name = name
         self.return_type = None
         self.arguments = []
-    
+
     @classmethod
     def get(cls, func):
         fd = getattr(func, '_wsme_definition', None)
@@ -69,7 +70,7 @@ class validate(object):
             mandatory = defaults is None or i <= len(defaults)
             default = None
             if not mandatory:
-                default = defaults[i-(len(args)-len(defaults))]
+                default = defaults[i - (len(args) - len(defaults))]
             print argname, datatype, mandatory, default
             fd.arguments.append(FunctionArgument(argname, datatype,
                                                  mandatory, default))
