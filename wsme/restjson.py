@@ -15,7 +15,7 @@ def prepare_encode(value, datatype):
         return value
     if datatype in wsme.types.structured_types:
         d = dict()
-        for name, datatype, mandatory in wsme.types.list_attributes(value):
+        for name, datatype, mandatory in wsme.types.list_attributes(datatype):
             d[name] = prepare_encode(getattr(value, name), datatype)
         return d
     if datatype in wsme.types.dt_types:
