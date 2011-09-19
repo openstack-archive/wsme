@@ -1,7 +1,7 @@
 from setuptools import setup
 
 setup(
-    name='WSME',
+    name='wsme',
     packages=['wsme'],
     install_requires=['webob'],
 )
