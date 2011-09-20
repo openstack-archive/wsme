@@ -32,6 +32,20 @@ class TestTypes(unittest.TestCase):
 
         assert len(WithPrivateAttrs._wsme_attributes) == 0
 
+    def test_attribute_order(self):
+        class ForcedOrder(object):
+            _wsme_attr_order = ('a2', 'a1', 'a3')
+            a1 = int
+            a2 = int
+            a3 = int
+
+        types.register_type(ForcedOrder)
+
+        print ForcedOrder._wsme_attributes
+        assert ForcedOrder._wsme_attributes[0][0] == 'a2'
+        assert ForcedOrder._wsme_attributes[1][0] == 'a1'
+        assert ForcedOrder._wsme_attributes[2][0] == 'a3'
+
     def test_wsproperty(self):
         class WithWSProp(object):
             def __init__(self):

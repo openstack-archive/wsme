@@ -69,7 +69,7 @@ def sort_attributes(class_, attributes):
             names_order = list(names)
             names_order.sort()
 
-        attributes[:] = [(name, attrs[name]) for name in names_order]
+    attributes[:] = [(name, attrs[name]) for name in names_order]
 
 
 def inspect_class(class_):
