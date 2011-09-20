@@ -22,7 +22,7 @@ class RestProtocol(object):
 
         try:
             func, funcdef = root._lookup_function(path)
-            kw = self.get_args(request)
+            kw = self.decode_args(request, funcdef.arguments)
             result = func(**kw)
             # TODO make sure result type == a._wsme_definition.return_type
             res.body = self.encode_result(result, funcdef.return_type)

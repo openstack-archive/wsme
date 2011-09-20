@@ -29,7 +29,7 @@ class RestJsonProtocol(RestProtocol):
     dataformat = 'json'
     content_types = ['application/json', 'text/json', None]
 
-    def get_args(self, req):
+    def decode_args(self, req, arguments):
         kw = json.loads(req.body)
         return kw
 

@@ -15,11 +15,14 @@ class RestXmlProtocol(RestProtocol):
     dataformat = 'xml'
     content_types = ['text/xml']
 
-    def get_args(self, req):
-        kw = json.loads(req.body)
+    def decode_args(self, req, arguments):
+        el = et.fromstring(req.body)
+        assert el.tag == 'parameters'
+        kw = {}
         return kw
 
     def encode_result(self, result, return_type):
+        return '<result/>'
         return json.dumps({'result': prepare_encode(result, return_type)})
 
     def encode_error(self, errordetail):
