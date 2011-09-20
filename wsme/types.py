@@ -12,18 +12,19 @@ native_types = pod_types + dt_types + extra_types
 
 structured_types = []
 
-def mandatory(datatype):
-    if isinstance(datatype, AttrDef):
-        datatype.mandatory = True
-        return datatype
-    return AttrDef(datatype, True)
+
+class wsproperty(property):
+    def __init__(self, datatype, fget, fset=None,
+                 mandatory=False, doc=None):
+        property.__init__(self, fget, fset, doc)
+        self.mandatory = mandatory
 
 
-class AttrDef(object):
-    def __init__(self, datatype, mandatory=False, default=None):
+class wsattr(object):
+    def __init__(self, datatype, mandatory=False):
         self.datatype = datatype
         self.mandatory = mandatory
-        self.default = None
+
 
 def inspect_class(class_):
     attributes = []
@@ -36,12 +37,12 @@ def inspect_class(class_):
             continue
         if inspect.ismethod(attr):
             continue
-        if not isinstance(attr, AttrDef):
-            attrdef = AttrDef(attr)
+        if not isinstance(attr, wsattr):
+            attrdef = wsattr(attr)
         else:
             attrdef = attr
 
-        attributes.append((name, AttrDef))
+        attributes.append((name, wsattr))
     return attributes
 
 def register_type(class_):
