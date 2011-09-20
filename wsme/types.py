@@ -50,7 +50,11 @@ def sort_attributes(class_, attributes):
 
     #.  Sort by alphabetically"""
 
+    if not len(attributes):
+        return
+
     attrs = dict(attributes)
+
     if hasattr(class_, '_wsme_attr_order'):
         names_order = class_._wsme_attr_order
     else:
@@ -65,7 +69,7 @@ def sort_attributes(class_, attributes):
                     if aname in names and aname not in names_order:
                         names_order.append(aname)
             assert len(names_order) == len(names)
-        except IOError, e:
+        except (TypeError, IOError):
             names_order = list(names)
             names_order.sort()
 

@@ -2,6 +2,12 @@ import unittest
 from wsme import types
 
 
+def gen_class():
+    d = {}
+    exec('''class tmp(object): pass''', d)
+    return d['tmp']
+
+
 class TestTypes(unittest.TestCase):
     def test_flat_type(self):
         class Flat(object):
@@ -45,6 +51,21 @@ class TestTypes(unittest.TestCase):
         assert ForcedOrder._wsme_attributes[0][0] == 'a2'
         assert ForcedOrder._wsme_attributes[1][0] == 'a1'
         assert ForcedOrder._wsme_attributes[2][0] == 'a3'
+
+        c = gen_class()
+        print c
+        types.register_type(c)
+        del c._wsme_attributes
+
+        c.a2 = int
+        c.a1 = int
+        c.a3 = int
+
+        types.register_type(c)
+
+        assert c._wsme_attributes[0][0] == 'a1'
+        assert c._wsme_attributes[1][0] == 'a2'
+        assert c._wsme_attributes[2][0] == 'a3'
 
     def test_wsproperty(self):
         class WithWSProp(object):
