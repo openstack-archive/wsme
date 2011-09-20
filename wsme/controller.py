@@ -3,6 +3,7 @@ import traceback
 import weakref
 
 from wsme import exc
+from wsme.types import register_type
 
 __all__ = ['expose', 'validate', 'WSRoot']
 
@@ -54,6 +55,7 @@ def register_protocol(protocol):
 class expose(object):
     def __init__(self, return_type=None):
         self.return_type = return_type
+        register_type(return_type)
 
     def __call__(self, func):
         fd = FunctionDefinition.get(func)

@@ -12,6 +12,7 @@ from wsme import *
 
 warnings.filterwarnings('ignore', module='webob.dec')
 
+
 class CallException(RuntimeError):
     def __init__(self, faultcode, faultstring, debuginfo):
         self.faultcode = faultcode
@@ -21,6 +22,21 @@ class CallException(RuntimeError):
     def __str__(self):
         return 'faultcode=%s, faultstring=%s, debuginfo=%s' % (
                 self.faultcode, self.faultstring, self.debuginfo)
+
+
+class NestedInner(object):
+    aint = int
+
+    def __init__(self, aint=None):
+        self.aint = aint
+
+
+class NestedOuter(object):
+    inner = NestedInner
+
+    def __init__(self):
+        self.inner = NestedInner(0)
+
 
 class ReturnTypes(object):
     @expose(str)
@@ -55,11 +71,17 @@ class ReturnTypes(object):
     def getdate(self):
         return datetime.datetime(1994, 1, 26, 12, 0, 0)
 
+    @expose(NestedOuter)
+    def getnested(self):
+        n = NestedOuter()
+        return n
+
 
 class WithErrors(object):
     @expose()
     def divide_by_zero(self):
         1 / 0
+
 
 class WSTestRoot(WSRoot):
     returntypes = ReturnTypes()
@@ -116,4 +138,6 @@ class ProtocolTestCase(unittest.TestCase):
         r = self.call('returntypes/getfloat')
         assert r == 3.14159265, r
 
-
+    def test_return_nested(self):
+        r = self.call('returntypes/getnested')
+        assert r == {'inner': {'aint': 0}}, r

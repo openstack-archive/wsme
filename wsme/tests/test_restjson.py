@@ -17,6 +17,7 @@ class TestRestJson(wsme.tests.protocol.ProtocolTestCase):
                 'Content-Type': 'application/json',
             },
             expect_errors=True)
+        print "Received:", res.body
         r = json.loads(res.body)
         if 'result' in r:
             return r['result']
@@ -25,6 +26,5 @@ class TestRestJson(wsme.tests.protocol.ProtocolTestCase):
                     r['faultcode'],
                     r['faultstring'],
                     r.get('debuginfo'))
-            
-        return json.loads(res.body)
 
+        return json.loads(res.body)

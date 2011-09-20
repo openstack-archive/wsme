@@ -3,6 +3,8 @@ syntax: glob
 *.pyc
 *.pyo
 *.egg-info
+*.swp
+~*
 .coverage
 
 syntax: regexp

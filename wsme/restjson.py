@@ -13,10 +13,10 @@ except ImportError:
 def prepare_encode(value, datatype):
     if datatype in wsme.types.pod_types:
         return value
-    if datatype in wsme.types.structured_types:
+    if wsme.types.isstructured(datatype):
         d = dict()
-        for name, datatype, mandatory in wsme.types.list_attributes(datatype):
-            d[name] = prepare_encode(getattr(value, name), datatype)
+        for name, attr in wsme.types.list_attributes(datatype):
+            d[name] = prepare_encode(getattr(value, name), attr.datatype)
         return d
     if datatype in wsme.types.dt_types:
         return value.isoformat()
