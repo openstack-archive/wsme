@@ -4,6 +4,7 @@ try:
 except:
     import json
 
+import wsme.restjson
 
 class TestRestJson(wsme.tests.protocol.ProtocolTestCase):
     protocol = 'REST+Json'

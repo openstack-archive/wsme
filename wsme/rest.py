@@ -18,7 +18,7 @@ class RestProtocol(object):
         path = request.path.strip('/').split('/')
 
         res = webob.Response()
-        res.headers['Content-Type'] = 'application/json'
+        res.headers['Content-Type'] = self.content_types[0]
 
         try:
             func, funcdef = root._lookup_function(path)

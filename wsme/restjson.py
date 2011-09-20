@@ -27,7 +27,7 @@ def prepare_encode(value, datatype):
 class RestJsonProtocol(RestProtocol):
     name = 'REST+Json'
     dataformat = 'json'
-    content_types = [None, 'application/json', 'text/json']
+    content_types = ['application/json', 'text/json', None]
 
     def get_args(self, req):
         kw = json.loads(req.body)
