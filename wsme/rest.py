@@ -3,6 +3,7 @@ import sys
 
 from wsme.exc import UnknownFunction
 
+
 class RestProtocol(object):
     name = None
     dataformat = None
