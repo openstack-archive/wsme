@@ -1,7 +1,7 @@
 import webob
 import sys
 
-from wsme.exc import UnknownFunction
+from wsme.exc import UnknownFunction, MissingArgument, UnknownArgument
 
 html_body = """
 <html>
@@ -24,6 +24,39 @@ class RestProtocol(object):
             return True
         return request.headers.get('Content-Type') in self.content_types
 
+    def read_arguments(self, request, arguments):
+        if len(request.params) and request.body:
+            raise ClientSideError(
+                "Cannot read parameters from both a body and GET/POST params")
+
+        body = None
+        if 'body' in request.params:
+            body = request.params['body']
+
+        if body is None and len(request.params):
+            parsed_args = {}
+            for key, value in request.params.items():
+                parsed_args[key] = self.parse_arg(value)
+        else:
+            if body is None:
+                body = request.body
+            parsed_args = self.parse_args(body)
+
+        kw = {}
+
+        for arg in arguments:
+            if arg.name not in parsed_args:
+                if arg.mandatory:
+                    raise MissingArgument(arg.name)
+                continue
+
+            value = parsed_args.pop(arg.name)
+            kw[arg.name] = self.decode_arg(value, arg)
+
+        if parsed_args:
+            raise UnknownArgument(parsed_args.keys()[0])
+        return kw
+
     def handle(self, root, request):
         path = request.path.strip('/').split('/')
 
@@ -34,7 +67,7 @@ class RestProtocol(object):
 
         try:
             func, funcdef = root._lookup_function(path)
-            kw = self.decode_args(request, funcdef.arguments)
+            kw = self.read_arguments(request, funcdef.arguments)
             result = func(**kw)
             # TODO make sure result type == a._wsme_definition.return_type
             res.body = self.encode_result(result, funcdef.return_type)

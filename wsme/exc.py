@@ -5,7 +5,8 @@ if '_' not in __builtin__.__dict__:
 
 
 class ClientSideError(RuntimeError):
-    pass
+    def __str__(self):
+        return unicode(self).encode('utf8', 'ignore')
 
 
 class InvalidInput(ClientSideError):
@@ -18,9 +19,6 @@ class InvalidInput(ClientSideError):
         return _(u"Invalid input for field/attribute %s. Value: '%s'. %s") % (
                  self.fieldname, self.value, self.msg)
 
-    def __str__(self):
-        return unicode(self).encode('utf8', 'ignore')
-
 
 class MissingArgument(ClientSideError):
     def __init__(self, argname, msg=''):
@@ -31,8 +29,15 @@ class MissingArgument(ClientSideError):
         return _(u'Missing argument: "%s"%s') % (
             self.argname, self.msg and ": " + self.msg or "")
 
-    def __str__(self):
-        return unicode(self).encode('utf8', 'ignore')
+
+class UnknownArgument(ClientSideError):
+    def __init__(self, argname, msg=''):
+        self.argname = argname
+        self.msg = msg
+
+    def __unicode__(self):
+        return _(u'Unknown argument: "%s"%s') % (
+            self.argname, self.msg and ": " + self.msg or "")
 
 
 class UnknownFunction(ClientSideError):
@@ -42,5 +47,3 @@ class UnknownFunction(ClientSideError):
     def __unicode__(self):
         return _(u"Unknown function name: %s") % (self.name)
 
-    def __str__(self):
-        return unicode(self).encode('utf8', 'ignore')

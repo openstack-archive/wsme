@@ -92,17 +92,15 @@ class RestJsonProtocol(RestProtocol):
     dataformat = 'json'
     content_types = ['application/json', 'text/json', '', None]
 
-    def decode_args(self, req, arguments):
-        if not req.body:
-            return {}
-        raw_args = json.loads(req.body)
-        kw = {}
-        for farg in arguments:
-            if farg.mandatory and farg.name not in raw_args:
-                raise MissingArgument(farg.name)
-            value = raw_args[farg.name]
-            kw[farg.name] = fromjson(farg.datatype, value)
-        return kw
+    def decode_arg(self, value, arg):
+        return fromjson(arg.datatype, value)
+
+    def parse_arg(self, value):
+        return json.loads(value)
+
+    def parse_args(self, body):
+        raw_args = json.loads(body)
+        return raw_args
 
     def encode_result(self, result, return_type):
         r = tojson(return_type, result)

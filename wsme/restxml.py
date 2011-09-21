@@ -116,26 +116,14 @@ class RestXmlProtocol(RestProtocol):
     dataformat = 'xml'
     content_types = ['text/xml']
 
-    def decode_args(self, req, arguments):
-        if req.body:
-            try:
-                el = et.fromstring(req.body)
-            except Exception, e:
-                raise ClientSideError(str(e))
-        else:
-            el = et.Element('parameters')
+    def decode_arg(self, value, arg):
+        return fromxml(arg.datatype, value)
 
-        if el.tag != 'parameters':
-            raise ClientSideError("Input should be a 'parameters' xml tag")
+    def parse_arg(self, value):
+        return et.fromstring(value)
 
-        kw = {}
-        for farg in arguments:
-            sub = el.find(farg.name)
-            if farg.mandatory and sub is None:
-                raise MissingArgument(farg.name)
-            if sub is not None:
-                kw[farg.name] = fromxml(farg.datatype, sub)
-        return kw
+    def parse_args(self, body):
+        return dict((sub.tag, sub) for sub in et.fromstring(body))
 
     def encode_result(self, result, return_type):
         return et.tostring(toxml(return_type, 'result', result))
