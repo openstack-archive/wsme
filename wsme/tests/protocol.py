@@ -85,6 +85,85 @@ class ReturnTypes(object):
         return n
 
 
+class ArgTypes(object):
+    @expose(str)
+    @validate(str)
+    def setstr(self, value):
+        print repr(value)
+        assert type(value) == str
+        return value
+
+    @expose(unicode)
+    @validate(unicode)
+    def setunicode(self, value):
+        print repr(value)
+        assert type(value) == unicode
+        return value
+
+    @expose(bool)
+    @validate(bool)
+    def setbool(self, value):
+        print repr(value)
+        assert type(value) == bool
+        return value
+    
+    @expose(int)
+    @validate(int)
+    def setint(self, value):
+        print repr(value)
+        assert type(value) == int
+        return value
+
+    @expose(float)
+    @validate(float)
+    def setfloat(self, value):
+        print repr(value)
+        assert type(value) == float
+        return value
+
+    @expose(decimal.Decimal)
+    @validate(decimal.Decimal)
+    def setdecimal(self, value):
+        print repr(value)
+        assert type(value) == decimal.Decimal
+        return value
+
+    @expose(datetime.date)
+    @validate(datetime.date)
+    def setdate(self, value):
+        print repr(value)
+        assert type(value) == datetime.date
+        return value
+
+    @expose(datetime.time)
+    @validate(datetime.time)
+    def settime(self, value):
+        print repr(value)
+        assert type(value) == datetime.time
+        return value
+
+    @expose(datetime.datetime)
+    @validate(datetime.datetime)
+    def setdatetime(self, value):
+        print repr(value)
+        assert type(value) == datetime.datetime
+        return value
+
+    @expose(wsme.types.binary)
+    @validate(wsme.types.binary)
+    def setbinary(self, value):
+        print repr(value)
+        assert type(value) == str
+        return value
+
+    @expose(NestedOuter)
+    @validate(NestedOuter)
+    def setnested(self, value):
+        print repr(value)
+        assert type(value) == NestedOuter
+        return value
+
+
 class WithErrors(object):
     @expose()
     def divide_by_zero(self):
@@ -92,6 +171,7 @@ class WithErrors(object):
 
 
 class WSTestRoot(WSRoot):
+    argtypes = ArgTypes()
     returntypes = ReturnTypes()
     witherrors = WithErrors()
 
@@ -167,10 +247,46 @@ class ProtocolTestCase(unittest.TestCase):
         r = self.call('returntypes/getbinary')
         assert r == binarysample or r == base64.encodestring(binarysample), r
 
-    def test_return_binary(self):
-        r = self.call('returntypes/getbinary')
-        assert r == binarysample or r == base64.encodestring(binarysample), r
-
     def test_return_nested(self):
         r = self.call('returntypes/getnested')
         assert r == {'inner': {'aint': 0}} or r == {'inner': {'aint': '0'}}, r
+
+    def test_setstr(self):
+        assert self.call('argtypes/setstr', value='astring') in ('astring',)
+
+    def test_setunicode(self):
+        assert self.call('argtypes/setunicode', value=u'の') in (u'の',)
+
+    def test_setint(self):
+        assert self.call('argtypes/setint', value=3) in (3, '3')
+
+    def test_setfloat(self):
+        return self.call('argtypes/setfloat', value=3.54) in (3.54, '3.54')
+
+    def test_setdecimal(self):
+        return self.call('argtypes/setdecimal', value='3.14') in ('3.14', decimal.Decimal('3.14'))
+
+    def test_setdate(self):
+        return self.call('argtypes/setdate', value='2008-04-06') in (
+                datetime.date(2008, 4, 6), '2008-04-06')
+
+    def test_settime(self):
+        return self.call('argtypes/settime', value='12:12:15') \
+                in ('12:12:15', datetime.time(12, 12, 15))
+
+    def test_setdatetime(self):
+        return self.call('argtypes/setdatetime', value='2008-04-06T12:12:15') \
+                in ('2008-04-06T12:12:15',
+                    datetime.datetime(2008, 4, 6, 12, 12, 15))
+
+    def test_setbinary(self):
+        r = self.call('argtypes/setbinary',
+                value=base64.encodestring(binarysample))
+        assert r == binarysample or r == base64.encodestring(binarysample), r
+
+    def test_setnested(self):
+        return self.call('argtypes/setnested',
+            value={'inner': {'aint': 54}}) in (
+                {'inner': {'aint': 54}},
+                {'inner': {'aint': '54'}}
+            )

@@ -22,6 +22,18 @@ class InvalidInput(ClientSideError):
         return unicode(self).encode('utf8', 'ignore')
 
 
+class MissingArgument(ClientSideError):
+    def __init__(self, argname, msg=''):
+        self.argname = argname
+        self.msg = msg
+
+    def __unicode__(self):
+        return _(u"Missing argument: %s. %s") % (self.argname, self.msg)
+
+    def __str__(self):
+        return unicode(self).encode('utf8', 'ignore')
+
+
 class UnknownFunction(ClientSideError):
     def __init__(self, name):
         self.name = name

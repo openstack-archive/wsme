@@ -14,14 +14,14 @@ import wsme.restxml
 def dumpxml(key, obj):
     el = et.Element(key)
     if isinstance(obj, basestring):
-        el(obj)
+        el.text = obj
     elif type(obj) in (int, float, decimal.Decimal):
-        el(str(obj))
+        el.text = str(obj)
     elif type(obj) in (datetime.date, datetime.time, datetime.datetime):
-        el(obj.isoformat())
+        el.text = obj.isoformat()
     elif type(obj) == dict:
         for key, obj in obj.items():
-            e.append(dumpxml(key, obj))
+            el.append(dumpxml(key, obj))
     return el
 
 
@@ -35,7 +35,7 @@ def loadxml(el):
         return el.text
 
 
-class TestRestJson(wsme.tests.protocol.ProtocolTestCase):
+class TestRestXML(wsme.tests.protocol.ProtocolTestCase):
     protocol = 'REST+XML'
 
     def call(self, fpath, **kw):
