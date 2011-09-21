@@ -6,6 +6,7 @@ import webtest
 from wsme import *
 from wsme.controller import scan_api
 
+
 class DummyProtocol(object):
     name = 'dummy'
 

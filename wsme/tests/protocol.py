@@ -106,7 +106,7 @@ class ArgTypes(object):
         print repr(value)
         assert type(value) == bool
         return value
-    
+
     @expose(int)
     @validate(int)
     def setint(self, value):
@@ -264,7 +264,8 @@ class ProtocolTestCase(unittest.TestCase):
         return self.call('argtypes/setfloat', value=3.54) in (3.54, '3.54')
 
     def test_setdecimal(self):
-        return self.call('argtypes/setdecimal', value='3.14') in ('3.14', decimal.Decimal('3.14'))
+        return self.call('argtypes/setdecimal', value='3.14') in (
+                '3.14', decimal.Decimal('3.14'))
 
     def test_setdate(self):
         return self.call('argtypes/setdate', value='2008-04-06') in (
@@ -288,5 +289,5 @@ class ProtocolTestCase(unittest.TestCase):
         return self.call('argtypes/setnested',
             value={'inner': {'aint': 54}}) in (
                 {'inner': {'aint': 54}},
-                {'inner': {'aint': '54'}}
+                {'inner': {'aint': '54'}},
             )
