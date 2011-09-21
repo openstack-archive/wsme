@@ -64,11 +64,11 @@ class ReturnTypes(object):
         return datetime.date(1994, 1, 26)
 
     @expose(datetime.time)
-    def getdate(self):
+    def gettime(self):
         return datetime.time(12, 0, 0)
 
     @expose(datetime.datetime)
-    def getdate(self):
+    def getdatetime(self):
         return datetime.datetime(1994, 1, 26, 12, 0, 0)
 
     @expose(NestedOuter)
@@ -132,12 +132,25 @@ class ProtocolTestCase(unittest.TestCase):
 
     def test_return_int(self):
         r = self.call('returntypes/getint')
-        assert r == 2, r
+        assert r == 2 or r == '2', r
 
     def test_return_float(self):
         r = self.call('returntypes/getfloat')
-        assert r == 3.14159265, r
+        assert r == 3.14159265 or r == '3.14159265', r
+
+    def test_return_date(self):
+        r = self.call('returntypes/getdate')
+        assert r == datetime.date(1994, 1, 26) or r == '1994-01-26', r
+
+    def test_return_time(self):
+        r = self.call('returntypes/gettime')
+        assert r == datetime.time(12) or r == '12:00:00', r
+
+    def test_return_datetime(self):
+        r = self.call('returntypes/getdatetime')
+        assert r == datetime.datetime(1994, 1, 26, 12) \
+            or r == '1994-01-26T12:00:00', r
 
     def test_return_nested(self):
         r = self.call('returntypes/getnested')
-        assert r == {'inner': {'aint': 0}}, r
+        assert r == {'inner': {'aint': 0}} or r == {'inner': {'aint': '0'}}, r

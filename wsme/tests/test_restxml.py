@@ -24,6 +24,17 @@ def dumpxml(key, obj):
             e.append(dumpxml(key, obj))
     return el
 
+
+def loadxml(el):
+    if len(el):
+        d = {}
+        for child in el:
+            d[child.tag] = loadxml(child)
+        return d
+    else:
+        return el.text
+
+
 class TestRestJson(wsme.tests.protocol.ProtocolTestCase):
     protocol = 'REST+XML'
 
@@ -43,10 +54,8 @@ class TestRestJson(wsme.tests.protocol.ProtocolTestCase):
             raise wsme.tests.protocol.CallException(
                     el.find('faultcode').text,
                     el.find('faultstring').text,
-                    el.find('debuginfo') and 
+                    el.find('debuginfo') is not None and
                         el.find('debuginfo').text or None)
 
         else:
-            pass
-        return xml.loads(res.body)
-
+            return loadxml(et.fromstring(res.body))
