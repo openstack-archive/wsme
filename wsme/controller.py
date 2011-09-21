@@ -1,11 +1,14 @@
 import inspect
 import traceback
 import weakref
+import logging
 
 from wsme import exc
 from wsme.types import register_type
 
 __all__ = ['expose', 'validate', 'WSRoot']
+
+log = logging.getLogger(__name__)
 
 registered_protocols = {}
 
@@ -107,14 +110,20 @@ class WSRoot(object):
     def _format_exception(self, excinfo):
         """Extract informations that can be sent to the client."""
         if isinstance(excinfo[1], exc.ClientSideError):
-            return dict(faultcode="Client",
-                        faultstring=unicode(excinfo[1]))
+            r = dict(faultcode="Client",
+                     faultstring=unicode(excinfo[1]))
+            log.warning("Client-side error: %s" % r['faultstring'])
+            return r
         else:
-            r = dict(faultcode="Server",
-                     faultstring=str(excinfo[1]))
+            faultstring = str(excinfo[1])
+            debuginfo = "\n".join(traceback.format_exception(*excinfo))
+
+            log.error('Server-side error: "%s". Detail: \n%s' % (
+                faultstring, debuginfo))
+
+            r = dict(faultcode="Server", faultstring=faultstring)
             if self._debug:
-                r['debuginfo'] = "Traceback:\n%s\n" % (
-                          "\n".join(traceback.format_exception(*excinfo)))
+                r['debuginfo'] = debuginfo
             return r
 
     def _lookup_function(self, path):

@@ -41,7 +41,6 @@ class RestProtocol(object):
             res.status = "200 OK"
         except Exception, e:
             res.status = 500
-            res.charset = 'utf8'
             res.body = self.encode_error(
                 root._format_exception(sys.exc_info()))
 
@@ -64,6 +63,6 @@ class RestProtocol(object):
                 res_content_type = "text/html"
                 res.body = html_body % dict(content=res.body)
 
-        res.headers['Content-Type'] = res_content_type
+        res.headers['Content-Type'] = "%s; charset=UTF-8" % res_content_type
 
         return res

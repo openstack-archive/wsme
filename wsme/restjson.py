@@ -93,6 +93,8 @@ class RestJsonProtocol(RestProtocol):
     content_types = ['application/json', 'text/json', '', None]
 
     def decode_args(self, req, arguments):
+        if not req.body:
+            return {}
         raw_args = json.loads(req.body)
         kw = {}
         for farg in arguments:
@@ -103,9 +105,10 @@ class RestJsonProtocol(RestProtocol):
         return kw
 
     def encode_result(self, result, return_type):
-        return json.dumps({'result': tojson(return_type, result)})
+        r = tojson(return_type, result)
+        return json.dumps({'result': r}, ensure_ascii=False).encode('utf8')
 
     def encode_error(self, errordetail):
-        return json.dumps(errordetail)
+        return json.dumps(errordetail, encoding='utf-8')
 
 register_protocol(RestJsonProtocol)
