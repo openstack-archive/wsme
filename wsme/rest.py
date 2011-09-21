@@ -3,6 +3,16 @@ import sys
 
 from wsme.exc import UnknownFunction
 
+html_body = """
+<html>
+<body>
+<pre>
+%(content)s
+</pre>
+</body>
+</html>
+"""
+
 
 class RestProtocol(object):
     name = None
@@ -17,8 +27,10 @@ class RestProtocol(object):
     def handle(self, root, request):
         path = request.path.strip('/').split('/')
 
+        if path[-1].endswith('.' + self.dataformat):
+            path[-1] = path[-1][:-len(self.dataformat) - 1]
+
         res = webob.Response()
-        res.headers['Content-Type'] = self.content_types[0]
 
         try:
             func, funcdef = root._lookup_function(path)
@@ -28,8 +40,30 @@ class RestProtocol(object):
             res.body = self.encode_result(result, funcdef.return_type)
             res.status = "200 OK"
         except Exception, e:
-            res.status = "500 Error"
+            res.status = 500
+            res.charset = 'utf8'
             res.body = self.encode_error(
                 root._format_exception(sys.exc_info()))
+
+        # Attempt to correctly guess what content-type we should return.
+        res_content_type = None
+
+        last_q = 0
+        if hasattr(request.accept, '_parsed'):
+            for mimetype, q in request.accept._parsed:
+                if mimetype in self.content_types and last_q < q:
+                    res_content_type = mimetype
+        else:
+            res_content_type = request.accept.best_match([
+                ct for ct in self.content_types if ct])
+
+        # If not we will attempt to convert the body to an accepted
+        # output format.
+        if res_content_type is None:
+            if "text/html" in request.accept:
+                res_content_type = "text/html"
+                res.body = html_body % dict(content=res.body)
+
+        res.headers['Content-Type'] = res_content_type
 
         return res

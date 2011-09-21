@@ -10,6 +10,7 @@ from simplegeneric import generic
 
 from wsme.rest import RestProtocol
 from wsme.controller import register_protocol
+from wsme.exc import *
 import wsme.types
 
 import re
@@ -116,8 +117,17 @@ class RestXmlProtocol(RestProtocol):
     content_types = ['text/xml']
 
     def decode_args(self, req, arguments):
-        el = et.fromstring(req.body)
-        assert el.tag == 'parameters'
+        if req.body:
+            try:
+                el = et.fromstring(req.body)
+            except Exception, e:
+                raise ClientSideError(str(e))
+        else:
+            el = et.Element('parameters')
+
+        if el.tag != 'parameters':
+            raise ClientSideError("Input should be a 'parameters' xml tag")
+
         kw = {}
         for farg in arguments:
             sub = el.find(farg.name)

@@ -28,7 +28,8 @@ class MissingArgument(ClientSideError):
         self.msg = msg
 
     def __unicode__(self):
-        return _(u"Missing argument: %s. %s") % (self.argname, self.msg)
+        return _(u'Missing argument: "%s"%s') % (
+            self.argname, self.msg and ": " + self.msg or "")
 
     def __str__(self):
         return unicode(self).encode('utf8', 'ignore')

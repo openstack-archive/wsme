@@ -18,8 +18,6 @@ def scan_api(controller, path=[]):
         if hasattr(a, '_wsme_definition'):
             yield path, a._wsme_definition
         else:
-            if len(path) < 10:
-                print path
             for i in scan_api(a, path + [name]):
                 yield i
 
@@ -70,7 +68,6 @@ class validate(object):
     def __call__(self, func):
         fd = FunctionDefinition.get(func)
         args, varargs, keywords, defaults = inspect.getargspec(func)
-        print args, defaults
         if args[0] == 'self':
             args = args[1:]
         for i, argname in enumerate(args):
@@ -79,7 +76,6 @@ class validate(object):
             default = None
             if not mandatory:
                 default = defaults[i - (len(args) - len(defaults))]
-            print argname, datatype, mandatory, default
             fd.arguments.append(FunctionArgument(argname, datatype,
                                                  mandatory, default))
         return func
