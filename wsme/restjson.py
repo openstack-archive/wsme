@@ -1,5 +1,6 @@
 import base64
 import datetime
+import decimal
 
 from simplegeneric import generic
 
@@ -23,6 +24,11 @@ def tojson(datatype, value):
     return value
 
 
+@tojson.when_object(decimal.Decimal)
+def decimal_tojson(datatype, value):
+    return str(value)
+
+
 @tojson.when_object(datetime.date)
 def date_tojson(datatype, value):
     return value.isoformat()
@@ -32,6 +38,7 @@ def date_tojson(datatype, value):
 def time_tojson(datatype, value):
     return value.isoformat()
 
+
 @tojson.when_object(datetime.datetime)
 def datetime_tojson(datatype, value):
     return value.isoformat()
@@ -39,7 +46,7 @@ def datetime_tojson(datatype, value):
 
 @tojson.when_object(wsme.types.binary)
 def datetime_tojson(datatype, value):
-    return base64.encode(value)
+    return base64.encodestring(value)
 
 
 class RestJsonProtocol(RestProtocol):

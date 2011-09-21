@@ -4,14 +4,18 @@ import unittest
 import warnings
 import datetime
 import decimal
+import base64
 
 from webob.dec import wsgify
 from webtest import TestApp
 
 from wsme import *
+import wsme.types
 
 warnings.filterwarnings('ignore', module='webob.dec')
 
+
+binarysample = r'\x00\xff\x43'
 
 class CallException(RuntimeError):
     def __init__(self, faultcode, faultstring, debuginfo):
@@ -70,6 +74,10 @@ class ReturnTypes(object):
     @expose(datetime.datetime)
     def getdatetime(self):
         return datetime.datetime(1994, 1, 26, 12, 0, 0)
+
+    @expose(wsme.types.binary)
+    def getbinary(self):
+        return binarysample
 
     @expose(NestedOuter)
     def getnested(self):
@@ -138,6 +146,10 @@ class ProtocolTestCase(unittest.TestCase):
         r = self.call('returntypes/getfloat')
         assert r == 3.14159265 or r == '3.14159265', r
 
+    def test_return_decimal(self):
+        r = self.call('returntypes/getdecimal')
+        assert r in (decimal.Decimal('3.14159265'), '3.14159265'), r
+
     def test_return_date(self):
         r = self.call('returntypes/getdate')
         assert r == datetime.date(1994, 1, 26) or r == '1994-01-26', r
@@ -150,6 +162,14 @@ class ProtocolTestCase(unittest.TestCase):
         r = self.call('returntypes/getdatetime')
         assert r == datetime.datetime(1994, 1, 26, 12) \
             or r == '1994-01-26T12:00:00', r
+
+    def test_return_binary(self):
+        r = self.call('returntypes/getbinary')
+        assert r == binarysample or r == base64.encodestring(binarysample), r
+
+    def test_return_binary(self):
+        r = self.call('returntypes/getbinary')
+        assert r == binarysample or r == base64.encodestring(binarysample), r
 
     def test_return_nested(self):
         r = self.call('returntypes/getnested')

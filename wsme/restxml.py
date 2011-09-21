@@ -47,6 +47,16 @@ def datetime_toxml(datatype, key, value):
     return el
 
 
+@toxml.when_object(wsme.types.binary)
+def binary_toxml(datatype, key, value):
+    el = et.Element(key)
+    if value is None:
+        el.set('nil', 'true')
+    else:
+        el.text = base64.encodestring(value)
+    return el
+
+        
 class RestXmlProtocol(RestProtocol):
     name = 'REST+XML'
     dataformat = 'xml'
