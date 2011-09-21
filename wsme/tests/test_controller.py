@@ -9,6 +9,7 @@ from wsme.controller import scan_api
 
 class DummyProtocol(object):
     name = 'dummy'
+    content_types = ['', None]
 
     def __init__(self):
         self.hits = 0
@@ -16,12 +17,19 @@ class DummyProtocol(object):
     def accept(self, root, req):
         return True
 
-    def handle(self, root, req):
-        self.lastreq = req
-        self.lastroot = root
-        res = webob.Response()
+    def extract_path(self, request):
+        return ['touch']
+
+    def read_arguments(self, request, arguments):
+        self.lastreq = request
         self.hits += 1
-        return res
+        return {}
+
+    def encode_result(self, result, return_type):
+        return str(result)
+
+    def encode_error(self, infos):
+        return str(infos)
 
 
 def serve_ws(req, root):
@@ -92,7 +100,9 @@ class TestController(unittest.TestCase):
 
     def test_handle_request(self):
         class MyRoot(WSRoot):
-            pass
+            @expose()
+            def touch(self):
+                pass
 
         p = DummyProtocol()
         r = MyRoot(protocols=[p])
@@ -103,11 +113,9 @@ class TestController(unittest.TestCase):
         res = app.get('/')
 
         assert p.lastreq.path == '/'
-        assert p.lastroot == r
         assert p.hits == 1
 
-        res = app.get('/?wsmeproto=dummy')
+        res = app.get('/touch?wsmeproto=dummy')
 
-        assert p.lastreq.path == '/'
-        assert p.lastroot == r
+        assert p.lastreq.path == '/touch'
         assert p.hits == 2

@@ -2,6 +2,8 @@ import inspect
 import traceback
 import weakref
 import logging
+import webob
+import sys
 
 from wsme import exc
 from wsme.types import register_type
@@ -11,6 +13,20 @@ __all__ = ['expose', 'validate', 'WSRoot']
 log = logging.getLogger(__name__)
 
 registered_protocols = {}
+
+
+html_body = """
+<html>
+<head>
+  <style type='text/css'>
+    %(css)s
+  </style>
+</head>
+<body>
+%(content)s
+</body>
+</html>
+"""
 
 
 def scan_api(controller, path=[]):
@@ -95,7 +111,7 @@ class WSRoot(object):
                 protocol = registered_protocols[protocol]()
             self.protocols[protocol.name] = protocol
 
-    def _handle_request(self, request):
+    def _select_protocol(self, request):
         protocol = None
         if 'wsmeproto' in request.params:
             protocol = self.protocols[request.params['wsmeproto']]
@@ -104,8 +120,70 @@ class WSRoot(object):
                 if p.accept(self, request):
                     protocol = p
                     break
+        return protocol
 
-        return protocol.handle(self, request)
+    def _handle_request(self, request):
+        res = webob.Response()
+        try:
+            protocol = self._select_protocol(request)
+            if protocol is None:
+                msg = ("None of the following protocols can handle this "
+                      "request : %s" % ','.join(self.protocols.keys()))
+                res.status = 500
+                res.text = msg
+                log.error(msg)
+                return res
+            path = protocol.extract_path(request)
+            func, funcdef = self._lookup_function(path)
+            kw = protocol.read_arguments(request, funcdef.arguments)
+
+            result = func(**kw)
+
+            # TODO make sure result type == a._wsme_definition.return_type
+            res.status = 200
+            res.body = protocol.encode_result(result, funcdef.return_type)
+        except Exception, e:
+            res.status = 500
+            res.body = protocol.encode_error(
+                self._format_exception(sys.exc_info()))
+
+        # Attempt to correctly guess what content-type we should return.
+        res_content_type = None
+
+        last_q = 0
+        if hasattr(request.accept, '_parsed'):
+            for mimetype, q in request.accept._parsed:
+                if mimetype in protocol.content_types and last_q < q:
+                    res_content_type = mimetype
+        else:
+            res_content_type = request.accept.best_match([
+                ct for ct in protocol.content_types if ct])
+
+        # If not we will attempt to convert the body to an accepted
+        # output format.
+        if res_content_type is None:
+            if "text/html" in request.accept:
+                res.body = self._html_format(res.body, protocol.content_types)
+                res_content_type = "text/html"
+
+        # TODO should we consider the encoding asked by
+        # the web browser ?
+        res.headers['Content-Type'] = "%s; charset=UTF-8" % res_content_type
+
+        return res
+
+    def _lookup_function(self, path):
+        a = self
+
+        for name in path:
+            a = getattr(a, name, None)
+            if a is None:
+                break
+
+        if not hasattr(a, '_wsme_definition'):
+            raise exc.UnknownFunction('/'.join(path))
+
+        return a, a._wsme_definition
 
     def _format_exception(self, excinfo):
         """Extract informations that can be sent to the client."""
@@ -126,15 +204,32 @@ class WSRoot(object):
                 r['debuginfo'] = debuginfo
             return r
 
-    def _lookup_function(self, path):
-        a = self
+    def _html_format(self, content, content_types):
+        try:
+            from pygments import highlight
+            from pygments.lexers import get_lexer_for_mimetype
+            from pygments.formatters import HtmlFormatter
 
-        for name in path:
-            a = getattr(a, name, None)
-            if a is None:
-                break
+            lexer = None
+            for ct in content_types:
+                try:
+                    print ct
+                    lexer = get_lexer_for_mimetype(ct)
+                    break
+                except:
+                    pass
 
-        if not hasattr(a, '_wsme_definition'):
-            raise exc.UnknownFunction('/'.join(path))
-
-        return a, a._wsme_definition
+            if lexer is None:
+                raise ValueError("No lexer found")
+            formatter = HtmlFormatter()
+            return html_body % dict(
+                css=formatter.get_style_defs(),
+                content=highlight(content, lexer, formatter).encode('utf8'))
+        except Exception, e:
+            log.warning(
+                "Could not pygment the content because of the following "
+                "error :\n%s" % e)
+            return html_body % dict(
+                css='',
+                content='<pre>%s</pre>' %
+                    content.replace('>', '&gt;').replace('<', '&lt;'))
