@@ -117,8 +117,8 @@ class WSRoot(object):
             r = dict(faultcode="Server",
                      faultstring=str(excinfo[1]))
             if self._debug:
-                r['debuginfo'] = ("Traceback:\n%s\n" %
-                                  "\n".join(traceback.format_exception(*excinfo)))
+                r['debuginfo'] = "Traceback:\n%s\n" % (
+                          "\n".join(traceback.format_exception(*excinfo)))
             return r
 
     def _lookup_function(self, path):
@@ -133,4 +133,3 @@ class WSRoot(object):
             raise exc.UnknownFunction('/'.join(path))
 
         return a, a._wsme_definition
-

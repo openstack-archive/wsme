@@ -56,7 +56,7 @@ def binary_toxml(datatype, key, value):
         el.text = base64.encodestring(value)
     return el
 
-        
+
 class RestXmlProtocol(RestProtocol):
     name = 'REST+XML'
     dataformat = 'xml'

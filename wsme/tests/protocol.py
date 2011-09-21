@@ -14,8 +14,8 @@ import wsme.types
 
 warnings.filterwarnings('ignore', module='webob.dec')
 
-
 binarysample = r'\x00\xff\x43'
+
 
 class CallException(RuntimeError):
     def __init__(self, faultcode, faultstring, debuginfo):
