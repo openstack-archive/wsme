@@ -46,4 +46,3 @@ class UnknownFunction(ClientSideError):
 
     def __unicode__(self):
         return _(u"Unknown function name: %s") % (self.name)
-

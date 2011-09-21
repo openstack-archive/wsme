@@ -90,7 +90,11 @@ def binary_fromjson(datatype, value):
 class RestJsonProtocol(RestProtocol):
     name = 'REST+Json'
     dataformat = 'json'
-    content_types = ['application/json', 'application/javascript', 'text/json', '', None]
+    content_types = [
+        'application/json',
+        'application/javascript',
+        'text/javascript',
+         '']
 
     def decode_arg(self, value, arg):
         return fromjson(arg.datatype, value)
