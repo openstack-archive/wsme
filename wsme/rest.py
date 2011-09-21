@@ -1,14 +1,20 @@
 import webob
 import sys
+import logging
 
 from wsme.exc import UnknownFunction, MissingArgument, UnknownArgument
 
+log = logging.getLogger(__name__)
+
 html_body = """
 <html>
+<head>
+  <style type='text/css'>
+    %(css)s
+  </style>
+</head>
 <body>
-<pre>
 %(content)s
-</pre>
 </body>
 </html>
 """
@@ -36,11 +42,14 @@ class RestProtocol(object):
         if body is None and len(request.params):
             parsed_args = {}
             for key, value in request.params.items():
-                parsed_args[key] = self.parse_arg(value)
+                parsed_args[key] = self.parse_arg(key, value)
         else:
             if body is None:
                 body = request.body
-            parsed_args = self.parse_args(body)
+            if body:
+                parsed_args = self.parse_args(body)
+            else:
+                parsed_args = {}
 
         kw = {}
 
@@ -93,9 +102,37 @@ class RestProtocol(object):
         # output format.
         if res_content_type is None:
             if "text/html" in request.accept:
+                res.body = self.html_format(res.body)
                 res_content_type = "text/html"
-                res.body = html_body % dict(content=res.body)
 
         res.headers['Content-Type'] = "%s; charset=UTF-8" % res_content_type
 
         return res
+
+    def html_format(self, content):
+        try:
+            from pygments import highlight
+            from pygments.lexers import get_lexer_for_mimetype
+            from pygments.formatters import HtmlFormatter
+
+            lexer = None
+            for ct in self.content_types:
+                try:
+                    print ct
+                    lexer = get_lexer_for_mimetype(ct)
+                    break
+                except:
+                    pass
+
+            if lexer is None:
+                raise ValueError("No lexer found")
+            formatter = HtmlFormatter()
+            return html_body % dict(
+                css=formatter.get_style_defs(),
+                content=highlight(content, lexer, formatter).encode('utf8'))
+        except Exception, e:
+            log.warning(
+                "Could not pygment the content because of the following error :\n%s" % e)
+            return html_body % dict(
+                css='',
+                content='<pre>%s</pre>' % content.replace('>', '&gt;').replace('<', '&lt;'))

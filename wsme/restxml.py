@@ -119,8 +119,8 @@ class RestXmlProtocol(RestProtocol):
     def decode_arg(self, value, arg):
         return fromxml(arg.datatype, value)
 
-    def parse_arg(self, value):
-        return et.fromstring(value)
+    def parse_arg(self, name, value):
+        return et.fromstring(u"<%s>%s</%s>" % (name, value, name))
 
     def parse_args(self, body):
         return dict((sub.tag, sub) for sub in et.fromstring(body))
