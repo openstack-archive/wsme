@@ -6,5 +6,6 @@ setup(name='demo',
         'PasteScript',
         'PasteDeploy',
         'WSGIUtils',
+        'Pygments',
     ],
     package=['demo'])

@@ -54,6 +54,8 @@ class FunctionDefinition(object):
         self.name = func.__name__
         self.return_type = None
         self.arguments = []
+        self.protocol_specific = False
+        self.contenttype = None
 
     @classmethod
     def get(cls, func):
@@ -79,6 +81,19 @@ class expose(object):
         fd.return_type = self.return_type
         return func
 
+
+class pexpose(object):
+    def __init__(self, return_type=None, contenttype=None):
+        self.return_type = return_type
+        self.contenttype = contenttype
+        register_type(return_type)
+
+    def __call__(self, func):
+        fd = FunctionDefinition.get(func)
+        fd.return_type = self.return_type
+        fd.protocol_specific = True
+        fd.contenttype = self.contenttype
+        return func
 
 class validate(object):
     def __init__(self, *args, **kw):
@@ -124,40 +139,47 @@ class WSRoot(object):
 
     def _handle_request(self, request):
         res = webob.Response()
+        res_content_type = None
         try:
             protocol = self._select_protocol(request)
             if protocol is None:
                 msg = ("None of the following protocols can handle this "
-                      "request : %s" % ','.join(self.protocols.keys()))
+                       "request : %s" % ','.join(self.protocols.keys()))
                 res.status = 500
                 res.text = msg
                 log.error(msg)
                 return res
             path = protocol.extract_path(request)
             func, funcdef = self._lookup_function(path)
-            kw = protocol.read_arguments(request, funcdef.arguments)
+            kw = protocol.read_arguments(request,
+                funcdef and funcdef.arguments or None)
 
             result = func(**kw)
 
-            # TODO make sure result type == a._wsme_definition.return_type
             res.status = 200
-            res.body = protocol.encode_result(result, funcdef.return_type)
+
+            if funcdef.protocol_specific and funcdef.return_type is None:
+                res.body = result
+            else:
+                # TODO make sure result type == a._wsme_definition.return_type
+                res.body = protocol.encode_result(result, funcdef.return_type)
+            res_content_type = funcdef.contenttype
         except Exception, e:
+            infos = self._format_exception(sys.exc_info())
+            log.error(str(infos))
             res.status = 500
-            res.body = protocol.encode_error(
-                self._format_exception(sys.exc_info()))
+            res.body = protocol.encode_error(infos)
 
-        # Attempt to correctly guess what content-type we should return.
-        res_content_type = None
-
-        last_q = 0
-        if hasattr(request.accept, '_parsed'):
-            for mimetype, q in request.accept._parsed:
-                if mimetype in protocol.content_types and last_q < q:
-                    res_content_type = mimetype
-        else:
-            res_content_type = request.accept.best_match([
-                ct for ct in protocol.content_types if ct])
+        if res_content_type is None:
+            # Attempt to correctly guess what content-type we should return.
+            last_q = 0
+            if hasattr(request.accept, '_parsed'):
+                for mimetype, q in request.accept._parsed:
+                    if mimetype in protocol.content_types and last_q < q:
+                        res_content_type = mimetype
+            else:
+                res_content_type = request.accept.best_match([
+                    ct for ct in protocol.content_types if ct])
 
         # If not we will attempt to convert the body to an accepted
         # output format.
@@ -175,15 +197,27 @@ class WSRoot(object):
     def _lookup_function(self, path):
         a = self
 
+        isprotocol_specific = path[0] == '_protocol'
+        
+        if isprotocol_specific:
+            a = self.protocols[path[1]]
+            path = path[2:]
+
+        print path, a, a.api_wsdl
+
         for name in path:
             a = getattr(a, name, None)
             if a is None:
                 break
 
+        print a
+
         if not hasattr(a, '_wsme_definition'):
             raise exc.UnknownFunction('/'.join(path))
 
-        return a, a._wsme_definition
+        definition = a._wsme_definition
+
+        return a, definition
 
     def _format_exception(self, excinfo):
         """Extract informations that can be sent to the client."""

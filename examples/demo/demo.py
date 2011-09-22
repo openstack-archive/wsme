@@ -16,6 +16,7 @@ from wsme import *
 
 import wsme.restjson
 import wsme.restxml
+import wsme.soap
 
 
 class DemoRoot(WSRoot):
