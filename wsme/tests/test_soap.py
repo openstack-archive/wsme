@@ -64,3 +64,4 @@ class TestSOAP(wsme.tests.protocol.ProtocolTestCase):
         res = self.app.get('/api.wsdl')
         print res.body
         assert 'returntypes' in res.body
+        assert False

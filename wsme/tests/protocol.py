@@ -176,11 +176,11 @@ class WSTestRoot(WSRoot):
     witherrors = WithErrors()
 
     def reset(self):
-        self.touched = False
+        self._touched = False
 
     @expose()
     def touch(self):
-        self.touched = True
+        self._touched = True
 
 
 class ProtocolTestCase(unittest.TestCase):

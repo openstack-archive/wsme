@@ -34,9 +34,11 @@ def scan_api(controller, path=[]):
         if name.startswith('_'):
             continue
         a = getattr(controller, name)
-        if hasattr(a, '_wsme_definition'):
-            yield path, a._wsme_definition
+        if inspect.ismethod(a):
+            if hasattr(a, '_wsme_definition'):
+                yield path, a._wsme_definition
         else:
+            if len(path) > 10: raise ValueError(str(path))
             for i in scan_api(a, path + [name]):
                 yield i
 
@@ -52,6 +54,7 @@ class FunctionArgument(object):
 class FunctionDefinition(object):
     def __init__(self, func):
         self.name = func.__name__
+        self.doc = func.__doc__
         self.return_type = None
         self.arguments = []
         self.protocol_specific = False
@@ -153,6 +156,9 @@ class WSRoot(object):
             func, funcdef = self._lookup_function(path)
             kw = protocol.read_arguments(request,
                 funcdef and funcdef.arguments or None)
+
+            if funcdef.protocol_specific:
+                kw['root'] = self
 
             result = func(**kw)
 

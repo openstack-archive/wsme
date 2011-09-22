@@ -10,10 +10,10 @@ dt_types = [datetime.date, datetime.time, datetime.datetime]
 extra_types = [binary, decimal.Decimal]
 native_types = pod_types + dt_types + extra_types
 
-structured_types = []
+complex_types = []
 
 
-def isstructured(datatype):
+def iscomplex(datatype):
     return hasattr(datatype, '_wsme_attributes')
 
 
@@ -106,7 +106,7 @@ def register_type(class_):
 
     class_._wsme_attributes = inspect_class(class_)
 
-    structured_types.append(weakref.ref(class_))
+    complex_types.append(weakref.ref(class_))
 
 
 def list_attributes(class_):
