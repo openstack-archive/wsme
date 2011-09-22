@@ -1,11 +1,11 @@
-from wsme.controller import register_protocol, pexpose
+import pkg_resources
 
 from xml.etree import ElementTree as et
-
-
+from genshi.template import MarkupTemplate
+from wsme.controller import register_protocol, pexpose
 
 class SoapProtocol(object):
-    name = 'soap'
+    name = 'SOAP'
     content_types = ['application/soap+xml']
 
     ns = {
@@ -16,16 +16,16 @@ class SoapProtocol(object):
         pass
 
     def accept(self, root, req):
-        if req.headers['Content-Type'] in self.content_types:
-            return True
         if req.path.endswith('.wsdl'):
+            return True
+        if req.headers['Content-Type'] in self.content_types:
             return True
         return False
 
     def extract_path(self, request):
         if request.path.endswith('.wsdl'):
             print "Here !!"
-            return ['_protocol', 'soap', 'api_wsdl']
+            return ['_protocol', self.name, 'api_wsdl']
 
     def read_arguments(self, request, arguments):
         if arguments is None:
@@ -57,7 +57,19 @@ class SoapProtocol(object):
 
     @pexpose(contenttype="text/xml")
     def api_wsdl(self):
-        return """<wsdl/>"""
+        tmpl = MarkupTemplate(
+            pkg_resources.resource_string(__name__, 'templates/wsdl.html'))
+        stream = tmpl.generate(
+            tns = 'test',
+            typenamespace = 'tset',
+            soapenc = 'enc',
+            service_name = 'sn',
+            complex_types = [],
+            funclist = [],
+            arrays = [],
+            baseURL = '',
+            )
+        return stream.render('xml')
 
 
 register_protocol(SoapProtocol)

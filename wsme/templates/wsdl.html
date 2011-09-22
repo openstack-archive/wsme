@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<wsdl:definitions name="${service_name}"
+   xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/"
+   xmlns:py="http://genshi.edgewall.org/"
+   xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/"
+   xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+   py:attrs="{'xmlns:tns' : tns, 'xmlns:types' : typenamespace, 'targetNamespace' : tns, 'xmlns:soapenc' : soapenc }">
+   
+   <wsdl:types>
+     <xsd:schema elementFormDefault="qualified"
+          targetNamespace="${typenamespace}">
+          
+        <!-- !Declare all of the complex types (user classes). -->
+        <xsd:complexType py:for="cls in complex_types" 
+          name="${cls.__name__}">
+          <xsd:sequence>
+            <xsd:element py:for="attr in ctvalues(cls)" name="${attr}"
+              type="${soap_type(getattr(cls, attr))}"/>
+          </xsd:sequence>
+        </xsd:complexType>
+        
+        <!-- !Declare the request/response pairs for each function -->
+        <py:for each="func in funclist" py:with="fi=registry[func]._ws_func_info">
+          <xsd:element name="${func}">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element py:for="param in fi.params" name="${param}"
+                type="${soap_type(fi.input_types.get(param, None))}" py:attrs="{'minOccurs':param in fi.optional and '0' or None}"/>
+              </xsd:sequence>
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="${func}Response">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="result"
+                    type="${soap_type(fi.return_type)}"/>
+              </xsd:sequence>
+            </xsd:complexType>
+          </xsd:element>
+        </py:for>
+        
+        <!-- !Declare all of the array types. -->
+        <xsd:complexType py:for="array in arrays" name="${soap_array(array, arrays)}">
+          <xsd:sequence>
+            <xsd:element maxOccurs="unbounded" name="item" nillable="true"
+               type="${soap_type(array)}"/>
+          </xsd:sequence>
+        </xsd:complexType>
+      </xsd:schema>
+   </wsdl:types>
+   
+   <!-- !Declare the request and response messages used for each func. -->
+   <py:for each="func in funclist">
+   <wsdl:message name="${func}Request" py:attrs="{'xmlns':typenamespace}">
+       <wsdl:part name="parameters" element="types:${func}"/>
+   </wsdl:message>
+ 
+   <wsdl:message name="${func}Response" py:attrs="{'xmlns':typenamespace}">
+      <wsdl:part name="parameters" element="types:${func}Response"/>
+   </wsdl:message>
+   </py:for>
+   
+   <!-- !Define the PortType for the service and all of the operations
+     (functions) declared in the service. -->
+   <wsdl:portType name="${service_name}_PortType">
+      <wsdl:operation py:for="func in funclist" name="${func}" py:with="funcdoc=registry[func].__doc__">
+        <wsdl:documentation py:if="funcdoc">${funcdoc}</wsdl:documentation>
+         <wsdl:input message="tns:${func}Request"/>
+         <wsdl:output message="tns:${func}Response"/>
+      </wsdl:operation>
+   </wsdl:portType>
+   
+   <!-- !Declare our service as a document/literal style service with http
+     transport. -->
+   <wsdl:binding name="${service_name}_Binding" type="tns:${service_name}_PortType">
+      <soap:binding style="document" 
+         transport="http://schemas.xmlsoap.org/soap/http"/>
+      <wsdl:operation py:for="func in funclist" name="${func}">
+         <soap:operation soapAction="${func}"/>
+         <wsdl:input>
+            <soap:body use="literal"/>
+         </wsdl:input>
+         <wsdl:output>
+            <soap:body use="literal"/>
+         </wsdl:output>
+      </wsdl:operation>
+   </wsdl:binding>
+   
+   <!-- !Define our service's location. -->
+   <wsdl:service name="${service_name}">
+      <wsdl:documentation>WSDL File for ${service_name}</wsdl:documentation>
+      <wsdl:port binding="tns:${service_name}_Binding" name="${service_name}_PortType">
+         <soap:address 
+            location="${baseURL}soap/"/>
+      </wsdl:port>
+   </wsdl:service>
+</wsdl:definitions>
