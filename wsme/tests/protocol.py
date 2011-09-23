@@ -261,22 +261,22 @@ class ProtocolTestCase(unittest.TestCase):
         assert self.call('argtypes/setint', value=3) in (3, '3')
 
     def test_setfloat(self):
-        return self.call('argtypes/setfloat', value=3.54) in (3.54, '3.54')
+        assert self.call('argtypes/setfloat', value=3.54) in (3.54, '3.54')
 
     def test_setdecimal(self):
-        return self.call('argtypes/setdecimal', value='3.14') in (
+        assert self.call('argtypes/setdecimal', value='3.14') in (
                 '3.14', decimal.Decimal('3.14'))
 
     def test_setdate(self):
-        return self.call('argtypes/setdate', value='2008-04-06') in (
+        assert self.call('argtypes/setdate', value='2008-04-06') in (
                 datetime.date(2008, 4, 6), '2008-04-06')
 
     def test_settime(self):
-        return self.call('argtypes/settime', value='12:12:15') \
+        assert self.call('argtypes/settime', value='12:12:15') \
                 in ('12:12:15', datetime.time(12, 12, 15))
 
     def test_setdatetime(self):
-        return self.call('argtypes/setdatetime', value='2008-04-06T12:12:15') \
+        assert self.call('argtypes/setdatetime', value='2008-04-06T12:12:15') \
                 in ('2008-04-06T12:12:15',
                     datetime.datetime(2008, 4, 6, 12, 12, 15))
 
@@ -286,7 +286,7 @@ class ProtocolTestCase(unittest.TestCase):
         assert r == binarysample or r == base64.encodestring(binarysample), r
 
     def test_setnested(self):
-        return self.call('argtypes/setnested',
+        assert self.call('argtypes/setnested',
             value={'inner': {'aint': 54}}) in (
                 {'inner': {'aint': 54}},
                 {'inner': {'aint': '54'}},
