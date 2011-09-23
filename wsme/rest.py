@@ -15,7 +15,7 @@ class RestProtocol(object):
             return True
         return request.headers.get('Content-Type') in self.content_types
 
-    def read_arguments(self, request, arguments):
+    def read_arguments(self, request, funcdef):
         if len(request.params) and request.body:
             raise ClientSideError(
                 "Cannot read parameters from both a body and GET/POST params")
@@ -38,7 +38,7 @@ class RestProtocol(object):
 
         kw = {}
 
-        for arg in arguments:
+        for arg in funcdef.arguments:
             if arg.name not in parsed_args:
                 if arg.mandatory:
                     raise MissingArgument(arg.name)

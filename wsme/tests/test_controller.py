@@ -94,8 +94,8 @@ class TestController(unittest.TestCase):
 
         api = [i for i in scan_api(r)]
         assert len(api) == 1
-        assert api[0][0] == ['ns']
-        fd = api[0][1]
+        fd = api[0]
+        assert fd.path == ['ns']
         assert fd.name == 'multiply'
 
     def test_handle_request(self):
