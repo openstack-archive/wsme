@@ -154,8 +154,7 @@ class WSRoot(object):
                 return res
             path = protocol.extract_path(request)
             func, funcdef = self._lookup_function(path)
-            kw = protocol.read_arguments(request,
-                funcdef and funcdef.arguments or None)
+            kw = protocol.read_arguments(request, funcdef.arguments)
 
             if funcdef.protocol_specific:
                 kw['root'] = self
@@ -209,14 +208,10 @@ class WSRoot(object):
             a = self.protocols[path[1]]
             path = path[2:]
 
-        print path, a, a.api_wsdl
-
         for name in path:
             a = getattr(a, name, None)
             if a is None:
                 break
-
-        print a
 
         if not hasattr(a, '_wsme_definition'):
             raise exc.UnknownFunction('/'.join(path))

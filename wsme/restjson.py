@@ -16,7 +16,7 @@ except ImportError:
 
 @generic
 def tojson(datatype, value):
-    if wsme.types.isstructured(datatype):
+    if wsme.types.iscomplex(datatype):
         d = dict()
         for name, attr in wsme.types.list_attributes(datatype):
             d[name] = tojson(attr.datatype, getattr(value, name))
@@ -53,7 +53,7 @@ def datetime_tojson(datatype, value):
 def fromjson(datatype, value):
     if value is None:
         return None
-    if wsme.types.isstructured(datatype):
+    if wsme.types.iscomplex(datatype):
         obj = datatype()
         for name, attrdef in wsme.types.list_attributes(datatype):
             if name in value:

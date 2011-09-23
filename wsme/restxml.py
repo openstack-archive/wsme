@@ -24,7 +24,7 @@ def toxml(datatype, key, value):
     if value is None:
         el.set('nil', 'true')
     else:
-        if wsme.types.isstructured(datatype):
+        if wsme.types.iscomplex(datatype):
             for key, attrdef in datatype._wsme_attributes:
                 el.append(toxml(attrdef.datatype, key, getattr(value, key)))
         else:
@@ -36,7 +36,7 @@ def toxml(datatype, key, value):
 def fromxml(datatype, element):
     if element.get('nil', False):
         return None
-    if wsme.types.isstructured(datatype):
+    if wsme.types.iscomplex(datatype):
         obj = datatype()
         for key, attrdef in datatype._wsme_attributes:
             sub = element.find(key)
