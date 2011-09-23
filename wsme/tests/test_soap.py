@@ -11,6 +11,24 @@ except:
 import wsme.soap
 
 
+def build_soap_message(method, params=""):
+    message = """<?xml version="1.0"?>
+<soap:Envelope
+xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/"
+xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+soap:encodingStyle="http://schemas.xmlsoap.org/soap/encoding/">
+
+  <soap:Body xmlns="http://foo.bar.baz/soap/">
+    <%(method)s>
+        %(params)s
+    </%(method)s>
+  </soap:Body>
+
+</soap:Envelope>
+""" % dict(method=method, params=params)
+    return message
+
+
 def dumpxml(key, obj):
     el = et.Element(key)
     if isinstance(obj, basestring):
@@ -38,7 +56,19 @@ def loadxml(el):
 class TestSOAP(wsme.tests.protocol.ProtocolTestCase):
     protocol = 'SOAP'
 
+    def test_simple_call(self):
+        message = build_soap_message('Touch')
+        print message
+        res = self.app.post('/', message,
+            headers={
+                "Content-Type": "application/soap+xml; charset=utf-8"
+        }, expect_errors=True)
+        print res.body
+        assert res.status.startswith('200')
+
     def call(self, fpath, **kw):
+        # get the actual definition so we can build the adequate request
+        
         el = dumpxml('parameters', kw)
         content = et.tostring(el)
         res = self.app.post(
@@ -63,5 +93,4 @@ class TestSOAP(wsme.tests.protocol.ProtocolTestCase):
     def test_wsdl(self):
         res = self.app.get('/api.wsdl')
         print res.body
-        assert 'returntypes' in res.body
-        assert False
+        assert 'ReturntypesGetunicode' in res.body

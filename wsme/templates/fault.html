@@ -1,0 +1,14 @@
+<soapenv:Envelope
+    xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/"
+    xmlns:py="http://genshi.edgewall.org/"
+    py:attrs="{'xmlns' : typenamespace}">
+    <soapenv:Body>
+        <soapenv:Fault>
+            <faultcode>${faultcode}</faultcode>
+            <faultstring>${faultstring}</faultstring>
+            <detail py:if="debuginfo is not None">${debuginfo}</detail>
+        </soapenv:Fault>
+    </soapenv:Body>
+</soapenv:Envelope>

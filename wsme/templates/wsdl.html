@@ -22,8 +22,8 @@
         </xsd:complexType>
         
         <!-- !Declare the request/response pairs for each function -->
-        <py:for each="path, funcdef  in funclist">
-          <xsd:element name="${funcdef.name}">
+        <py:for each="funcdef  in funclist">
+          <xsd:element name="${soap_fname(funcdef)}">
             <xsd:complexType>
               <xsd:sequence>
                 <xsd:element py:for="farg in funcdef.arguments"
@@ -33,7 +33,7 @@
               </xsd:sequence>
             </xsd:complexType>
           </xsd:element>
-          <xsd:element name="${funcdef.name}Response">
+          <xsd:element name="${soap_fname(funcdef)}Response">
             <xsd:complexType>
               <xsd:sequence>
                 <xsd:element name="result"
@@ -54,23 +54,23 @@
    </wsdl:types>
    
    <!-- !Declare the request and response messages used for each func. -->
-   <py:for each="path, funcdef in funclist">
-   <wsdl:message name="${funcdef.name}Request" py:attrs="{'xmlns':typenamespace}">
-       <wsdl:part name="parameters" element="types:${funcdef.name}"/>
+   <py:for each="funcdef in funclist">
+   <wsdl:message name="${soap_fname(funcdef)}Request" py:attrs="{'xmlns':typenamespace}">
+       <wsdl:part name="parameters" element="types:${soap_fname(funcdef)}"/>
    </wsdl:message>
  
-   <wsdl:message name="${funcdef.name}Response" py:attrs="{'xmlns':typenamespace}">
-      <wsdl:part name="parameters" element="types:${funcdef.name}Response"/>
+   <wsdl:message name="${soap_fname(funcdef)}Response" py:attrs="{'xmlns':typenamespace}">
+      <wsdl:part name="parameters" element="types:${soap_fname(funcdef)}Response"/>
    </wsdl:message>
    </py:for>
    
    <!-- !Define the PortType for the service and all of the operations
      (functions) declared in the service. -->
    <wsdl:portType name="${service_name}_PortType">
-      <wsdl:operation py:for="path, funcdef in funclist" name="${funcdef.name}">
+      <wsdl:operation py:for="funcdef in funclist" name="${soap_fname(funcdef)}">
         <wsdl:documentation py:if="funcdef.doc">${funcdef.doc}</wsdl:documentation>
-         <wsdl:input message="tns:${funcdef.name}Request"/>
-         <wsdl:output message="tns:${funcdef.name}Response"/>
+         <wsdl:input message="tns:${soap_fname(funcdef)}Request"/>
+         <wsdl:output message="tns:${soap_fname(funcdef)}Response"/>
       </wsdl:operation>
    </wsdl:portType>
    
@@ -79,8 +79,8 @@
    <wsdl:binding name="${service_name}_Binding" type="tns:${service_name}_PortType">
       <soap:binding style="document" 
          transport="http://schemas.xmlsoap.org/soap/http"/>
-      <wsdl:operation py:for="path, funcdef in funclist" name="${funcdef.name}">
-         <soap:operation soapAction="${funcdef.name}"/>
+      <wsdl:operation py:for="funcdef in funclist" name="${soap_fname(funcdef)}">
+         <soap:operation soapAction="${soap_fname(funcdef)}"/>
          <wsdl:input>
             <soap:body use="literal"/>
          </wsdl:input>

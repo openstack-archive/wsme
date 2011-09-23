@@ -36,9 +36,11 @@ def scan_api(controller, path=[]):
         a = getattr(controller, name)
         if inspect.ismethod(a):
             if hasattr(a, '_wsme_definition'):
-                yield path, a._wsme_definition
+                a._wsme_definition.path = path
+                yield a._wsme_definition
         else:
-            if len(path) > 10: raise ValueError(str(path))
+            if len(path) > 10:
+                raise ValueError(str(path))
             for i in scan_api(a, path + [name]):
                 yield i
 
@@ -59,6 +61,7 @@ class FunctionDefinition(object):
         self.arguments = []
         self.protocol_specific = False
         self.contenttype = None
+        self.path = None
 
     @classmethod
     def get(cls, func):
@@ -98,6 +101,7 @@ class pexpose(object):
         fd.contenttype = self.contenttype
         return func
 
+
 class validate(object):
     def __init__(self, *args, **kw):
         self.param_types = args
@@ -129,6 +133,13 @@ class WSRoot(object):
                 protocol = registered_protocols[protocol]()
             self.protocols[protocol.name] = protocol
 
+        self._api = None
+
+    def getapi(self):
+        if self._api is None:
+            self._api = [i for i in scan_api(self)]
+        return self._api
+
     def _select_protocol(self, request):
         protocol = None
         if 'wsmeproto' in request.params:
@@ -154,7 +165,7 @@ class WSRoot(object):
                 return res
             path = protocol.extract_path(request)
             func, funcdef = self._lookup_function(path)
-            kw = protocol.read_arguments(request, funcdef.arguments)
+            kw = protocol.read_arguments(request, funcdef)
 
             if funcdef.protocol_specific:
                 kw['root'] = self
@@ -167,7 +178,7 @@ class WSRoot(object):
                 res.body = result
             else:
                 # TODO make sure result type == a._wsme_definition.return_type
-                res.body = protocol.encode_result(result, funcdef.return_type)
+                res.body = protocol.encode_result(result, funcdef)
             res_content_type = funcdef.contenttype
         except Exception, e:
             infos = self._format_exception(sys.exc_info())
@@ -203,7 +214,7 @@ class WSRoot(object):
         a = self
 
         isprotocol_specific = path[0] == '_protocol'
-        
+
         if isprotocol_specific:
             a = self.protocols[path[1]]
             path = path[2:]
