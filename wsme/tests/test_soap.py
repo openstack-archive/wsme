@@ -18,7 +18,12 @@ typenamespace = "http://foo.bar.baz/types/"
 soapenv_ns = 'http://schemas.xmlsoap.org/soap/envelope/'
 xsi_ns = 'http://www.w3.org/2001/XMLSchema-instance'
 body_qn = '{%s}Body' % soapenv_ns
+fault_qn = '{%s}Fault' % soapenv_ns
+faultcode_qn = '{%s}faultcode' % soapenv_ns
+faultstring_qn = '{%s}faultstring' % soapenv_ns
+faultdetail_qn = '{%s}detail' % soapenv_ns
 type_qn = '{%s}type' % xsi_ns
+nil_qn = '{%s}nil' % xsi_ns
 
 def build_soap_message(method, params=""):
     message = """<?xml version="1.0"?>
@@ -80,6 +85,8 @@ soap_types = {
 }
 
 def fromsoap(el):
+    if el.get(nil_qn) == 'true':
+        return None
     t = el.get(type_qn)
     print t
     if t in soap_types:
@@ -120,7 +127,7 @@ class TestSOAP(wsme.tests.protocol.ProtocolTestCase):
             headers={
                 "Content-Type": "application/soap+xml; charset=utf-8"
         }, expect_errors=True)
-        print "Received:", res.body
+        print "Status: ", res.status, "Received:", res.body
 
         el = et.fromstring(res.body)
         body = el.find(body_qn)
@@ -129,15 +136,22 @@ class TestSOAP(wsme.tests.protocol.ProtocolTestCase):
         if res.status_int == 200:
             r = body.find('{%s}%sResponse' % (typenamespace, methodname))
             result = r.find('{%s}result' % typenamespace)
-            print result
+            print "Result element: ", result
             return fromsoap(result)
         elif res.status_int == 400:
-            pass
+            fault = body.find(fault_qn)
+            raise wsme.tests.protocol.CallException(
+                    fault.find(faultcode_qn).text,
+                    fault.find(faultstring_qn).text,
+                    "")
+            
         elif res.status_int == 500:
-            pass
+            fault = body.find(fault_qn)
+            raise wsme.tests.protocol.CallException(
+                    fault.find('faultcode').text,
+                    fault.find('faultstring').text,
+                    fault.find('detail').text)
         
-        
-
 
         if el.tag == 'error':
             raise wsme.tests.protocol.CallException(

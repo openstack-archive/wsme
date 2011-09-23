@@ -23,6 +23,7 @@ import wsme.types
 type_registry = {
     basestring: 'xsd:string',
     str: 'xsd:string',
+    unicode: 'xsd:string',
     int: 'xsd:int',
     long: "xsd:long",
     float: "xsd:float",

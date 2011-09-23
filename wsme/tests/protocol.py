@@ -208,7 +208,8 @@ class ProtocolTestCase(unittest.TestCase):
             assert e.faultstring == u'integer division or modulo by zero'
 
     def test_touch(self):
-        assert self.call('touch') is None
+        r = self.call('touch')
+        assert r is None, r 
 
     def test_return_str(self):
         r = self.call('returntypes/getstr')
