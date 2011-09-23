@@ -20,6 +20,11 @@ from genshi.template import MarkupTemplate
 from wsme.controller import register_protocol, pexpose
 import wsme.types
 
+
+xsi_ns = 'http://www.w3.org/2001/XMLSchema-instance'
+type_qn = '{%s}type' % xsi_ns
+
+
 type_registry = {
     basestring: 'xsd:string',
     str: 'xsd:string',
@@ -71,6 +76,19 @@ def binary_tosoap(datatype, tag, value):
 @tosoap.when_object(None)
 def None_tosoap(datatype, tag, value):
     return make_soap_element(datatype, tag, None)
+
+
+@generic
+def fromsoap(datatype, element):
+    return None
+
+@fromsoap.when_object(int)
+def int_fromsoap(datatype, el):
+    if el.get(nil_qn) == 'true':
+        return None
+    if el.get(type_qn) != 'xsi:int':
+        raise exc.InvalidInput(el.tag, str(el))
+    return int(el.text)
 
 class SoapProtocol(object):
     name = 'SOAP'
