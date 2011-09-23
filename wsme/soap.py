@@ -6,10 +6,16 @@ Parts of the code were taken from the tgwebservices soap implmentation.
 import pkg_resources
 import datetime
 import decimal
+import base64
 
 from simplegeneric import generic
 
-from xml.etree import ElementTree as et
+try:
+    from xml.etree import cElementTree as et
+except ImportError:
+    import cElementTree as et
+
+from genshi.builder import tag, Element, Namespace
 from genshi.template import MarkupTemplate
 from wsme.controller import register_protocol, pexpose
 import wsme.types
@@ -31,12 +37,16 @@ type_registry = {
 
 
 def make_soap_element(datatype, tag, value):
-    el = et.Element(tag)
+    el = Element(tag)
     if value is None:
-        el.set('xsi:nil', 'true')
+        el(**{'xsi:nil': 'true'})
+    elif wsme.types.iscomplex(datatype):
+        el(**{'xsi:type': datatype.__name__})
+        for name, attrdef in wsme.types.list_attributes(datatype):
+            el.append(
+                tosoap(attrdef.datatype, name, getattr(value, name)))
     else:
-        el.set('xsi:type', type_registry.get(datatype))
-        el.text = str(value)
+        el(value, **{'xsi:type': type_registry.get(datatype)})
     return el
 
 
@@ -45,6 +55,17 @@ def tosoap(datatype, tag, value):
     """Converts a value into xml Element objects for inclusion in the SOAP
     response output"""
     return make_soap_element(datatype, tag, value)
+
+@tosoap.when_object(datetime.datetime)
+def datetime_tosoap(datatype, tag, value):
+    return make_soap_element(datatype, tag,
+        value is not None and value.isoformat() or None)
+
+@tosoap.when_object(wsme.types.binary)
+def binary_tosoap(datatype, tag, value):
+    return make_soap_element(datatype, tag,
+        value is not None and base64.encodestring(value)
+        or None)
 
 @tosoap.when_object(None)
 def None_tosoap(datatype, tag, value):
@@ -94,8 +115,9 @@ class SoapProtocol(object):
         body = el.find('{%(soapenv)s}Body' % self.ns)
         # Extract the service name from the tns
         fname = list(body)[0].tag
-        if fname.startswith('{%s}' % self.tns):
-            fname = fname[len(self.tns)+2:]
+        if fname.startswith('{%s}' % self.typenamespace):
+            fname = fname[len(self.typenamespace)+2:]
+            print fname
             return self.get_name_mapping()[fname]
         return None
 
@@ -103,9 +125,9 @@ class SoapProtocol(object):
         return {}
 
     def soap_response(self, funcdef, result):
-        r = et.Element('{' + self.tns + '}' + self.soap_fname(funcdef) + 'Response')
+        r = Element(self.soap_fname(funcdef) + 'Response')
         r.append(tosoap(funcdef.return_type, 'result', result))
-        return et.tostring(r)
+        return r
 
     def encode_result(self, funcdef, result):
         envelope = self.render_template('soap',

@@ -184,7 +184,6 @@ class WSRoot(object):
             res_content_type = funcdef.contenttype
         except Exception, e:
             infos = self._format_exception(sys.exc_info())
-            log.error(str(infos))
             if isinstance(e, exc.ClientSideError):
                 res.status = 400
             else:

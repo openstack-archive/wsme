@@ -1,5 +1,6 @@
 import decimal
 import datetime
+import base64
 
 import wsme.tests.protocol
 
@@ -9,11 +10,15 @@ except:
     import cElementTree as et
 
 import wsme.soap
+import wsme.utils
 
 tns = "http://foo.bar.baz/soap/"
+typenamespace = "http://foo.bar.baz/types/"
 
 soapenv_ns = 'http://schemas.xmlsoap.org/soap/envelope/'
+xsi_ns = 'http://www.w3.org/2001/XMLSchema-instance'
 body_qn = '{%s}Body' % soapenv_ns
+type_qn = '{%s}type' % xsi_ns
 
 def build_soap_message(method, params=""):
     message = """<?xml version="1.0"?>
@@ -22,14 +27,16 @@ xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/"
 xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 soap:encodingStyle="http://schemas.xmlsoap.org/soap/encoding/">
 
-  <soap:Body xmlns="%(tns)s">
+  <soap:Body xmlns="%(typenamespace)s">
     <%(method)s>
         %(params)s
     </%(method)s>
   </soap:Body>
 
 </soap:Envelope>
-""" % dict(method=method, params=params, tns=tns)
+""" % dict(method=method,
+            params=params,
+            typenamespace=typenamespace)
     return message
 
 
@@ -56,20 +63,42 @@ def loadxml(el):
     else:
         return el.text
 
+def read_bool(value):
+    return value == 'true'
 
 soap_types = {
-    'xsi:int': int
+    'xsd:string': unicode,
+    'xsd:int': int,
+    'xsd:long': long,
+    'xsd:float': float,
+    'xsd:decimal': decimal.Decimal,
+    'xsd:boolean': read_bool,
+    'xsd:date': wsme.utils.parse_isodate,
+    'xsd:time': wsme.utils.parse_isotime,
+    'xsd:dateTime': wsme.utils.parse_isodatetime,
+    'xsd:base64Binary': base64.decodestring,
 }
 
 def fromsoap(el):
-    t = el.get('type')
+    t = el.get(type_qn)
+    print t
     if t in soap_types:
+        print t, el.text
         return soap_types[t](el.text)
-    return None
+    else:
+        d = {}
+        for child in el:
+            name = child.tag
+            assert name.startswith('{%s}' % typenamespace)
+            name = name[len(typenamespace)+2:]
+            d[name] = fromsoap(child)
+        print d
+        return d
 
 
 class TestSOAP(wsme.tests.protocol.ProtocolTestCase):
-    protocol = wsme.soap.SoapProtocol(tns=tns)
+    protocol = wsme.soap.SoapProtocol(
+        tns=tns, typenamespace=typenamespace)
 
     def test_simple_call(self):
         message = build_soap_message('Touch')
@@ -98,8 +127,9 @@ class TestSOAP(wsme.tests.protocol.ProtocolTestCase):
         print body
         
         if res.status_int == 200:
-            r = body.find('{%s}%sResponse' % (tns, methodname))
-            result = r.find('{%s}result' % tns)
+            r = body.find('{%s}%sResponse' % (typenamespace, methodname))
+            result = r.find('{%s}result' % typenamespace)
+            print result
             return fromsoap(result)
         elif res.status_int == 400:
             pass
