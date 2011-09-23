@@ -10,6 +10,10 @@ except:
 
 import wsme.soap
 
+tns = "http://foo.bar.baz/soap/"
+
+soapenv_ns = 'http://schemas.xmlsoap.org/soap/envelope/'
+body_qn = '{%s}Body' % soapenv_ns
 
 def build_soap_message(method, params=""):
     message = """<?xml version="1.0"?>
@@ -18,14 +22,14 @@ xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/"
 xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 soap:encodingStyle="http://schemas.xmlsoap.org/soap/encoding/">
 
-  <soap:Body xmlns="http://foo.bar.baz/soap/">
+  <soap:Body xmlns="%(tns)s">
     <%(method)s>
         %(params)s
     </%(method)s>
   </soap:Body>
 
 </soap:Envelope>
-""" % dict(method=method, params=params)
+""" % dict(method=method, params=params, tns=tns)
     return message
 
 
@@ -53,8 +57,19 @@ def loadxml(el):
         return el.text
 
 
+soap_types = {
+    'xsi:int': int
+}
+
+def fromsoap(el):
+    t = el.get('type')
+    if t in soap_types:
+        return soap_types[t](el.text)
+    return None
+
+
 class TestSOAP(wsme.tests.protocol.ProtocolTestCase):
-    protocol = 'SOAP'
+    protocol = wsme.soap.SoapProtocol(tns=tns)
 
     def test_simple_call(self):
         message = build_soap_message('Touch')
@@ -67,19 +82,33 @@ class TestSOAP(wsme.tests.protocol.ProtocolTestCase):
         assert res.status.startswith('200')
 
     def call(self, fpath, **kw):
+        path = fpath.strip('/').split('/')
         # get the actual definition so we can build the adequate request
-        
-        el = dumpxml('parameters', kw)
-        content = et.tostring(el)
-        res = self.app.post(
-            '/' + fpath,
-            content,
+        params = ""
+        methodname = ''.join((i.capitalize() for i in path))
+        message = build_soap_message(methodname, params)
+        res = self.app.post('/', message,
             headers={
-                'Content-Type': 'text/xml',
-            },
-            expect_errors=True)
+                "Content-Type": "application/soap+xml; charset=utf-8"
+        }, expect_errors=True)
         print "Received:", res.body
+
         el = et.fromstring(res.body)
+        body = el.find(body_qn)
+        print body
+        
+        if res.status_int == 200:
+            r = body.find('{%s}%sResponse' % (tns, methodname))
+            result = r.find('{%s}result' % tns)
+            return fromsoap(result)
+        elif res.status_int == 400:
+            pass
+        elif res.status_int == 500:
+            pass
+        
+        
+
+
         if el.tag == 'error':
             raise wsme.tests.protocol.CallException(
                     el.find('faultcode').text,

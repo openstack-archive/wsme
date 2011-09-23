@@ -125,7 +125,7 @@ class RestXmlProtocol(RestProtocol):
     def parse_args(self, body):
         return dict((sub.tag, sub) for sub in et.fromstring(body))
 
-    def encode_result(self, result, funcdef):
+    def encode_result(self, funcdef, result):
         return et.tostring(toxml(funcdef.return_type, 'result', result))
 
     def encode_error(self, errordetail):

@@ -1,21 +1,63 @@
+"""
+A SOAP implementation for wsme.
+Parts of the code were taken from the tgwebservices soap implmentation.
+"""
+
 import pkg_resources
+import datetime
+import decimal
+
+from simplegeneric import generic
 
 from xml.etree import ElementTree as et
 from genshi.template import MarkupTemplate
 from wsme.controller import register_protocol, pexpose
 import wsme.types
 
-nativetypes = {
+type_registry = {
+    basestring: 'xsd:string',
     str: 'xsd:string',
     int: 'xsd:int',
+    long: "xsd:long",
+    float: "xsd:float",
+    bool: "xsd:boolean",
+    #unsigned: "xsd:unsignedInt",
+    datetime.datetime: "xsd:dateTime",
+    datetime.date: "xsd:date",
+    datetime.time: "xsd:time",
+    decimal.Decimal: "xsd:decimal",
+    wsme.types.binary: "xsd:base64Binary",
 }
+
+
+def make_soap_element(datatype, tag, value):
+    el = et.Element(tag)
+    if value is None:
+        el.set('xsi:nil', 'true')
+    else:
+        el.set('xsi:type', type_registry.get(datatype))
+        el.text = str(value)
+    return el
+
+
+@generic
+def tosoap(datatype, tag, value):
+    """Converts a value into xml Element objects for inclusion in the SOAP
+    response output"""
+    return make_soap_element(datatype, tag, value)
+
+@tosoap.when_object(None)
+def None_tosoap(datatype, tag, value):
+    return make_soap_element(datatype, tag, None)
 
 class SoapProtocol(object):
     name = 'SOAP'
     content_types = ['application/soap+xml']
 
     ns = {
-        "soap": "http://www.w3.org/2001/12/soap-envelope"
+        "soap": "http://www.w3.org/2001/12/soap-envelope",
+        "soapenv": "http://schemas.xmlsoap.org/soap/envelope/",
+        "soapenc": "http://schemas.xmlsoap.org/soap/encoding/",
     }
 
     def __init__(self, tns=None,
@@ -25,8 +67,19 @@ class SoapProtocol(object):
         self.tns = tns
         self.typenamespace = typenamespace
         self.servicename = 'MyApp'
+        self._name_mapping = {}
 
-    def accept(self, root, req):
+    def get_name_mapping(self, service=None):
+        if service not in self._name_mapping:
+            self._name_mapping[service] = dict(
+                (self.soap_fname(f), f.path + [f.name])
+                for f in self.root.getapi() if service is None or (f.path and f.path[0] == service)
+            )
+            print self._name_mapping
+        return self._name_mapping[service]
+
+
+    def accept(self, req):
         if req.path.endswith('.wsdl'):
             return True
         for ct in self.content_types:
@@ -36,20 +89,30 @@ class SoapProtocol(object):
 
     def extract_path(self, request):
         if request.path.endswith('.wsdl'):
-            print "Here !!"
             return ['_protocol', self.name, 'api_wsdl']
         el = et.fromstring(request.body)
-        body = el.find('{http://schemas.xmlsoap.org/soap/envelope/}Body')
+        body = el.find('{%(soapenv)s}Body' % self.ns)
+        # Extract the service name from the tns
         fname = list(body)[0].tag
-        print fname
-        return [fname]
+        if fname.startswith('{%s}' % self.tns):
+            fname = fname[len(self.tns)+2:]
+            return self.get_name_mapping()[fname]
+        return None
 
-    def read_arguments(self, request, funcdef):
+    def read_arguments(self, funcdef, request):
         return {}
 
-    def encode_result(self, result, funcdef):
-        envelope = self.render_template('soap')
-        print envelope
+    def soap_response(self, funcdef, result):
+        r = et.Element('{' + self.tns + '}' + self.soap_fname(funcdef) + 'Response')
+        r.append(tosoap(funcdef.return_type, 'result', result))
+        return et.tostring(r)
+
+    def encode_result(self, funcdef, result):
+        envelope = self.render_template('soap',
+                typenamespace=self.typenamespace,
+                result=result,
+                funcdef=funcdef,
+                soap_response=self.soap_response)
         return envelope
 
     def get_template(self, name):
@@ -67,7 +130,7 @@ class SoapProtocol(object):
             **infos)
         
     @pexpose(contenttype="text/xml")
-    def api_wsdl(self, root, service=None):
+    def api_wsdl(self, service=None):
         if service is None:
             servicename = self.servicename
         else:
@@ -75,10 +138,10 @@ class SoapProtocol(object):
         return self.render_template('wsdl',
             tns = self.tns,
             typenamespace = self.typenamespace,
-            soapenc = 'http://schemas.xmlsoap.org/soap/encoding/',
+            soapenc = self.ns['soapenc'],
             service_name = servicename,
             complex_types = (t() for t in wsme.types.complex_types),
-            funclist = root.getapi(),
+            funclist = self.root.getapi(),
             arrays = [],
             list_attributes = wsme.types.list_attributes,
             baseURL = service,
@@ -87,8 +150,8 @@ class SoapProtocol(object):
         )
 
     def soap_type(self, datatype):
-        if datatype in nativetypes:
-            return nativetypes[datatype]
+        if datatype in type_registry:
+            return type_registry[datatype]
         if wsme.types.iscomplex(datatype):
             return "types:%s" % datatype.__name__
 

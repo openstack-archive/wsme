@@ -10,12 +10,12 @@ class RestProtocol(object):
     dataformat = None
     content_types = []
 
-    def accept(self, root, request):
+    def accept(self, request):
         if request.path.endswith('.' + self.dataformat):
             return True
         return request.headers.get('Content-Type') in self.content_types
 
-    def read_arguments(self, request, funcdef):
+    def read_arguments(self, funcdef, request):
         if len(request.params) and request.body:
             raise ClientSideError(
                 "Cannot read parameters from both a body and GET/POST params")

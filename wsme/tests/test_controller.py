@@ -14,18 +14,18 @@ class DummyProtocol(object):
     def __init__(self):
         self.hits = 0
 
-    def accept(self, root, req):
+    def accept(self, req):
         return True
 
     def extract_path(self, request):
         return ['touch']
 
-    def read_arguments(self, request, arguments):
+    def read_arguments(self, funcdef, request):
         self.lastreq = request
         self.hits += 1
         return {}
 
-    def encode_result(self, result, return_type):
+    def encode_result(self, funcdef, result):
         return str(result)
 
     def encode_error(self, infos):

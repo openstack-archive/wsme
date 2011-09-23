@@ -5,6 +5,6 @@
     xmlns:py="http://genshi.edgewall.org/"
     py:attrs="{'xmlns' : typenamespace}">
     <soapenv:Body>
-        ${soap_body(methodname, function_info, output)}
+        ${Markup(soap_response(funcdef, result))}
     </soapenv:Body>
 </soapenv:Envelope>

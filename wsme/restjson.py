@@ -106,7 +106,7 @@ class RestJsonProtocol(RestProtocol):
         raw_args = json.loads(body)
         return raw_args
 
-    def encode_result(self, result, funcdef):
+    def encode_result(self, funcdef, result):
         r = tojson(funcdef.return_type, result)
         return json.dumps({'result': r}, ensure_ascii=False).encode('utf8')
 

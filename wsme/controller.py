@@ -132,6 +132,7 @@ class WSRoot(object):
             if isinstance(protocol, str):
                 protocol = registered_protocols[protocol]()
             self.protocols[protocol.name] = protocol
+            protocol.root = weakref.proxy(self)
 
         self._api = None
 
@@ -146,7 +147,7 @@ class WSRoot(object):
             protocol = self.protocols[request.params['wsmeproto']]
         else:
             for p in self.protocols.values():
-                if p.accept(self, request):
+                if p.accept(request):
                     protocol = p
                     break
         return protocol
@@ -164,11 +165,12 @@ class WSRoot(object):
                 log.error(msg)
                 return res
             path = protocol.extract_path(request)
+            if path is None:
+                raise exc.ClientSideError(
+                    u'The %s protocol was unable to extract a function '
+                    u'path from the request' % protocol.name)
             func, funcdef = self._lookup_function(path)
-            kw = protocol.read_arguments(request, funcdef)
-
-            if funcdef.protocol_specific:
-                kw['root'] = self
+            kw = protocol.read_arguments(funcdef, request)
 
             result = func(**kw)
 
@@ -178,12 +180,15 @@ class WSRoot(object):
                 res.body = result
             else:
                 # TODO make sure result type == a._wsme_definition.return_type
-                res.body = protocol.encode_result(result, funcdef)
+                res.body = protocol.encode_result(funcdef, result)
             res_content_type = funcdef.contenttype
         except Exception, e:
             infos = self._format_exception(sys.exc_info())
             log.error(str(infos))
-            res.status = 500
+            if isinstance(e, exc.ClientSideError):
+                res.status = 400
+            else:
+                res.status = 500
             res.body = protocol.encode_error(infos)
 
         if res_content_type is None:
@@ -237,6 +242,7 @@ class WSRoot(object):
             r = dict(faultcode="Client",
                      faultstring=unicode(excinfo[1]))
             log.warning("Client-side error: %s" % r['faultstring'])
+            r['debuginfo'] = None
             return r
         else:
             faultstring = str(excinfo[1])
@@ -248,6 +254,8 @@ class WSRoot(object):
             r = dict(faultcode="Server", faultstring=faultstring)
             if self._debug:
                 r['debuginfo'] = debuginfo
+            else:
+                r['debuginfo'] = None
             return r
 
     def _html_format(self, content, content_types):
