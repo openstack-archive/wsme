@@ -172,6 +172,10 @@ class WSRoot(object):
             func, funcdef = self._lookup_function(path)
             kw = protocol.read_arguments(funcdef, request)
 
+            for arg in funcdef.arguments:
+                if arg.mandatory and arg.name not in kw:
+                    raise exc.MissingArgument(arg.name)
+
             result = func(**kw)
 
             res.status = 200
