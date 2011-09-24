@@ -249,8 +249,8 @@ class ProtocolTestCase(unittest.TestCase):
         assert r == binarysample or r == base64.encodestring(binarysample), r
 
     def test_return_nested(self):
-        r = self.call('returntypes/getnested')
-        assert r == {'inner': {'aint': 0}} or r == {'inner': {'aint': '0'}}, r
+        r = self.call('returntypes/getnested', _rt=NestedOuter)
+        assert r == {'inner': {'aint': 0}}, r
 
     def test_setstr(self):
         assert self.call('argtypes/setstr', value='astring') == 'astring'
@@ -260,7 +260,7 @@ class ProtocolTestCase(unittest.TestCase):
                         _rt=unicode) == u'の'
 
     def test_setint(self):
-        r = self.call('argtypes/setint', value=3)
+        r = self.call('argtypes/setint', value=3, _rt=int)
         assert r == 3, r
 
     def test_setfloat(self):
