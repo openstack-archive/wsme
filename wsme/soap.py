@@ -19,10 +19,13 @@ from genshi.builder import tag, Element, Namespace
 from genshi.template import MarkupTemplate
 from wsme.controller import register_protocol, pexpose
 import wsme.types
+from wsme import exc
+from wsme.utils import *
 
 
 xsi_ns = 'http://www.w3.org/2001/XMLSchema-instance'
 type_qn = '{%s}type' % xsi_ns
+nil_qn = '{%s}nil' % xsi_ns
 
 
 type_registry = {
@@ -77,18 +80,55 @@ def binary_tosoap(datatype, tag, value):
 def None_tosoap(datatype, tag, value):
     return make_soap_element(datatype, tag, None)
 
-
 @generic
-def fromsoap(datatype, element):
-    return None
-
-@fromsoap.when_object(int)
-def int_fromsoap(datatype, el):
+def fromsoap(datatype, el, ns):
     if el.get(nil_qn) == 'true':
         return None
-    if el.get(type_qn) != 'xsi:int':
-        raise exc.InvalidInput(el.tag, str(el))
-    return int(el.text)
+    soaptype = el.get(type_qn)
+    if datatype in type_registry:
+        if soaptype != type_registry[datatype]:
+            raise exc.InvalidInput(el.tag, et.tostring(el))
+        value = datatype(el.text)
+    else:
+        if soaptype != datatype.__name__:
+            raise exc.InvalidInput(el.tag, et.tostring(el))
+        value = datatype()
+        for name, attr in wsme.types.list_attributes(datatype):
+            child = el.find('{%s}%s' % (ns['type'], name))
+            setattr(value, name, fromsoap(attr.datatype, child, ns))
+    return value
+
+@fromsoap.when_object(datetime.date)
+def date_fromsoap(datatype, el, ns):
+    if el.get(nil_qn) == 'true':
+        return None
+    if el.get(type_qn) != 'xsd:date':
+        raise exc.InvalidInput(el.tag, et.tostring(el))
+    return parse_isodate(el.text)
+
+@fromsoap.when_object(datetime.time)
+def time_fromsoap(datatype, el, ns):
+    if el.get(nil_qn) == 'true':
+        return None
+    if el.get(type_qn) != 'xsd:time':
+        raise exc.InvalidInput(el.tag, et.tostring(el))
+    return parse_isotime(el.text)
+
+@fromsoap.when_object(datetime.datetime)
+def datetime_fromsoap(datatype, el, ns):
+    if el.get(nil_qn) == 'true':
+        return None
+    if el.get(type_qn) != 'xsd:dateTime':
+        raise exc.InvalidInput(el.tag, et.tostring(el))
+    return parse_isodatetime(el.text)
+
+@fromsoap.when_object(wsme.types.binary)
+def binary_fromsoap(datatype, el, ns):
+    if el.get(nil_qn) == 'true':
+        return None
+    if el.get(type_qn) != 'xsd:base64Binary':
+        raise exc.InvalidInput(el.tag, et.tostring(el))
+    return base64.decodestring(el.text)
 
 class SoapProtocol(object):
     name = 'SOAP'
@@ -133,15 +173,35 @@ class SoapProtocol(object):
         el = et.fromstring(request.body)
         body = el.find('{%(soapenv)s}Body' % self.ns)
         # Extract the service name from the tns
-        fname = list(body)[0].tag
+        message = list(body)[0]
+        fname = message.tag
         if fname.startswith('{%s}' % self.typenamespace):
             fname = fname[len(self.typenamespace)+2:]
-            print fname
-            return self.get_name_mapping()[fname]
+            mapping = self.get_name_mapping()
+            if fname not in mapping:
+                raise exc.UnknownFunction(fname)
+            path = mapping[fname]
+            request._wsme_soap_message = message
+            return path
         return None
 
     def read_arguments(self, funcdef, request):
-        return {}
+        kw = {}
+        if not hasattr(request, '_wsme_soap_message'):
+            return kw
+        msg = request._wsme_soap_message
+        parameters = msg.find('{%s}parameters' % self.typenamespace)
+        print parameters
+        if parameters:
+            for param in parameters:
+                name = param.tag[len(self.typenamespace)+2:]
+                arg = funcdef.get_arg(name)
+                value = fromsoap(arg.datatype, param, {
+                    'type': self.typenamespace,
+                })
+                kw[name] = value
+        
+        return kw
 
     def soap_response(self, funcdef, result):
         r = Element(self.soap_fname(funcdef) + 'Response')

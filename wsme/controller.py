@@ -71,6 +71,11 @@ class FunctionDefinition(object):
             func._wsme_definition = fd
         return fd
 
+    def get_arg(self, name):
+        for arg in self.arguments:
+            if arg.name == name:
+                return arg
+        return None
 
 def register_protocol(protocol):
     global registered_protocols

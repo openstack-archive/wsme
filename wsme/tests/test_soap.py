@@ -45,28 +45,38 @@ soap:encodingStyle="http://schemas.xmlsoap.org/soap/encoding/">
     return message
 
 
-def dumpxml(key, obj):
-    el = et.Element(key)
-    if isinstance(obj, basestring):
-        el.text = obj
-    elif type(obj) in (int, float, decimal.Decimal):
-        el.text = str(obj)
-    elif type(obj) in (datetime.date, datetime.time, datetime.datetime):
-        el.text = obj.isoformat()
-    elif type(obj) == dict:
-        for key, obj in obj.items():
-            el.append(dumpxml(key, obj))
-    return el
+python_types = {
+    int: ('xsd:int', str),
+    float: ('xsd:float', str),
+    str: ('xsd:string', str),
+    unicode: ('xsd:string', unicode),
+    wsme.types.binary: ('xsd:base64Binary', base64.encodestring),
+    decimal.Decimal: ('xsd:decimal', str),
+    datetime.date: ('xsd:date', datetime.date.isoformat),
+    datetime.time: ('xsd:time', datetime.time.isoformat),
+    datetime.datetime: ('xsd:dateTime', datetime.datetime.isoformat),
+}
 
-
-def loadxml(el):
-    if len(el):
-        d = {}
-        for child in el:
-            d[child.tag] = loadxml(child)
-        return d
+def tosoap(tag, value):
+    if isinstance(value, tuple):
+        value, datatype = value
     else:
-        return el.text
+        datatype = type(value)
+    print datatype
+    el = et.Element(tag)
+    if value is None:
+        el.set('xsi:nil', True)
+    elif datatype in python_types:
+        stype, conv = python_types[datatype]
+        el.text = conv(value)
+        el.set('xsi:type', stype)
+    else:
+        el.set('xsi:type', datatype.__name__)
+        for name, attr in datatype._wsme_attributes:
+            if name in value:
+                el.append(tosoap(name, (value[name], attr.datatype)))
+                    
+    return el
 
 def read_bool(value):
     return value == 'true'
@@ -117,12 +127,20 @@ class TestSOAP(wsme.tests.protocol.ProtocolTestCase):
         print res.body
         assert res.status.startswith('200')
 
-    def call(self, fpath, **kw):
+    def call(self, fpath, _rt=None, **kw):
         path = fpath.strip('/').split('/')
         # get the actual definition so we can build the adequate request
-        params = ""
+        if kw:
+            el = et.Element('parameters')
+            for key, value in kw.items():
+                el.append(tosoap(key, value))
+            
+            params = et.tostring(el)
+        else:
+            params = ""
         methodname = ''.join((i.capitalize() for i in path))
         message = build_soap_message(methodname, params)
+        print message
         res = self.app.post('/', message,
             headers={
                 "Content-Type": "application/soap+xml; charset=utf-8"
@@ -148,9 +166,9 @@ class TestSOAP(wsme.tests.protocol.ProtocolTestCase):
         elif res.status_int == 500:
             fault = body.find(fault_qn)
             raise wsme.tests.protocol.CallException(
-                    fault.find('faultcode').text,
-                    fault.find('faultstring').text,
-                    fault.find('detail').text)
+                    fault.find(faultcode_qn).text,
+                    fault.find(faultstring_qn).text,
+                    fault.find(faultdetail_qn).text)
         
 
         if el.tag == 'error':

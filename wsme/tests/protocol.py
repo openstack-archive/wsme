@@ -196,7 +196,7 @@ class ProtocolTestCase(unittest.TestCase):
             assert "No error raised"
         except CallException, e:
             assert e.faultcode == 'Client'
-            assert e.faultstring == u'Unknown function name: invalid_function'
+            assert e.faultstring.lower() == u'unknown function name: invalid_function'
 
     def test_serverside_error(self):
         try:
@@ -253,42 +253,50 @@ class ProtocolTestCase(unittest.TestCase):
         assert r == {'inner': {'aint': 0}} or r == {'inner': {'aint': '0'}}, r
 
     def test_setstr(self):
-        assert self.call('argtypes/setstr', value='astring') in ('astring',)
+        assert self.call('argtypes/setstr', value='astring') == 'astring'
 
     def test_setunicode(self):
-        assert self.call('argtypes/setunicode', value=u'の') in (u'の',)
+        assert self.call('argtypes/setunicode', value=u'の',
+                        _rt=unicode) == u'の'
 
     def test_setint(self):
-        assert self.call('argtypes/setint', value=3) in (3, '3')
+        r = self.call('argtypes/setint', value=3)
+        assert r == 3, r
 
     def test_setfloat(self):
-        assert self.call('argtypes/setfloat', value=3.54) in (3.54, '3.54')
+        assert self.call('argtypes/setfloat', value=3.54,
+                         _rt=float) == 3.54
 
     def test_setdecimal(self):
-        assert self.call('argtypes/setdecimal', value='3.14') in (
-                '3.14', decimal.Decimal('3.14'))
+        value = decimal.Decimal('3.14')
+        assert self.call('argtypes/setdecimal', value=value,
+                         _rt=decimal.Decimal) == value
 
     def test_setdate(self):
-        assert self.call('argtypes/setdate', value='2008-04-06') in (
-                datetime.date(2008, 4, 6), '2008-04-06')
+        value = datetime.date(2008, 4, 6)
+        r = self.call('argtypes/setdate', value=value,
+                      _rt=datetime.date)
+        assert r == value
 
     def test_settime(self):
-        assert self.call('argtypes/settime', value='12:12:15') \
-                in ('12:12:15', datetime.time(12, 12, 15))
+        value = datetime.time(12, 12, 15)
+        r = self.call('argtypes/settime', value=value,
+                      _rt=datetime.time)
+        assert r == datetime.time(12, 12, 15)
 
     def test_setdatetime(self):
-        assert self.call('argtypes/setdatetime', value='2008-04-06T12:12:15') \
-                in ('2008-04-06T12:12:15',
-                    datetime.datetime(2008, 4, 6, 12, 12, 15))
+        value = datetime.datetime(2008, 4, 6, 12, 12, 15)
+        r = self.call('argtypes/setdatetime', value=value,
+                      _rt=datetime.datetime)
+        assert r == datetime.datetime(2008, 4, 6, 12, 12, 15)
 
     def test_setbinary(self):
-        r = self.call('argtypes/setbinary',
-                value=base64.encodestring(binarysample))
-        assert r == binarysample or r == base64.encodestring(binarysample), r
+        value = binarysample
+        r = self.call('argtypes/setbinary', value=(value, wsme.types.binary),
+                    _rt=wsme.types.binary) == value
 
     def test_setnested(self):
+        value = {'inner': {'aint': 54}}
         assert self.call('argtypes/setnested',
-            value={'inner': {'aint': 54}}) in (
-                {'inner': {'aint': 54}},
-                {'inner': {'aint': '54'}},
-            )
+                         value=(value, NestedOuter),
+                         _rt=NestedOuter) == value
