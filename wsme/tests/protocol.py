@@ -297,6 +297,7 @@ class ProtocolTestCase(unittest.TestCase):
 
     def test_setnested(self):
         value = {'inner': {'aint': 54}}
-        assert self.call('argtypes/setnested',
+        r = self.call('argtypes/setnested',
                          value=(value, NestedOuter),
-                         _rt=NestedOuter) == value
+                         _rt=NestedOuter)
+        assert r == value
