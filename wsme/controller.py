@@ -147,10 +147,13 @@ class WSRoot(object):
         return self._api
 
     def _select_protocol(self, request):
+        log.debug("Selecting a protocol for the following request :\n"
+                  "headers: %s\nbody: %s", request.headers, request.body)
         protocol = None
         if 'wsmeproto' in request.params:
             protocol = self.protocols[request.params['wsmeproto']]
         else:
+
             for p in self.protocols.values():
                 if p.accept(request):
                     protocol = p

@@ -18,6 +18,8 @@ import wsme.restjson
 import wsme.restxml
 import wsme.soap
 
+import logging
+
 
 class Person(object):
     id = int
@@ -48,5 +50,8 @@ def app_factory(global_config, **local_conf):
     soap = wsme.soap.SoapProtocol(
         tns='http://example.com/demo',
         typenamespace='http://example.com/demo/types',
+        baseURL='http://127.0.0.1:8989/',
     )
     return wsgify(DemoRoot([soap])._handle_request)
+
+logging.basicConfig(level=logging.DEBUG)

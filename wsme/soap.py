@@ -7,6 +7,7 @@ import pkg_resources
 import datetime
 import decimal
 import base64
+import logging
 
 from simplegeneric import generic
 
@@ -22,6 +23,7 @@ import wsme.types
 from wsme import exc
 from wsme.utils import *
 
+log = logging.getLogger(__name__)
 
 xsi_ns = 'http://www.w3.org/2001/XMLSchema-instance'
 type_qn = '{%s}type' % xsi_ns
@@ -147,6 +149,7 @@ class SoapProtocol(object):
         self.tns = tns
         self.typenamespace = typenamespace
         self.servicename = 'MyApp'
+        self.baseURL = baseURL
         self._name_mapping = {}
 
     def get_name_mapping(self, service=None):
@@ -165,6 +168,8 @@ class SoapProtocol(object):
         for ct in self.content_types:
             if req.headers['Content-Type'].startswith(ct):
                 return True
+        if req.headers.get("Soapaction"):
+            return True
         return False
 
     def extract_path(self, request):
@@ -245,7 +250,7 @@ class SoapProtocol(object):
             funclist = self.root.getapi(),
             arrays = [],
             list_attributes = wsme.types.list_attributes,
-            baseURL = service,
+            baseURL = self.baseURL,
             soap_type = self.soap_type,
             soap_fname = self.soap_fname,
         )
