@@ -128,18 +128,21 @@ class validate(object):
 
 
 class WSRoot(object):
-    def __init__(self, protocols=None):
+    def __init__(self, protocols=[]):
         self._debug = True
         if protocols is None:
             protocols = registered_protocols.keys()
         self.protocols = {}
         for protocol in protocols:
-            if isinstance(protocol, str):
-                protocol = registered_protocols[protocol]()
-            self.protocols[protocol.name] = protocol
-            protocol.root = weakref.proxy(self)
+            self.addprotocol(protocol)
 
         self._api = None
+
+    def addprotocol(self, protocol):
+        if isinstance(protocol, str):
+            protocol = registered_protocols[protocol]()
+        self.protocols[protocol.name] = protocol
+        protocol.root = weakref.proxy(self)
 
     def getapi(self):
         if self._api is None:

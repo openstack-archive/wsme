@@ -75,6 +75,9 @@ class TestController(unittest.TestCase):
         assert wsme.controller.registered_protocols['dummy'] == DummyProtocol
 
         r = WSRoot()
+        assert len(r.protocols) == 0
+        
+        r.addprotocol('dummy')
         assert r.protocols['dummy']
 
         r = WSRoot(['dummy'])

@@ -10,7 +10,7 @@ try:
 except:
     import cElementTree as et
 
-import wsme.restxml
+import wsme.protocols.restxml
 
 
 def dumpxml(key, obj, datatype=None):

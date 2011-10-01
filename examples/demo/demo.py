@@ -14,9 +14,7 @@ Then::
 from webob.dec import wsgify
 from wsme import *
 
-import wsme.restjson
-import wsme.restxml
-import wsme.soap
+from wsme.protocols import restxml, restjson, soap
 
 import logging
 

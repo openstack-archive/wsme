@@ -9,7 +9,7 @@ try:
 except:
     import cElementTree as et
 
-import wsme.soap
+from wsme.protocols.soap import SoapProtocol
 import wsme.utils
 
 tns = "http://foo.bar.baz/soap/"
@@ -114,7 +114,7 @@ def fromsoap(el):
 
 
 class TestSOAP(wsme.tests.protocol.ProtocolTestCase):
-    protocol = wsme.soap.SoapProtocol(
+    protocol = SoapProtocol(
         tns=tns, typenamespace=typenamespace)
 
     def test_simple_call(self):

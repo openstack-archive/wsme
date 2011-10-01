@@ -2,12 +2,13 @@ import decimal
 import base64
 
 import wsme.tests.protocol
+
 try:
     import simplejson as json
 except:
     import json
 
-import wsme.restjson
+import wsme.protocols.restjson
 from wsme.utils import *
 
 def prepare_value(value, datatype):
