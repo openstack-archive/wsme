@@ -14,8 +14,5 @@ syntax: regexp
 ^include
 ^dist
 
-^examples/.*/bin
-^examples/.*/dist
-^examples/.*/lib
-^examples/.*/include
+^doc/_build
 
