@@ -9,9 +9,7 @@ syntax: glob
 
 syntax: regexp
 
-^lib
-^bin
-^include
+^build
 ^dist
 
 ^doc/_build
