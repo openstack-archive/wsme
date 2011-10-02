@@ -24,7 +24,8 @@ setup(
         'Development Status :: 3 - Alpha',
         'Operating System :: OS Independent',
         'Programming Language :: Python',
-        'Topic :: Internet :: WWW/HTTP :: WSGI'
+        'License :: OSI Approved :: MIT License',
+        'Topic :: Internet :: WWW/HTTP :: WSGI',
         'Topic :: Software Development :: Libraries :: Python Modules',
     ],
 )
