@@ -12,16 +12,19 @@ setup(
     author=author,
     author_email=email,
     url=url,
-    packages=['wsme'],
+    packages=['wsme', 'wsme.protocols'],
+    package_data={
+        'wsme.protocols': ['templates/*.html'],
+    },
     install_requires=[
         'simplegeneric',
         'webob',
     ],
-    classifiers = [
+    classifiers=[
         'Development Status :: 3 - Alpha',
         'Operating System :: OS Independent',
         'Programming Language :: Python',
         'Topic :: Internet :: WWW/HTTP :: WSGI'
         'Topic :: Software Development :: Libraries :: Python Modules',
-    ]
+    ],
 )
