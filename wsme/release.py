@@ -1,5 +1,5 @@
 name = "WSME"
-version = "0.1.0"
+version = "0.1.0a1"
 
 description = "Web Services Made Easy"
 long_description = """
