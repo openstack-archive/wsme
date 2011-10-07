@@ -25,6 +25,7 @@ faultdetail_qn = '{%s}detail' % soapenv_ns
 type_qn = '{%s}type' % xsi_ns
 nil_qn = '{%s}nil' % xsi_ns
 
+
 def build_soap_message(method, params=""):
     message = """<?xml version="1.0"?>
 <soap:Envelope
@@ -57,15 +58,32 @@ python_types = {
     datetime.datetime: ('xsd:dateTime', datetime.datetime.isoformat),
 }
 
+array_types = {
+    basestring: "String_Array",
+    str: "String_Array",
+    unicode: "String_Array",
+    int: "Int_Array",
+    long: "Long_Array",
+    float: "Float_Array",
+    bool: "Boolean_Array",
+}
+
+
 def tosoap(tag, value):
     if isinstance(value, tuple):
         value, datatype = value
     else:
         datatype = type(value)
-    print datatype
     el = et.Element(tag)
     if value is None:
         el.set('xsi:nil', True)
+    elif isinstance(datatype, list):
+        if datatype[0] in array_types:
+            el.set('xsi:type', array_types[datatype[0]])
+        else:
+            el.set('xsi:type', 'types:' + datatype[0].__name__)
+        for item in value:
+            el.append(tosoap('item', (item, datatype[0])))
     elif datatype in python_types:
         stype, conv = python_types[datatype]
         el.text = conv(value)
@@ -75,8 +93,9 @@ def tosoap(tag, value):
         for name, attr in datatype._wsme_attributes:
             if name in value:
                 el.append(tosoap(name, (value[name], attr.datatype)))
-                    
+
     return el
+
 
 def read_bool(value):
     return value == 'true'
@@ -94,22 +113,22 @@ soap_types = {
     'xsd:base64Binary': base64.decodestring,
 }
 
+
 def fromsoap(el):
     if el.get(nil_qn) == 'true':
         return None
     t = el.get(type_qn)
-    print t
     if t in soap_types:
-        print t, el.text
         return soap_types[t](el.text)
+    elif t and t.endswith('_Array'):
+        return [fromsoap(i) for i in el]
     else:
         d = {}
         for child in el:
             name = child.tag
             assert name.startswith('{%s}' % typenamespace)
-            name = name[len(typenamespace)+2:]
+            name = name[len(typenamespace) + 2:]
             d[name] = fromsoap(child)
-        print d
         return d
 
 
@@ -121,9 +140,8 @@ class TestSOAP(wsme.tests.protocol.ProtocolTestCase):
         message = build_soap_message('Touch')
         print message
         res = self.app.post('/', message,
-            headers={
-                "Content-Type": "application/soap+xml; charset=utf-8"
-        }, expect_errors=True)
+            headers={"Content-Type": "application/soap+xml; charset=utf-8"},
+            expect_errors=True)
         print res.body
         assert res.status.startswith('200')
 
@@ -134,7 +152,7 @@ class TestSOAP(wsme.tests.protocol.ProtocolTestCase):
             el = et.Element('parameters')
             for key, value in kw.items():
                 el.append(tosoap(key, value))
-            
+
             params = et.tostring(el)
         else:
             params = ""
@@ -142,15 +160,14 @@ class TestSOAP(wsme.tests.protocol.ProtocolTestCase):
         message = build_soap_message(methodname, params)
         print message
         res = self.app.post('/', message,
-            headers={
-                "Content-Type": "application/soap+xml; charset=utf-8"
-        }, expect_errors=True)
+            headers={"Content-Type": "application/soap+xml; charset=utf-8"},
+            expect_errors=True)
         print "Status: ", res.status, "Received:", res.body
 
         el = et.fromstring(res.body)
         body = el.find(body_qn)
         print body
-        
+
         if res.status_int == 200:
             r = body.find('{%s}%sResponse' % (typenamespace, methodname))
             result = r.find('{%s}result' % typenamespace)
@@ -162,14 +179,13 @@ class TestSOAP(wsme.tests.protocol.ProtocolTestCase):
                     fault.find(faultcode_qn).text,
                     fault.find(faultstring_qn).text,
                     "")
-            
+
         elif res.status_int == 500:
             fault = body.find(fault_qn)
             raise wsme.tests.protocol.CallException(
                     fault.find(faultcode_qn).text,
                     fault.find(faultstring_qn).text,
                     fault.find(faultdetail_qn).text)
-        
 
         if el.tag == 'error':
             raise wsme.tests.protocol.CallException(
@@ -184,4 +200,6 @@ class TestSOAP(wsme.tests.protocol.ProtocolTestCase):
     def test_wsdl(self):
         res = self.app.get('/api.wsdl')
         print res.body
+        assert False
+        assert res.body.find('NestedOuter_Array') != -1
         assert 'ReturntypesGetunicode' in res.body

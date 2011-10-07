@@ -44,7 +44,7 @@
         </py:for>
         
         <!-- !Declare all of the array types. -->
-        <xsd:complexType py:for="array in arrays" name="${soap_array(array, arrays)}">
+        <xsd:complexType py:for="array in arrays" name="${soap_array(array)}">
           <xsd:sequence>
             <xsd:element maxOccurs="unbounded" name="item" nillable="true"
                type="${soap_type(array)}"/>

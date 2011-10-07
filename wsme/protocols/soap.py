@@ -46,6 +46,37 @@ type_registry = {
     wsme.types.binary: "xsd:base64Binary",
 }
 
+array_registry = {
+    basestring: "String_Array",
+    str: "String_Array",
+    unicode: "String_Array",
+    int: "Int_Array",
+    long: "Long_Array",
+    float: "Float_Array",
+    bool: "Boolean_Array",
+}
+
+
+def soap_array(datatype):
+    if datatype in array_registry:
+        return array_registry[datatype]
+    return 'types:' + datatype.__name__ + '_Array'
+
+
+def soap_type(datatype):
+    if type(datatype) == list:
+        return soap_array(datatype[0])
+    if datatype in type_registry:
+        return type_registry[datatype]
+    if wsme.types.iscomplex(datatype):
+        return "types:%s" % datatype.__name__
+
+
+def soap_fname(funcdef):
+    return "%s%s" % (
+        "".join((i.capitalize() for i in funcdef.path)),
+        funcdef.name.capitalize())
+
 
 def make_soap_element(datatype, tag, value):
     el = Element(tag)
@@ -67,10 +98,23 @@ def tosoap(datatype, tag, value):
     response output"""
     return make_soap_element(datatype, tag, value)
 
+
+@tosoap.when_type(list)
+def array_tosoap(datatype, tag, value):
+    el = Element(tag)
+    el(**{'xsi:type': soap_array(datatype[0])})
+    if value is None:
+        el(**{'xsi:nil': 'true'})
+    for item in value:
+        el.append(tosoap(datatype[0], 'item', item))
+    return el
+
+
 @tosoap.when_object(datetime.datetime)
 def datetime_tosoap(datatype, tag, value):
     return make_soap_element(datatype, tag,
         value is not None and value.isoformat() or None)
+
 
 @tosoap.when_object(wsme.types.binary)
 def binary_tosoap(datatype, tag, value):
@@ -78,9 +122,11 @@ def binary_tosoap(datatype, tag, value):
         value is not None and base64.encodestring(value)
         or None)
 
+
 @tosoap.when_object(None)
 def None_tosoap(datatype, tag, value):
     return make_soap_element(datatype, tag, None)
+
 
 @generic
 def fromsoap(datatype, el, ns):
@@ -100,6 +146,11 @@ def fromsoap(datatype, el, ns):
             setattr(value, name, fromsoap(attr.datatype, child, ns))
     return value
 
+
+@fromsoap.when_type(list)
+def array_fromsoap(datatype, el, ns):
+    return [fromsoap(datatype[0], child, ns) for child in el]
+
 @fromsoap.when_object(datetime.date)
 def date_fromsoap(datatype, el, ns):
     if el.get(nil_qn) == 'true':
@@ -107,6 +158,7 @@ def date_fromsoap(datatype, el, ns):
     if el.get(type_qn) != 'xsd:date':
         raise exc.InvalidInput(el.tag, et.tostring(el))
     return parse_isodate(el.text)
+
 
 @fromsoap.when_object(datetime.time)
 def time_fromsoap(datatype, el, ns):
@@ -116,6 +168,7 @@ def time_fromsoap(datatype, el, ns):
         raise exc.InvalidInput(el.tag, et.tostring(el))
     return parse_isotime(el.text)
 
+
 @fromsoap.when_object(datetime.datetime)
 def datetime_fromsoap(datatype, el, ns):
     if el.get(nil_qn) == 'true':
@@ -124,6 +177,7 @@ def datetime_fromsoap(datatype, el, ns):
         raise exc.InvalidInput(el.tag, et.tostring(el))
     return parse_isodatetime(el.text)
 
+
 @fromsoap.when_object(wsme.types.binary)
 def binary_fromsoap(datatype, el, ns):
     if el.get(nil_qn) == 'true':
@@ -131,6 +185,7 @@ def binary_fromsoap(datatype, el, ns):
     if el.get(type_qn) != 'xsd:base64Binary':
         raise exc.InvalidInput(el.tag, et.tostring(el))
     return base64.decodestring(el.text)
+
 
 class SoapProtocol(object):
     name = 'SOAP'
@@ -144,8 +199,7 @@ class SoapProtocol(object):
 
     def __init__(self, tns=None,
             typenamespace=None,
-            baseURL=None
-            ):
+            baseURL=None):
         self.tns = tns
         self.typenamespace = typenamespace
         self.servicename = 'MyApp'
@@ -155,12 +209,10 @@ class SoapProtocol(object):
     def get_name_mapping(self, service=None):
         if service not in self._name_mapping:
             self._name_mapping[service] = dict(
-                (self.soap_fname(f), f.path + [f.name])
-                for f in self.root.getapi() if service is None or (f.path and f.path[0] == service)
-            )
-            print self._name_mapping
+                (soap_fname(f), f.path + [f.name])
+                for f in self.root.getapi()
+                    if service is None or (f.path and f.path[0] == service))
         return self._name_mapping[service]
-
 
     def accept(self, req):
         if req.path.endswith('.wsdl'):
@@ -181,7 +233,7 @@ class SoapProtocol(object):
         message = list(body)[0]
         fname = message.tag
         if fname.startswith('{%s}' % self.typenamespace):
-            fname = fname[len(self.typenamespace)+2:]
+            fname = fname[len(self.typenamespace) + 2:]
             mapping = self.get_name_mapping()
             if fname not in mapping:
                 raise exc.UnknownFunction(fname)
@@ -196,20 +248,19 @@ class SoapProtocol(object):
             return kw
         msg = request._wsme_soap_message
         parameters = msg.find('{%s}parameters' % self.typenamespace)
-        print parameters
         if parameters:
             for param in parameters:
-                name = param.tag[len(self.typenamespace)+2:]
+                name = param.tag[len(self.typenamespace) + 2:]
                 arg = funcdef.get_arg(name)
                 value = fromsoap(arg.datatype, param, {
                     'type': self.typenamespace,
                 })
                 kw[name] = value
-        
+
         return kw
 
     def soap_response(self, funcdef, result):
-        r = Element(self.soap_fname(funcdef) + 'Response')
+        r = Element(soap_fname(funcdef) + 'Response')
         r.append(tosoap(funcdef.return_type, 'result', result))
         return r
 
@@ -234,7 +285,7 @@ class SoapProtocol(object):
         return self.render_template('fault',
             typenamespace=self.typenamespace,
             **infos)
-        
+
     @pexpose(contenttype="text/xml")
     def api_wsdl(self, service=None):
         if service is None:
@@ -242,28 +293,18 @@ class SoapProtocol(object):
         else:
             servicename = self.servicename + service.capitalize()
         return self.render_template('wsdl',
-            tns = self.tns,
-            typenamespace = self.typenamespace,
-            soapenc = self.ns['soapenc'],
-            service_name = servicename,
-            complex_types = (t() for t in wsme.types.complex_types),
-            funclist = self.root.getapi(),
-            arrays = [],
-            list_attributes = wsme.types.list_attributes,
-            baseURL = self.baseURL,
-            soap_type = self.soap_type,
-            soap_fname = self.soap_fname,
+            tns=self.tns,
+            typenamespace=self.typenamespace,
+            soapenc=self.ns['soapenc'],
+            service_name=servicename,
+            complex_types=(t() for t in wsme.types.complex_types),
+            funclist=self.root.getapi(),
+            arrays=wsme.types.array_types,
+            list_attributes=wsme.types.list_attributes,
+            baseURL=self.baseURL,
+            soap_array=soap_array,
+            soap_type=soap_type,
+            soap_fname=soap_fname,
         )
-
-    def soap_type(self, datatype):
-        if datatype in type_registry:
-            return type_registry[datatype]
-        if wsme.types.iscomplex(datatype):
-            return "types:%s" % datatype.__name__
-
-    def soap_fname(self, funcdef):
-        return "%s%s" % (
-            "".join((i.capitalize() for i in funcdef.path)),
-            funcdef.name.capitalize())
 
 register_protocol(SoapProtocol)

@@ -347,7 +347,7 @@ class ProtocolTestCase(unittest.TestCase):
         r = self.call('argtypes/setstrarray',
                          value=(value, [str]),
                          _rt=[str])
-        assert r == value
+        assert r == value, r
 
     def test_setdatetimearray(self):
         value = [

@@ -151,7 +151,8 @@ class WSRoot(object):
 
     def _select_protocol(self, request):
         log.debug("Selecting a protocol for the following request :\n"
-                  "headers: %s\nbody: %s", request.headers, request.body)
+                  "headers: %s\nbody: %s", request.headers,
+                  len(request.body) > 512 and request.body[:512] or request.body)
         protocol = None
         if 'wsmeproto' in request.params:
             protocol = self.protocols[request.params['wsmeproto']]
