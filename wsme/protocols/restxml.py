@@ -46,6 +46,17 @@ def fromxml(datatype, element):
     return datatype(element.text)
 
 
+@toxml.when_type(list)
+def array_toxml(datatype, key, value):
+    el = et.Element(key)
+    if value is None:
+        el.set('nil', 'true')
+    else:
+        for item in value:
+            el.append(toxml(datatype[0], 'item', item))
+    return el
+
+
 @toxml.when_object(bool)
 def bool_toxml(datatype, key, value):
     el = et.Element(key)
@@ -84,6 +95,13 @@ def binary_toxml(datatype, key, value):
     else:
         el.text = base64.encodestring(value)
     return el
+
+
+@fromxml.when_type(list)
+def array_fromxml(datatype, element):
+    if element.get('nil') == 'true':
+        return None
+    return [fromxml(datatype[0], item) for item in element.findall('item')]
 
 
 @fromxml.when_object(datetime.date)

@@ -17,7 +17,10 @@ def dumpxml(key, obj, datatype=None):
     el = et.Element(key)
     if isinstance(obj, tuple):
         obj, datatype = obj
-    if datatype == wsme.types.binary:
+    if isinstance(datatype, list):
+        for item in obj:
+            el.append(dumpxml('item', item, datatype[0]))
+    elif datatype == wsme.types.binary:
         el.text = base64.encodestring(obj)
     elif isinstance(obj, basestring):
         el.text = obj
@@ -39,7 +42,11 @@ def dumpxml(key, obj, datatype=None):
 
 def loadxml(el, datatype):
     print el, datatype, len(el)
-    if len(el):
+    if el.get('nil') == 'true':
+        return None
+    if isinstance(datatype, list):
+        return [loadxml(item, datatype[0]) for item in el.findall('item')]
+    elif len(el):
         d = {}
         for name, attr in datatype._wsme_attributes:
             child = el.find(name)
