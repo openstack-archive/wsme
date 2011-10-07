@@ -24,6 +24,11 @@ def tojson(datatype, value):
     return value
 
 
+@tojson.when_type(list)
+def array_tojson(datatype, value):
+    return [tojson(datatype[0], item) for item in value]
+
+
 @tojson.when_object(decimal.Decimal)
 def decimal_tojson(datatype, value):
     return str(value)
@@ -60,6 +65,11 @@ def fromjson(datatype, value):
                 setattr(obj, name, fromjson(attrdef.datatype, value[name]))
         return obj
     return value
+
+
+@fromjson.when_type(list)
+def array_fromjson(datatype, value):
+    return [fromjson(datatype[0], item) for item in value]
 
 
 @fromjson.when_object(decimal.Decimal)

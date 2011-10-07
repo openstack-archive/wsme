@@ -84,6 +84,14 @@ class ReturnTypes(object):
         n = NestedOuter()
         return n
 
+    @expose([str])
+    def getstrarray(self):
+        return ["A", "B", "C"]
+
+    @expose([NestedOuter])
+    def getnestedarray(self):
+        return [NestedOuter(), NestedOuter()]
+
 
 class ArgTypes(object):
     @expose(str)
@@ -156,11 +164,35 @@ class ArgTypes(object):
         assert type(value) == str
         return value
 
+    @expose([str])
+    @validate([str])
+    def setstrarray(self, value):
+        print repr(value)
+        assert type(value) == list
+        assert type(value[0]) == str
+        return value
+
+    @expose([datetime.datetime])
+    @validate([datetime.datetime])
+    def setdatetimearray(self, value):
+        print repr(value)
+        assert type(value) == list
+        assert type(value[0]) == datetime.datetime
+        return value
+
     @expose(NestedOuter)
     @validate(NestedOuter)
     def setnested(self, value):
         print repr(value)
         assert type(value) == NestedOuter
+        return value
+
+    @expose([NestedOuter])
+    @validate([NestedOuter])
+    def setnestedarray(self, value):
+        print repr(value)
+        assert type(value) == list
+        assert type(value[0]) == NestedOuter
         return value
 
 
@@ -252,6 +284,14 @@ class ProtocolTestCase(unittest.TestCase):
         r = self.call('returntypes/getnested', _rt=NestedOuter)
         assert r == {'inner': {'aint': 0}}, r
 
+    def test_return_strarray(self):
+        r = self.call('returntypes/getstrarray', _rt=[str])
+        assert r == ['A', 'B', 'C'], r
+
+    def test_return_strnested(self):
+        r = self.call('returntypes/getnestedarray', _rt=[NestedOuter])
+        assert r == [{'inner': {'aint': 0}}, {'inner': {'aint': 0}}], r
+
     def test_setstr(self):
         assert self.call('argtypes/setstr', value='astring') == 'astring'
 
@@ -300,4 +340,31 @@ class ProtocolTestCase(unittest.TestCase):
         r = self.call('argtypes/setnested',
                          value=(value, NestedOuter),
                          _rt=NestedOuter)
+        assert r == value
+
+    def test_setstrarray(self):
+        value = ["1", "2", "three"]
+        r = self.call('argtypes/setstrarray',
+                         value=(value, [str]),
+                         _rt=[str])
+        assert r == value
+
+    def test_setdatetimearray(self):
+        value = [
+            datetime.datetime(2008, 3, 6, 12, 12, 15),
+            datetime.datetime(2008, 4, 6, 2, 12, 15),
+        ]
+        r = self.call('argtypes/setdatetimearray',
+                         value=(value, [datetime.datetime]),
+                         _rt=[datetime.datetime])
+        assert r == value
+
+    def test_setnestedarray(self):
+        value = [
+            {'inner': {'aint': 54}},
+            {'inner': {'aint': 55}},
+        ]
+        r = self.call('argtypes/setnestedarray',
+                         value=(value, [NestedOuter]),
+                         _rt=[NestedOuter])
         assert r == value

@@ -11,6 +11,7 @@ extra_types = [binary, decimal.Decimal]
 native_types = pod_types + dt_types + extra_types
 
 complex_types = []
+array_types = []
 
 
 def iscomplex(datatype):
@@ -102,6 +103,13 @@ def register_type(class_):
     if class_ is None or \
             class_ in native_types or \
             hasattr(class_, '_wsme_attributes'):
+        return
+
+    if isinstance(class_, list):
+        if len(class_) != 1:
+            raise ValueError("Cannot register type %s" % repr(class_))
+        register_type(class_[0])
+        array_types.append(class_[0])
         return
 
     class_._wsme_attributes = inspect_class(class_)

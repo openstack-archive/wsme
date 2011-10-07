@@ -11,7 +11,10 @@ except:
 import wsme.protocols.restjson
 from wsme.utils import *
 
+
 def prepare_value(value, datatype):
+    if isinstance(datatype, list):
+        return [prepare_value(item, datatype[0]) for item in value]
     if datatype in (datetime.date, datetime.time, datetime.datetime):
         return value.isoformat()
     if datatype == decimal.Decimal:
@@ -20,7 +23,10 @@ def prepare_value(value, datatype):
         return base64.encodestring(value)
     return value
 
+
 def prepare_result(value, datatype):
+    if isinstance(datatype, list):
+        return [prepare_result(item, datatype[0]) for item in value]
     if datatype == datetime.date:
         return parse_isodate(value)
     if datatype == datetime.time:
@@ -38,6 +44,7 @@ def prepare_result(value, datatype):
     if type(value) != datatype:
         return datatype(value)
     return value
+
 
 class TestRestJson(wsme.tests.protocol.ProtocolTestCase):
     protocol = 'REST+Json'
