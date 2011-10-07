@@ -27,6 +27,8 @@ Contents
    gettingstarted
    api
 
+   changes
+
 Indices and tables
 ==================
 
