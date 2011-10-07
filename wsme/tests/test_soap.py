@@ -200,6 +200,5 @@ class TestSOAP(wsme.tests.protocol.ProtocolTestCase):
     def test_wsdl(self):
         res = self.app.get('/api.wsdl')
         print res.body
-        assert False
         assert res.body.find('NestedOuter_Array') != -1
         assert 'ReturntypesGetunicode' in res.body
