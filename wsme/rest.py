@@ -52,7 +52,10 @@ class RestProtocol(object):
         return kw
 
     def extract_path(self, request):
-        path = request.path.strip('/').split('/')
+        path = request.path
+        assert path.startswith(self.root._webpath)
+        path = path[len(self.root._webpath):]
+        path = path.strip('/').split('/')
 
         if path[-1].endswith('.' + self.dataformat):
             path[-1] = path[-1][:-len(self.dataformat) - 1]

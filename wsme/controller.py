@@ -8,7 +8,7 @@ import sys
 from wsme import exc
 from wsme.types import register_type
 
-__all__ = ['expose', 'validate', 'WSRoot']
+__all__ = ['expose', 'validate']
 
 log = logging.getLogger(__name__)
 
@@ -128,10 +128,9 @@ class validate(object):
 
 
 class WSRoot(object):
-    def __init__(self, protocols=[]):
+    def __init__(self, protocols=[], webpath=''):
         self._debug = True
-        if protocols is None:
-            protocols = registered_protocols.keys()
+        self._webpath = webpath
         self.protocols = {}
         for protocol in protocols:
             self.addprotocol(protocol)

@@ -10,6 +10,7 @@ from webob.dec import wsgify
 from webtest import TestApp
 
 from wsme import *
+from wsme.controller import WSRoot
 import wsme.types
 
 warnings.filterwarnings('ignore', module='webob.dec')

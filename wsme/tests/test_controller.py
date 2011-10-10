@@ -4,7 +4,7 @@ from webob.dec import wsgify
 import webtest
 
 from wsme import *
-from wsme.controller import scan_api
+from wsme.controller import scan_api, WSRoot
 
 
 class DummyProtocol(object):

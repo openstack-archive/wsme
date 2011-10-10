@@ -26,6 +26,7 @@ Contents
 
    gettingstarted
    api
+   integrate
 
    changes
 
