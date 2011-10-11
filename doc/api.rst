@@ -9,11 +9,13 @@ Public API
 
 .. module:: wsme
 
-.. autoclass:: wsme.expose
-.. autoclass:: wsme.validate
+.. autoclass:: WSRoot
 
-.. autoclass:: wsme.wsproperty
-.. autoclass:: wsme.wsattr
+.. autoclass:: expose
+.. autoclass:: validate
+
+.. autoclass:: wsproperty
+.. autoclass:: wsattr
 
 
 Internals
@@ -29,7 +31,7 @@ Internals
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 .. automodule:: wsme.controller
-    :members: scan_api, FunctionArgument, FunctionDefinition, WSRoot
+    :members: scan_api, FunctionArgument, FunctionDefinition
 
 :mod:`wsme.rest` -- REST protocol commons
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

@@ -1,6 +1,14 @@
 Changes
 =======
 
+next
+----
+
+*   Change the way framework adapters works. Now the adapter modules
+    have a simple adapt function that adapt a :class:`wsme.WSRoot`
+    instance. This way a same root can be integrated in several
+    framework.
+
 0.1.0a3 (2011-10-11)
 --------------------
 

@@ -9,17 +9,17 @@ WSGI Application
 
 .. module:: wsme.wsgi
 
-.. class:: WSRoot
+.. function:: adapt
 
-    A :class:`wsme.controller.WSRoot` that act as a WSGI application.
+    Returns a wsgi application that serve a :class:`wsme.controller.WSRoot`.
 
 Example
 ~~~~~~~
 
 .. code-block:: python
 
-    from wsme import expose, validate
-    from wsme.wsgi import WSRoot
+    from wsme import *
+    import wsme.wsgi
     from wsme.protocols import restjson
 
     class MyRoot(WSRoot):
@@ -27,7 +27,8 @@ Example
         def helloworld(self):
             return u"Hello World !"
 
-    application = MyRoot(protocols=['REST+Json'])
+    application = wsme.wsgi.adapt(
+            MyRoot(protocols=['REST+Json']))
 
 Turbogears 1.x
 --------------
@@ -37,10 +38,13 @@ Turbogears 1.x
 
 .. module:: wsme.tg1
 
-.. class:: WSRoot
+.. class:: Controller(wsroot)
 
-    A :class:`wsme.controller.WSRoot` that can be inserted in a TG1
-    controller tree.
+    A TG1 Controller that publish a :class:`wsme.WSRoot`.
+
+.. function:: adapt
+
+    Returns a :class:`Controller` that publish a :class:`wsme.WSRoot`.
 
 Example
 ~~~~~~~
@@ -52,8 +56,8 @@ Create a new file, "wsmedemo/ws.py" :
 
 .. code-block:: python
 
-    from wsme.tg1 import WSRoot
-    from wsme import expose, validate
+    import wsme.tg1
+    from wsme import expose, validate, WSRoot
 
     class WSController(WSRoot):
         @expose(int)
@@ -71,8 +75,10 @@ Insert the ws controller in the controller tree, (file controllers.py):
     
     # make sure the wanted protocols are known
     import wsme.protocols.restjson
+    import wsme.tg1
 
     class Root(controllers.RootController):
-        ws = WSController(webpath='/ws', protocols=['REST+Json'])
+        ws = wsme.tg1.adapt(
+            WSController(webpath='/ws', protocols=['REST+Json']))
 
         # ...

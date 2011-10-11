@@ -3,11 +3,20 @@ import cherrypy
 import webob
 from turbogears import expose
 
-class WSRoot(wsme.WSRoot):
+
+class Controller(object):
+
+    def __init__(self, wsroot):
+        self._wsroot = wsroot
+
     @expose()
     def default(self, *args, **kw):
         req = webob.Request(cherrypy.request.wsgi_environ)
-        res = self._handle_request(req)
+        res = self._wsroot._handle_request(req)
         cherrypy.response.header_list = res.headerlist
         cherrypy.status = res.status
         return res.body
+
+
+def adapt(wsroot):
+    return Controller(wsroot)

@@ -1,2 +1,2 @@
-from controller import expose, validate
+from controller import expose, validate, WSRoot
 from types import wsattr, wsproperty

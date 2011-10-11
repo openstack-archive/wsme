@@ -5,7 +5,7 @@ import webtest
 
 from wsme import *
 from wsme.controller import scan_api
-from wsme.wsgi import WSRoot
+import wsme.wsgi
 
 
 class DummyProtocol(object):
@@ -123,7 +123,7 @@ class TestController(unittest.TestCase):
         p = DummyProtocol()
         r = MyRoot(protocols=[p])
 
-        app = webtest.TestApp(r)
+        app = webtest.TestApp(wsme.wsgi.adapt(r))
 
         res = app.get('/')
 
@@ -138,7 +138,7 @@ class TestController(unittest.TestCase):
     def test_no_available_protocol(self):
         r = WSRoot()
 
-        app = webtest.TestApp(r)
+        app = webtest.TestApp(wsme.wsgi.adapt(r))
 
         res = app.get('/', expect_errors=True)
         assert res.status_int == 500
@@ -152,7 +152,7 @@ class TestController(unittest.TestCase):
 
         r = WSRoot([DummierProto()])
 
-        app = webtest.TestApp(r)
+        app = webtest.TestApp(wsme.wsgi.adapt(r))
 
         res = app.get('/', expect_errors=True, headers={
             'Accept': 'text/xml,q=0.8'})

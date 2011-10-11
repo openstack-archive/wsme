@@ -213,7 +213,6 @@ class SoapProtocol(object):
     REST+XML protocol.
 
     .. autoattribute:: name
-    .. autoattribute:: dataformat
     .. autoattribute:: content_types
     """
     name = 'SOAP'

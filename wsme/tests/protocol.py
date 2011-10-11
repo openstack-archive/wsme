@@ -10,7 +10,7 @@ from webob.dec import wsgify
 from webtest import TestApp
 
 from wsme import *
-from wsme.wsgi import WSRoot
+import wsme.wsgi
 import wsme.types
 
 warnings.filterwarnings('ignore', module='webob.dec')
@@ -221,7 +221,7 @@ class ProtocolTestCase(unittest.TestCase):
         if self.__class__.__name__ != 'ProtocolTestCase':
             self.root = WSTestRoot([self.protocol])
 
-            self.app = TestApp(self.root)
+            self.app = TestApp(wsme.wsgi.adapt(self.root))
 
     def test_invalid_path(self):
         try:
