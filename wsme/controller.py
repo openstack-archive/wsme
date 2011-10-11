@@ -260,14 +260,15 @@ class WSRoot(object):
 
     def _format_exception(self, excinfo):
         """Extract informations that can be sent to the client."""
-        if isinstance(excinfo[1], exc.ClientSideError):
+        error = excinfo[1]
+        if isinstance(error, exc.ClientSideError):
             r = dict(faultcode="Client",
-                     faultstring=unicode(excinfo[1]))
+                     faultstring=error.faultstring)
             log.warning("Client-side error: %s" % r['faultstring'])
             r['debuginfo'] = None
             return r
         else:
-            faultstring = str(excinfo[1])
+            faultstring = str(error)
             debuginfo = "\n".join(traceback.format_exception(*excinfo))
 
             log.error('Server-side error: "%s". Detail: \n%s' % (
