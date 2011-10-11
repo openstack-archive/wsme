@@ -23,6 +23,13 @@ Main features
 -   Integration in Sphinx for making clean documentation with
     sphinxcontrib-wsme (not released yet).
 
+Install
+~~~~~~~
+
+.. code-block:: bash
+
+    easy_install WSME
+
 Getting Help
 ~~~~~~~~~~~~
 
