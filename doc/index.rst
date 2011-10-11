@@ -28,6 +28,12 @@ Getting Help
 
 Questions about WSME should to the `python-wsme mailinglist`_.
 
+Contribute
+~~~~~~~~~~
+
+:Report issues: `WSME issue tracker`_
+:Source code: hg clone https://bitbucket.org/cdevienne/wsme/
+
 Contents
 --------
 
@@ -49,3 +55,4 @@ Indices and tables
 * :ref:`search`
 
 .. _python-wsme mailinglist: http://groups.google.com/group/python-wsme
+.. _WSME issue tracker: https://bitbucket.org/cdevienne/wsme/issues?status=new&status=open
