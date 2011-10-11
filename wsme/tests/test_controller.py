@@ -92,11 +92,27 @@ class TestController(unittest.TestCase):
 
         r = MyRoot()
 
-        api = [i for i in scan_api(r)]
+        api = list(scan_api(r))
         assert len(api) == 1
         fd = api[0]
         assert fd.path == ['ns']
         assert fd.name == 'multiply'
+
+    def test_scan_api_too_deep(self):
+        class Loop(object):
+            loop = None
+        Loop.me = Loop()
+
+        class MyRoot(WSRoot):
+            loop = Loop()
+
+        r = MyRoot()
+
+        try:
+            list(scan_api(r))
+            assert False, "ValueError not raised"
+        except ValueError, e:
+            assert str(e).startswith("Path is too long")
 
     def test_handle_request(self):
         class MyRoot(WSRoot):

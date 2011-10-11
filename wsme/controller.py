@@ -14,6 +14,8 @@ log = logging.getLogger(__name__)
 
 registered_protocols = {}
 
+APIPATH_MAXLEN = 20
+
 
 html_body = """
 <html>
@@ -41,8 +43,8 @@ def scan_api(controller, path=[]):
         elif inspect.isclass(a):
             continue
         else:
-            if len(path) > 10:
-                raise ValueError(str(path))
+            if len(path) > APIPATH_MAXLEN:
+                raise ValueError("Path is too long: " + str(path))
             for i in scan_api(a, path + [name]):
                 yield i
 
