@@ -38,6 +38,8 @@ def scan_api(controller, path=[]):
             if hasattr(a, '_wsme_definition'):
                 a._wsme_definition.path = path
                 yield a._wsme_definition
+        elif inspect.isclass(a):
+            continue
         else:
             if len(path) > 10:
                 raise ValueError(str(path))

@@ -11,8 +11,8 @@ Then::
     paster serve demo.cfg
 """
 
-from webob.dec import wsgify
 from wsme import *
+from wsme.wsgi import WSRoot
 
 from wsme.protocols import restxml, restjson, soap
 
@@ -45,11 +45,12 @@ class DemoRoot(WSRoot):
         return p
 
 def app_factory(global_config, **local_conf):
-    soap = wsme.soap.SoapProtocol(
-        tns='http://example.com/demo',
-        typenamespace='http://example.com/demo/types',
-        baseURL='http://127.0.0.1:8989/',
-    )
-    return wsgify(DemoRoot([soap])._handle_request)
+    protocols = [ 
+        soap.SoapProtocol(
+            tns='http://example.com/demo',
+            typenamespace='http://example.com/demo/types',
+            baseURL='http://127.0.0.1:8989/',
+        )]
+    return DemoRoot(protocols)
 
 logging.basicConfig(level=logging.DEBUG)

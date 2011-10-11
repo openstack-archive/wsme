@@ -4,7 +4,8 @@ from webob.dec import wsgify
 import webtest
 
 from wsme import *
-from wsme.controller import scan_api, WSRoot
+from wsme.controller import scan_api
+from wsme.wsgi import WSRoot
 
 
 class DummyProtocol(object):
@@ -30,10 +31,6 @@ class DummyProtocol(object):
 
     def encode_error(self, infos):
         return str(infos)
-
-
-def serve_ws(req, root):
-    return root._handle_request(req)
 
 
 class TestController(unittest.TestCase):
@@ -110,8 +107,7 @@ class TestController(unittest.TestCase):
         p = DummyProtocol()
         r = MyRoot(protocols=[p])
 
-        app = webtest.TestApp(
-            wsgify(r._handle_request))
+        app = webtest.TestApp(r)
 
         res = app.get('/')
 
