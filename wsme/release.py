@@ -1,5 +1,5 @@
 name = "WSME"
-version = "0.1.0a2"
+version = "0.1.0a3"
 
 description = "Web Services Made Easy"
 long_description = """
@@ -7,7 +7,7 @@ Web Service Made Easy is a pure-wsgi and modular rewrite of TGWebServices.
 """
 
 author = "Christophe de Vienne"
-email = "cdevienne@gmail.com"
+email = "python-wsme@googlegroups.com"
 
 url = "http://bitbucket.org/cdevienne/wsme"
 
