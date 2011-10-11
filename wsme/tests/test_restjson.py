@@ -9,6 +9,7 @@ except:
     import json
 
 import wsme.protocols.restjson
+from wsme.protocols.restjson import fromjson
 from wsme.utils import *
 
 
@@ -87,3 +88,11 @@ class TestRestJson(wsme.tests.protocol.ProtocolTestCase):
                     r.get('debuginfo'))
 
         return json.loads(res.body)
+
+    def test_fromjson(self):
+        assert fromjson(str, None) == None
+
+    def test_keyargs(self):
+        r = self.app.get('/argtypes/setint.json?value=2')
+        assert json.loads(r.body) == {'result': 2}
+
