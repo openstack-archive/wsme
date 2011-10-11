@@ -95,7 +95,22 @@ def make_soap_element(datatype, tag, value):
 @generic
 def tosoap(datatype, tag, value):
     """Converts a value into xml Element objects for inclusion in the SOAP
-    response output"""
+    response output (after adding the type to the type_registry).
+    
+    If a non-complex user specific type is to be used in the api,
+    a specific toxml should be added::
+
+        from wsme.protocol.soap import tosoap, make_soap_element, type_registry
+
+        class MySpecialType(object):
+            pass
+
+        type_registry[MySpecialType] = 'xsd:MySpecialType'
+
+        @tosoap.when_object(MySpecialType)
+        def myspecialtype_tosoap(datatype, tag, value):
+            return make_soap_element(datatype, tag, str(value))
+    """
     return make_soap_element(datatype, tag, value)
 
 
@@ -130,6 +145,12 @@ def None_tosoap(datatype, tag, value):
 
 @generic
 def fromsoap(datatype, el, ns):
+    """
+    A generic converter from soap elements to python datatype.
+
+    If a non-complex user specific type is to be used in the api,
+    a specific fromsoap should be added.
+    """
     if el.get(nil_qn) == 'true':
         return None
     soaptype = el.get(type_qn)
@@ -188,6 +209,13 @@ def binary_fromsoap(datatype, el, ns):
 
 
 class SoapProtocol(object):
+    """
+    REST+XML protocol.
+
+    .. autoattribute:: name
+    .. autoattribute:: dataformat
+    .. autoattribute:: content_types
+    """
     name = 'SOAP'
     content_types = ['application/soap+xml']
 

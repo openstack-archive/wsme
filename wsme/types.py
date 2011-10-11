@@ -19,6 +19,20 @@ def iscomplex(datatype):
 
 
 class wsproperty(property):
+    """
+    A specialised :class:`property` to define typed-property on complex types.
+    Example::
+
+        class MyComplexType(object):
+            def get_aint(self):
+                return self._aint
+
+            def set_aint(self, value):
+                assert avalue < 10  # Dummy input validation
+                self._aint = value
+
+            aint = wsproperty(int, get_aint, set_aint, mandatory=True)
+    """
     def __init__(self, datatype, fget, fset=None,
                  mandatory=False, doc=None):
         property.__init__(self, fget, fset)
@@ -27,6 +41,16 @@ class wsproperty(property):
 
 
 class wsattr(object):
+    """
+    Complex type attribute definition when the datatype only is not
+    enough.
+    Example::
+
+        class MyComplexType(object):
+            optionalvalue = int
+            mandatoryvalue = wsattr(int, mandatory=True)
+
+    """
     def __init__(self, datatype, mandatory=False):
         self.datatype = datatype
         self.mandatory = mandatory
@@ -100,6 +124,14 @@ def inspect_class(class_):
 
 
 def register_type(class_):
+    """
+    Make sure a type is registered.
+
+    It is automatically called by :class:`expose() <wsme.expose>`
+    and :class:`validate() <wsme.validate>`.
+    Unless you want to control when the class inspection is done there
+    is no need to call it.
+    """
     if class_ is None or \
             class_ in native_types or \
             hasattr(class_, '_wsme_attributes'):
@@ -118,6 +150,9 @@ def register_type(class_):
 
 
 def list_attributes(class_):
+    """
+    Returns a list of a complex type attributes.
+    """
     if not hasattr(class_, '_wsme_attributes'):
         register_type(class_)
     return class_._wsme_attributes

@@ -20,6 +20,25 @@ time_re = re.compile(r'(?P<h>[0-2][0-9]):(?P<m>[0-5][0-9]):(?P<s>[0-6][0-9])')
 
 @generic
 def toxml(datatype, key, value):
+    """
+    A generic converter from python to xml elements.
+
+    If a non-complex user specific type is to be used in the api,
+    a specific toxml should be added::
+
+        from wsme.protocol.restxml import toxml
+
+        myspecialtype = object()
+
+        @toxml.when_object(myspecialtype)
+        def myspecialtype_toxml(datatype, key, value):
+            el = et.Element(key)
+            if value is None:
+                el.set('nil', 'true')
+            else:
+                el.text = str(value)
+            return el
+    """
     el = et.Element(key)
     if value is None:
         el.set('nil', 'true')
@@ -34,6 +53,23 @@ def toxml(datatype, key, value):
 
 @generic
 def fromxml(datatype, element):
+    """
+    A generic converter from xml elements to python datatype.
+
+    If a non-complex user specific type is to be used in the api,
+    a specific fromxml should be added::
+
+        from wsme.protocol.restxml import fromxml
+
+        class MySpecialType(object):
+            pass
+
+        @fromxml.when_object(MySpecialType)
+        def myspecialtype_fromxml(datatype, element):
+            if element.get('nil', False):
+                return None
+            return MySpecialType(element.text)
+    """
     if element.get('nil', False):
         return None
     if wsme.types.iscomplex(datatype):
@@ -130,6 +166,13 @@ def binary_fromxml(datatype, element):
 
 
 class RestXmlProtocol(RestProtocol):
+    """
+    REST+XML protocol.
+
+    .. autoattribute:: name
+    .. autoattribute:: dataformat
+    .. autoattribute:: content_types
+    """
     name = 'REST+XML'
     dataformat = 'xml'
     content_types = ['text/xml']

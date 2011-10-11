@@ -32,6 +32,10 @@ html_body = """
 
 
 def scan_api(controller, path=[]):
+    """
+    Recursively iterate a controller api entries, while setting
+    their :attr:`FunctionDefinition.path`.
+    """
     for name in dir(controller):
         if name.startswith('_'):
             continue
@@ -50,25 +54,56 @@ def scan_api(controller, path=[]):
 
 
 class FunctionArgument(object):
+    """
+    An argument definition of an api entry
+    """
     def __init__(self, name, datatype, mandatory, default):
+        #: argument name
         self.name = name
+
+        #: Data type
         self.datatype = datatype
+
+        #: True if the argument is mandatory
         self.mandatory = mandatory
+
+        #: Default value if argument is omitted
         self.default = default
 
 
 class FunctionDefinition(object):
+    """
+    An api entry definition
+    """
     def __init__(self, func):
+        #: Function name
         self.name = func.__name__
+
+        #: Function documentation
         self.doc = func.__doc__
+
+        #: Return type
         self.return_type = None
+
+        #: The function arguments (list of :class:`FunctionArgument`)
         self.arguments = []
+
+        #: True if this function is exposed by a protocol and not in
+        #: the api tree, which means it is not part of the api.
         self.protocol_specific = False
+
+        #: Override the contenttype of the returned value.
+        #: Make sense only with :attr:`protocol_specific` functions.
         self.contenttype = None
+
+        #: Path of the function in the api tree.
         self.path = None
 
     @classmethod
     def get(cls, func):
+        """
+        Returns the :class:`FunctionDefinition` of a method.
+        """
         fd = getattr(func, '_wsme_definition', None)
         if fd is None:
             fd = FunctionDefinition(func)
@@ -76,6 +111,9 @@ class FunctionDefinition(object):
         return fd
 
     def get_arg(self, name):
+        """
+        Returns a :class:`FunctionArgument` from its name
+        """
         for arg in self.arguments:
             if arg.name == name:
                 return arg
@@ -88,6 +126,18 @@ def register_protocol(protocol):
 
 
 class expose(object):
+    """
+    Decorator that expose a function.
+
+    :param return_type: Return type of the function
+
+    Example::
+
+        class MyController(object):
+            @expose(int)
+            def getint(self):
+                return 1
+    """
     def __init__(self, return_type=None):
         self.return_type = return_type
         register_type(return_type)
@@ -113,8 +163,20 @@ class pexpose(object):
 
 
 class validate(object):
-    def __init__(self, *args, **kw):
-        self.param_types = args
+    """
+    Decorator that define the arguments types of a function.
+
+
+    Example::
+
+        class MyController(object):
+            @expose(str)
+            @validate(datetime.date, datetime.time)
+            def format(self, d, t):
+                return d.isoformat() + ' ' + t.isoformat()
+    """
+    def __init__(self, *param_types):
+        self.param_types = param_types
 
     def __call__(self, func):
         fd = FunctionDefinition.get(func)
@@ -133,6 +195,12 @@ class validate(object):
 
 
 class WSRoot(object):
+    """
+    Root controller for webservices.
+
+    :param protocols: A list of protocols to enable (see :meth:`addprotocol`)
+    :param webpath: The web path where the webservice is published.
+    """
     def __init__(self, protocols=[], webpath=''):
         self._debug = True
         self._webpath = webpath
@@ -143,12 +211,23 @@ class WSRoot(object):
         self._api = None
 
     def addprotocol(self, protocol):
+        """
+        Enable a new protocol on the controller.
+        
+        :param protocol: A registered protocol name or an instance
+                         of a protocol.
+        """
         if isinstance(protocol, str):
             protocol = registered_protocols[protocol]()
         self.protocols[protocol.name] = protocol
         protocol.root = weakref.proxy(self)
 
     def getapi(self):
+        """
+        Returns the api description.
+        
+        :rtype: list of :class:`FunctionDefinition`
+        """
         if self._api is None:
             self._api = [i for i in scan_api(self)]
         return self._api

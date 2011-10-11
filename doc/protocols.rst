@@ -1,20 +1,23 @@
 Protocols
 =========
 
-REST+Json
----------
+:mod:`wsme.protocols.restjson` -- REST+Json
+-------------------------------------------
 
-.. autoclass:: wsme.protocols.restjson.RestJsonProtocol
-
-
-REST+XML
---------
-
-.. autoclass:: wsme.protocols.restxml.RestXmlProtocol
+.. automodule:: wsme.protocols.restjson
+    :members:
 
 
-SOAP
-----
+:mod:`wsme.protocols.restxml` -- REST+XML
+-----------------------------------------
 
-.. autoclass:: wsme.protocols.soap.SoapProtocol
+.. automodule:: wsme.protocols.restxml
+    :members:
+
+
+:mod:`wsme.protocols.soap` -- SOAP
+----------------------------------
+
+.. automodule:: wsme.protocols.soap
+    :members:
 

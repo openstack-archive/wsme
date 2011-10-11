@@ -1,3 +1,6 @@
+"""
+REST+Json protocol implementation.
+"""
 import base64
 import datetime
 import decimal
@@ -16,6 +19,20 @@ except ImportError:
 
 @generic
 def tojson(datatype, value):
+    """
+    A generic converter from python to jsonify-able datatypes.
+
+    If a non-complex user specific type is to be used in the api,
+    a specific tojson should be added::
+
+        from wsme.protocol.restjson import tojson
+
+        myspecialtype = object()
+
+        @tojson.when_object(myspecialtype)
+        def myspecialtype_tojson(datatype, value):
+            return str(value)
+    """
     if wsme.types.iscomplex(datatype):
         d = dict()
         for name, attr in wsme.types.list_attributes(datatype):
@@ -56,6 +73,21 @@ def datetime_tojson(datatype, value):
 
 @generic
 def fromjson(datatype, value):
+    """
+    A generic converter from json base types to python datatype.
+
+    If a non-complex user specific type is to be used in the api,
+    a specific fromjson should be added::
+
+        from wsme.protocol.restjson import fromjson
+
+        class MySpecialType(object):
+            pass
+
+        @fromjson.when_object(MySpecialType)
+        def myspecialtype_fromjson(datatype, value):
+            return MySpecialType(value)
+    """
     if value is None:
         return None
     if wsme.types.iscomplex(datatype):
@@ -98,6 +130,14 @@ def binary_fromjson(datatype, value):
 
 
 class RestJsonProtocol(RestProtocol):
+    """
+    REST+Json protocol.
+
+    .. autoattribute:: name
+    .. autoattribute:: dataformat
+    .. autoattribute:: content_types
+    """
+
     name = 'REST+Json'
     dataformat = 'json'
     content_types = [
