@@ -26,6 +26,7 @@ Contents
 
    gettingstarted
    api
+   protocols
    integrate
 
    changes
