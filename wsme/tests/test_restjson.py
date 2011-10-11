@@ -49,7 +49,8 @@ def prepare_result(value, datatype):
 class TestRestJson(wsme.tests.protocol.ProtocolTestCase):
     protocol = 'REST+Json'
 
-    def call(self, fpath, _rt=None, **kw):
+    def call(self, fpath, _rt=None, _accept=None,
+                _no_result_decode=False, **kw):
         for key in kw:
             if isinstance(kw[key], tuple):
                 value, datatype = kw[key]
@@ -58,14 +59,21 @@ class TestRestJson(wsme.tests.protocol.ProtocolTestCase):
                 datatype = type(value)
             kw[key] = prepare_value(value, datatype)
         content = json.dumps(kw)
+        headers = {
+            'Content-Type': 'application/json',
+        }
+        if _accept is not None:
+            headers["Accept"] = _accept
         res = self.app.post(
             '/' + fpath,
             content,
-            headers={
-                'Content-Type': 'application/json',
-            },
+            headers=headers,
             expect_errors=True)
         print "Received:", res.body
+
+        if _no_result_decode:
+            return res
+
         r = json.loads(res.body)
         if 'result' in r:
             r = r['result']

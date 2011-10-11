@@ -72,17 +72,25 @@ def loadxml(el, datatype):
 class TestRestXML(wsme.tests.protocol.ProtocolTestCase):
     protocol = 'REST+XML'
 
-    def call(self, fpath, _rt=None, **kw):
+    def call(self, fpath, _rt=None, _accept=None,
+                _no_result_decode=False, **kw):
         el = dumpxml('parameters', kw)
         content = et.tostring(el)
+        headers = {
+            'Content-Type': 'text/xml',
+        }
+        if _accept is not None:
+            headers['Accept'] = _accept
         res = self.app.post(
             '/' + fpath,
             content,
-            headers={
-                'Content-Type': 'text/xml',
-            },
+            headers=headers,
             expect_errors=True)
         print "Received:", res.body
+
+        if _no_result_decode:
+            return res
+
         el = et.fromstring(res.body)
         if el.tag == 'error':
             raise wsme.tests.protocol.CallException(

@@ -81,6 +81,7 @@ class FunctionDefinition(object):
                 return arg
         return None
 
+
 def register_protocol(protocol):
     global registered_protocols
     registered_protocols[protocol.name] = protocol
@@ -155,7 +156,9 @@ class WSRoot(object):
     def _select_protocol(self, request):
         log.debug("Selecting a protocol for the following request :\n"
                   "headers: %s\nbody: %s", request.headers,
-                  len(request.body) > 512 and request.body[:512] or request.body)
+                  len(request.body) > 512
+                  and request.body[:512]
+                  or request.body)
         protocol = None
         if 'wsmeproto' in request.params:
             protocol = self.protocols[request.params['wsmeproto']]
@@ -176,7 +179,8 @@ class WSRoot(object):
                 msg = ("None of the following protocols can handle this "
                        "request : %s" % ','.join(self.protocols.keys()))
                 res.status = 500
-                res.text = msg
+                res.content_type = 'text/plain'
+                res.body = msg
                 log.error(msg)
                 return res
             path = protocol.extract_path(request)

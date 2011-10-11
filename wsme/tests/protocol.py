@@ -229,7 +229,8 @@ class ProtocolTestCase(unittest.TestCase):
             assert "No error raised"
         except CallException, e:
             assert e.faultcode == 'Client'
-            assert e.faultstring.lower() == u'unknown function name: invalid_function'
+            assert e.faultstring.lower() == \
+                    u'unknown function name: invalid_function'
 
     def test_serverside_error(self):
         try:
@@ -242,7 +243,7 @@ class ProtocolTestCase(unittest.TestCase):
 
     def test_touch(self):
         r = self.call('touch')
-        assert r is None, r 
+        assert r is None, r
 
     def test_return_str(self):
         r = self.call('returntypes/getstr')
@@ -369,3 +370,17 @@ class ProtocolTestCase(unittest.TestCase):
                          value=(value, [NestedOuter]),
                          _rt=[NestedOuter])
         assert r == value
+
+    def test_missing_argument(self):
+        try:
+            r = self.call('argtypes/setdatetime')
+            assert "No error raised"
+        except CallException, e:
+            print e
+            assert e.faultcode == 'Client'
+            assert e.faultstring == u'Missing argument: "value"'
+
+    def test_html_format(self):
+        res = self.call('argtypes/setdatetime', _accept="text/html",
+            _no_result_decode=True)
+        assert res.content_type == 'text/html', res.content_type

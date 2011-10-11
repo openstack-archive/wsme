@@ -145,7 +145,8 @@ class TestSOAP(wsme.tests.protocol.ProtocolTestCase):
         print res.body
         assert res.status.startswith('200')
 
-    def call(self, fpath, _rt=None, **kw):
+    def call(self, fpath, _rt=None, _accept=None,
+                _no_result_decode=False, **kw):
         path = fpath.strip('/').split('/')
         # get the actual definition so we can build the adequate request
         if kw:
@@ -159,10 +160,16 @@ class TestSOAP(wsme.tests.protocol.ProtocolTestCase):
         methodname = ''.join((i.capitalize() for i in path))
         message = build_soap_message(methodname, params)
         print message
+        headers = {"Content-Type": "application/soap+xml; charset=utf-8"}
+        if _accept is not None:
+            headers['Accept'] = _accept
         res = self.app.post('/', message,
-            headers={"Content-Type": "application/soap+xml; charset=utf-8"},
+            headers=headers,
             expect_errors=True)
         print "Status: ", res.status, "Received:", res.body
+
+        if _no_result_decode:
+            return res
 
         el = et.fromstring(res.body)
         body = el.find(body_qn)

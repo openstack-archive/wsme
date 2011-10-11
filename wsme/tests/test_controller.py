@@ -73,7 +73,7 @@ class TestController(unittest.TestCase):
 
         r = WSRoot()
         assert len(r.protocols) == 0
-        
+
         r.addprotocol('dummy')
         assert r.protocols['dummy']
 
@@ -134,3 +134,32 @@ class TestController(unittest.TestCase):
 
         assert p.lastreq.path == '/touch'
         assert p.hits == 2
+
+    def test_no_available_protocol(self):
+        r = WSRoot()
+
+        app = webtest.TestApp(r)
+
+        res = app.get('/', expect_errors=True)
+        assert res.status_int == 500
+        print res.body
+        assert res.body.find(
+            "None of the following protocols can handle this request") != -1
+
+    def test_return_content_type_guess(self):
+        class DummierProto(DummyProtocol):
+            content_types = ['text/xml', 'text/plain']
+
+        r = WSRoot([DummierProto()])
+
+        app = webtest.TestApp(r)
+
+        res = app.get('/', expect_errors=True, headers={
+            'Accept': 'text/xml,q=0.8'})
+        assert res.status_int == 400
+        assert res.content_type == 'text/xml', res.content_type
+
+        res = app.get('/', expect_errors=True, headers={
+            'Accept': 'text/plain'})
+        assert res.status_int == 400
+        assert res.content_type == 'text/plain', res.content_type
