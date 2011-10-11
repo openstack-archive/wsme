@@ -52,6 +52,7 @@ Contents
    protocols
    integrate
 
+   todo
    changes
 
 Indices and tables
