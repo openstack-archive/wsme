@@ -8,7 +8,6 @@ import decimal
 from simplegeneric import generic
 
 from wsme.rest import RestProtocol
-from wsme.controller import register_protocol
 import wsme.types
 
 try:
@@ -138,7 +137,7 @@ class RestJsonProtocol(RestProtocol):
     .. autoattribute:: content_types
     """
 
-    name = 'REST+Json'
+    name = 'restjson'
     dataformat = 'json'
     content_types = [
         'application/json',
@@ -162,5 +161,3 @@ class RestJsonProtocol(RestProtocol):
 
     def encode_error(self, errordetail):
         return json.dumps(errordetail, encoding='utf-8')
-
-register_protocol(RestJsonProtocol)

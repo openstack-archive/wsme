@@ -48,7 +48,7 @@ def prepare_result(value, datatype):
 
 
 class TestRestJson(wsme.tests.protocol.ProtocolTestCase):
-    protocol = 'REST+Json'
+    protocol = 'restjson'
 
     def call(self, fpath, _rt=None, _accept=None,
                 _no_result_decode=False, **kw):

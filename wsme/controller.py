@@ -5,6 +5,8 @@ import logging
 import webob
 import sys
 
+import pkg_resources
+
 from wsme import exc
 from wsme.types import register_type
 
@@ -121,8 +123,21 @@ class FunctionDefinition(object):
 
 
 def register_protocol(protocol):
-    global registered_protocols
     registered_protocols[protocol.name] = protocol
+
+
+def getprotocol(name, options={}):
+    protocol_class = registered_protocols.get(name)
+    if protocol_class is None:
+        for entry_point in pkg_resources.iter_entry_points(
+                'wsme.protocols'):
+            print entry_point
+            if entry_point.name == name:
+                protocol_class = entry_point.load()
+        if protocol_class is None:
+            raise ValueError("Cannot find protocol '%s'" % name)
+        registered_protocols[name] = protocol_class
+    return protocol_class(**options)
 
 
 class expose(object):
@@ -218,7 +233,7 @@ class WSRoot(object):
                          of a protocol.
         """
         if isinstance(protocol, str):
-            protocol = registered_protocols[protocol]()
+            protocol = getprotocol(protocol)
         self.protocols[protocol.name] = protocol
         protocol.root = weakref.proxy(self)
 

@@ -18,7 +18,7 @@ except ImportError:
 
 from genshi.builder import tag, Element, Namespace
 from genshi.template import MarkupTemplate
-from wsme.controller import register_protocol, pexpose
+from wsme.controller import pexpose
 import wsme.types
 from wsme import exc
 from wsme.utils import *
@@ -215,7 +215,7 @@ class SoapProtocol(object):
     .. autoattribute:: name
     .. autoattribute:: content_types
     """
-    name = 'SOAP'
+    name = 'soap'
     content_types = ['application/soap+xml']
 
     ns = {
@@ -333,5 +333,3 @@ class SoapProtocol(object):
             soap_type=soap_type,
             soap_fname=soap_fname,
         )
-
-register_protocol(SoapProtocol)

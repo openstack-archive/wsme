@@ -9,7 +9,6 @@ except ImportError:
 from simplegeneric import generic
 
 from wsme.rest import RestProtocol
-from wsme.controller import register_protocol
 from wsme.exc import *
 import wsme.types
 
@@ -173,7 +172,7 @@ class RestXmlProtocol(RestProtocol):
     .. autoattribute:: dataformat
     .. autoattribute:: content_types
     """
-    name = 'REST+XML'
+    name = 'restxml'
     dataformat = 'xml'
     content_types = ['text/xml']
 
@@ -196,5 +195,3 @@ class RestXmlProtocol(RestProtocol):
         if 'debuginfo' in errordetail:
             et.SubElement(el, 'debuginfo').text = errordetail['debuginfo']
         return et.tostring(el)
-
-register_protocol(RestXmlProtocol)

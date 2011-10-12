@@ -10,8 +10,6 @@ try:
 except:
     import cElementTree as et
 
-import wsme.protocols.restxml
-
 
 def dumpxml(key, obj, datatype=None):
     el = et.Element(key)
@@ -70,7 +68,7 @@ def loadxml(el, datatype):
 
 
 class TestRestXML(wsme.tests.protocol.ProtocolTestCase):
-    protocol = 'REST+XML'
+    protocol = 'restxml'
 
     def call(self, fpath, _rt=None, _accept=None,
                 _no_result_decode=False, **kw):

@@ -28,4 +28,12 @@ setup(
         'Topic :: Internet :: WWW/HTTP :: WSGI',
         'Topic :: Software Development :: Libraries :: Python Modules',
     ],
+
+    entry_points={
+        'wsme.protocols': [
+            'restjson = wsme.protocols.restjson:RestJsonProtocol',
+            'restxml = wsme.protocols.restxml:RestXmlProtocol',
+            'soap = wsme.protocols.soap:SoapProtocol',
+        ]
+    },
 )
