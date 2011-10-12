@@ -14,7 +14,7 @@ Then::
 from wsme import *
 from wsme.wsgi import WSRoot
 
-from wsme.protocols import restxml, restjson, soap
+from wsme.protocols import soap
 
 import logging
 
@@ -46,6 +46,7 @@ class DemoRoot(WSRoot):
 
 def app_factory(global_config, **local_conf):
     protocols = [ 
+        'restjson',
         soap.SoapProtocol(
             tns='http://example.com/demo',
             typenamespace='http://example.com/demo/types',

@@ -1,8 +1,8 @@
 Changes
 =======
 
-next
-----
+0.1.0a4 (2011-10-12)
+--------------------
 
 *   Change the way framework adapters works. Now the adapter modules
     have a simple adapt function that adapt a :class:`wsme.WSRoot`
