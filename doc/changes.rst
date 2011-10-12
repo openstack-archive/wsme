@@ -9,6 +9,8 @@ next
     instance. This way a same root can be integrated in several
     framework.
 
+*   Protocol lookup now use entry points in the group ``[wsme.protocols]``.
+
 0.1.0a3 (2011-10-11)
 --------------------
 
