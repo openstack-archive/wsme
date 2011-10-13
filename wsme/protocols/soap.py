@@ -210,7 +210,7 @@ def binary_fromsoap(datatype, el, ns):
 
 class SoapProtocol(object):
     """
-    REST+XML protocol.
+    SOAP protocol.
 
     .. autoattribute:: name
     .. autoattribute:: content_types
