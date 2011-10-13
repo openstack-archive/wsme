@@ -126,12 +126,11 @@ def register_protocol(protocol):
     registered_protocols[protocol.name] = protocol
 
 
-def getprotocol(name, options={}):
+def getprotocol(name, **options):
     protocol_class = registered_protocols.get(name)
     if protocol_class is None:
         for entry_point in pkg_resources.iter_entry_points(
-                'wsme.protocols'):
-            print entry_point
+                'wsme.protocols', name):
             if entry_point.name == name:
                 protocol_class = entry_point.load()
         if protocol_class is None:
@@ -384,7 +383,6 @@ class WSRoot(object):
             lexer = None
             for ct in content_types:
                 try:
-                    print ct
                     lexer = get_lexer_for_mimetype(ct)
                     break
                 except:
