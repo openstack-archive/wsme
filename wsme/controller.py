@@ -225,7 +225,7 @@ class WSRoot(object):
 
         self._api = None
 
-    def addprotocol(self, protocol):
+    def addprotocol(self, protocol, **options):
         """
         Enable a new protocol on the controller.
         
@@ -233,7 +233,7 @@ class WSRoot(object):
                          of a protocol.
         """
         if isinstance(protocol, str):
-            protocol = getprotocol(protocol)
+            protocol = getprotocol(protocol, options)
         self.protocols[protocol.name] = protocol
         protocol.root = weakref.proxy(self)
 
