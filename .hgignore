@@ -4,8 +4,10 @@ syntax: glob
 *.pyo
 *.egg-info
 *.swp
+*.orig
 ~*
 .coverage
+.noseids
 
 syntax: regexp
 

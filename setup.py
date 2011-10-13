@@ -33,7 +33,6 @@ setup(
         'wsme.protocols': [
             'restjson = wsme.protocols.restjson:RestJsonProtocol',
             'restxml = wsme.protocols.restxml:RestXmlProtocol',
-            'soap = wsme.protocols.soap:SoapProtocol',
         ]
     },
 )
