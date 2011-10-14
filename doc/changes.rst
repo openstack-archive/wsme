@@ -1,6 +1,16 @@
 Changes
 =======
 
+0.1.0 (2011-10-14)
+------------------
+
+*   Protocol insertion order now influence the protocol selection
+
+*   Move the soap protocol implementation in a separate lib,
+    WSME-Soap
+
+*   Introduce a new protocol ExtDirect in the WSME-ExtDirect lib.
+
 0.1.0a4 (2011-10-12)
 --------------------
 
