@@ -101,6 +101,9 @@ class FunctionDefinition(object):
         #: Path of the function in the api tree.
         self.path = None
 
+        #: Dictionnary of protocol-specific options.
+        self.extra_options = {}
+
     @classmethod
     def get(cls, func):
         """
@@ -152,13 +155,15 @@ class expose(object):
             def getint(self):
                 return 1
     """
-    def __init__(self, return_type=None):
+    def __init__(self, return_type=None, **options):
         self.return_type = return_type
+        self.options = options
         register_type(return_type)
 
     def __call__(self, func):
         fd = FunctionDefinition.get(func)
         fd.return_type = self.return_type
+        fd.extra_options = self.options
         return func
 
 
@@ -232,7 +237,7 @@ class WSRoot(object):
                          of a protocol.
         """
         if isinstance(protocol, str):
-            protocol = getprotocol(protocol, options)
+            protocol = getprotocol(protocol, **options)
         self.protocols[protocol.name] = protocol
         protocol.root = weakref.proxy(self)
 
