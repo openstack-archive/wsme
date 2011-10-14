@@ -10,6 +10,7 @@ Public API
 .. module:: wsme
 
 .. autoclass:: WSRoot
+    :members:
 
 .. autoclass:: expose
 .. autoclass:: validate
