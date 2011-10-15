@@ -75,10 +75,12 @@ class TestController(unittest.TestCase):
         assert len(r.protocols) == 0
 
         r.addprotocol('dummy')
-        assert r.protocols['dummy']
+        assert len(r.protocols) == 1
+        assert r.protocols[0].__class__ == DummyProtocol
 
         r = WSRoot(['dummy'])
-        assert r.protocols['dummy']
+        assert len(r.protocols) == 1
+        assert r.protocols[0].__class__ == DummyProtocol
 
     def test_scan_api(self):
         class NS(object):
