@@ -40,8 +40,6 @@ class RestProtocol(object):
 
         for arg in funcdef.arguments:
             if arg.name not in parsed_args:
-                if arg.mandatory:
-                    raise MissingArgument(arg.name)
                 continue
 
             value = parsed_args.pop(arg.name)

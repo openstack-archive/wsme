@@ -1,10 +1,13 @@
+# encoding=utf8
+
 import unittest
 import webob
 from webob.dec import wsgify
 import webtest
 
 from wsme import *
-from wsme.controller import scan_api
+from wsme.controller import getprotocol, scan_api, pexpose
+from wsme.controller import FunctionArgument, FunctionDefinition
 import wsme.wsgi
 
 
@@ -31,6 +34,46 @@ class DummyProtocol(object):
 
     def encode_error(self, infos):
         return str(infos)
+
+
+def test_getprotocol():
+    try:
+        getprotocol('invalid')
+        assert False, "ValueError was not raised"
+    except ValueError, e:
+        pass
+
+
+def test_pexpose():
+    class Proto(DummyProtocol):
+        def extract_path(self, request):
+            if request.path.endswith('ufunc'):
+                return ['_protocol', 'dummy', 'ufunc']
+            else:
+                return ['_protocol', 'dummy', 'func']
+
+        @pexpose(None, "text/xml")
+        def func(self):
+            return "<p></p>"
+
+        @pexpose(None, "text/xml")
+        def ufunc(self):
+            return u"<p>é</p>"
+
+    assert FunctionDefinition.get(Proto.func).return_type is None
+    assert FunctionDefinition.get(Proto.func).protocol_specific
+    assert FunctionDefinition.get(Proto.func).contenttype == "text/xml"
+
+    p = Proto()
+    r = WSRoot()
+    r.addprotocol(p)
+
+    app = webtest.TestApp(wsme.wsgi.adapt(r))
+    res = app.get('/func')
+    assert res.status_int == 200
+    assert res.body == "<p></p>", res.body
+    res = app.get('/ufunc')
+    assert res.unicode_body == u"<p>é</p>", res.body
 
 
 class TestController(unittest.TestCase):
@@ -100,6 +143,16 @@ class TestController(unittest.TestCase):
         assert fd.path == ['ns']
         assert fd.name == 'multiply'
 
+    def test_scan_subclass(self):
+        class MyRoot(WSRoot):
+            class SubClass(object):
+                pass
+
+        r = MyRoot()
+        api = list(scan_api(r))
+
+        assert len(api) == 0
+
     def test_scan_api_too_deep(self):
         class Loop(object):
             loop = None
@@ -137,6 +190,19 @@ class TestController(unittest.TestCase):
         assert p.lastreq.path == '/touch'
         assert p.hits == 2
 
+        class NoPathProto(DummyProtocol):
+            def extract_path(self, request):
+                return None
+
+        p = NoPathProto()
+        r = MyRoot(protocols=[p])
+        
+        app = webtest.TestApp(wsme.wsgi.adapt(r))
+
+        res = app.get('/', expect_errors=True)
+        print res.status, res.body
+        assert res.status_int == 400
+
     def test_no_available_protocol(self):
         r = WSRoot()
 
@@ -165,3 +231,24 @@ class TestController(unittest.TestCase):
             'Accept': 'text/plain'})
         assert res.status_int == 400
         assert res.content_type == 'text/plain', res.content_type
+
+    def test_getapi(self):
+        class MyRoot(WSRoot):
+            pass
+
+        r = MyRoot()
+        api = r.getapi()
+        assert r.getapi() is api
+
+
+class TestFunctionDefinition(unittest.TestCase):
+
+    def test_get_arg(self):
+        def myfunc(self):
+            pass
+
+        fd = FunctionDefinition(FunctionDefinition)
+        fd.arguments.append(FunctionArgument('a', int, True, None))
+
+        assert fd.get_arg('a').datatype is int
+        assert fd.get_arg('b') is None

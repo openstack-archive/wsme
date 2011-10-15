@@ -240,6 +240,18 @@ class ProtocolTestCase(unittest.TestCase):
             print e
             assert e.faultcode == 'Server'
             assert e.faultstring == u'integer division or modulo by zero'
+            assert e.debuginfo is not None
+
+    def test_serverside_error_nodebug(self):
+        self.root._debug = False
+        try:
+            res = self.call('witherrors/divide_by_zero')
+            assert "No error raised"
+        except CallException, e:
+            print e
+            assert e.faultcode == 'Server'
+            assert e.faultstring == u'integer division or modulo by zero'
+            assert e.debuginfo is None
 
     def test_touch(self):
         r = self.call('touch')

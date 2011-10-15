@@ -232,7 +232,7 @@ class WSRoot(object):
     def addprotocol(self, protocol, **options):
         """
         Enable a new protocol on the controller.
-        
+
         :param protocol: A registered protocol name or an instance
                          of a protocol.
         """
@@ -244,7 +244,7 @@ class WSRoot(object):
     def getapi(self):
         """
         Returns the api description.
-        
+
         :rtype: list of :class:`FunctionDefinition`
         """
         if self._api is None:
