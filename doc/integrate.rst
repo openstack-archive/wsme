@@ -20,7 +20,6 @@ Example
 
     from wsme import *
     import wsme.wsgi
-    from wsme.protocols import restjson
 
     class MyRoot(WSRoot):
         @expose(unicode)
@@ -28,7 +27,7 @@ Example
             return u"Hello World !"
 
     application = wsme.wsgi.adapt(
-            MyRoot(protocols=['REST+Json']))
+            MyRoot(protocols=['restjson']))
 
 Turbogears 1.x
 --------------
@@ -73,12 +72,10 @@ Insert the ws controller in the controller tree, (file controllers.py):
 
     from wsmedemo.ws import WSController
     
-    # make sure the wanted protocols are known
-    import wsme.protocols.restjson
     import wsme.tg1
 
     class Root(controllers.RootController):
         ws = wsme.tg1.adapt(
-            WSController(webpath='/ws', protocols=['REST+Json']))
+            WSController(webpath='/ws', protocols=['restjson']))
 
         # ...
