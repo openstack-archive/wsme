@@ -204,7 +204,7 @@ class validate(object):
             args = args[1:]
         for i, argname in enumerate(args):
             datatype = self.param_types[i]
-            mandatory = defaults is None or i <= len(defaults)
+            mandatory = defaults is None or i < (len(args) - len(defaults))
             default = None
             if not mandatory:
                 default = defaults[i - (len(args) - len(defaults))]
@@ -310,7 +310,7 @@ class WSRoot(object):
                     res.body = result
             else:
                 # TODO make sure result type == a._wsme_definition.return_type
-                res.body = protocol.encode_result(funcdef, result)
+                res.body = protocol.encode_result(request, funcdef, result)
             res_content_type = funcdef.contenttype
         except Exception, e:
             infos = self._format_exception(sys.exc_info())
@@ -323,13 +323,8 @@ class WSRoot(object):
         if res_content_type is None:
             # Attempt to correctly guess what content-type we should return.
             last_q = 0
-            if hasattr(request.accept, '_parsed'):
-                for mimetype, q in request.accept._parsed:
-                    if mimetype in protocol.content_types and last_q < q:
-                        res_content_type = mimetype
-            else:
-                res_content_type = request.accept.best_match([
-                    ct for ct in protocol.content_types if ct])
+            res_content_type = request.accept.best_match([
+                ct for ct in protocol.content_types if ct])
 
         # If not we will attempt to convert the body to an accepted
         # output format.
