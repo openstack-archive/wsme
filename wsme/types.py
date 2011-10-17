@@ -113,8 +113,8 @@ def inspect_class(class_):
         elif isinstance(attr, wsproperty):
             attrdef = attr
         else:
-            if attr not in native_types and inspect.isclass(attr):
-                print name, attr
+            if attr not in native_types and (
+                    inspect.isclass(attr) or isinstance(attr, list)):
                 register_type(attr)
             attrdef = wsattr(attr)
 
