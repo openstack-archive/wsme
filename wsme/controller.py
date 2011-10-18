@@ -213,6 +213,15 @@ class validate(object):
         return func
 
 
+class CallContext(object):
+    def __init__(self, request):
+        self.request = request
+        self.path = None
+
+        self.func = None
+        self.funcdef = None
+
+
 class WSRoot(object):
     """
     Root controller for webservices.
@@ -287,44 +296,56 @@ class WSRoot(object):
                 res.body = msg
                 log.error(msg)
                 return res
-            path = protocol.extract_path(request)
-            if path is None:
+
+            context = None
+            calls = protocol.list_calls(request)
+
+            if isinstance(calls, CallContext):
+                calls = [calls]
+
+            if len(calls) != 1:
+                raise NotImplementedError("Batch calls are not yet supported")
+
+            context = calls[0]
+            context.path = protocol.extract_path(context)
+            if context.path is None:
                 raise exc.ClientSideError(
                     u'The %s protocol was unable to extract a function '
                     u'path from the request' % protocol.name)
-            func, funcdef = self._lookup_function(path)
-            kw = protocol.read_arguments(funcdef, request)
+            context.func, context.funcdef = self._lookup_function(context.path)
+            kw = protocol.read_arguments(context)
 
-            for arg in funcdef.arguments:
+            for arg in context.funcdef.arguments:
                 if arg.mandatory and arg.name not in kw:
                     raise exc.MissingArgument(arg.name)
 
-            result = func(**kw)
+            result = context.func(**kw)
 
             res.status = 200
 
-            if funcdef.protocol_specific and funcdef.return_type is None:
+            if context.funcdef.protocol_specific and context.funcdef.return_type is None:
                 if isinstance(result, unicode):
                     res.unicode_body = result
                 else:
                     res.body = result
             else:
                 # TODO make sure result type == a._wsme_definition.return_type
-                res.body = protocol.encode_result(request, funcdef, result)
-            res_content_type = funcdef.contenttype
+                res.body = protocol.encode_result(context, result)
+            res_content_type = context.funcdef.contenttype
         except Exception, e:
             infos = self._format_exception(sys.exc_info())
             if isinstance(e, exc.ClientSideError):
                 res.status = 400
             else:
                 res.status = 500
-            res.body = protocol.encode_error(infos)
+            res.body = protocol.encode_error(context, infos)
 
         if res_content_type is None:
             # Attempt to correctly guess what content-type we should return.
             last_q = 0
-            res_content_type = request.accept.best_match([
-                ct for ct in protocol.content_types if ct])
+            ctypes = [ct for ct in protocol.content_types if ct]
+            if ctypes:
+                res_content_type = request.accept.best_match(ctypes)
 
         # If not we will attempt to convert the body to an accepted
         # output format.

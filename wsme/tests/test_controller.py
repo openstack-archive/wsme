@@ -7,7 +7,7 @@ import webtest
 
 from wsme import *
 from wsme.controller import getprotocol, scan_api, pexpose
-from wsme.controller import FunctionArgument, FunctionDefinition
+from wsme.controller import FunctionArgument, FunctionDefinition, CallContext
 import wsme.wsgi
 
 
@@ -21,18 +21,21 @@ class DummyProtocol(object):
     def accept(self, req):
         return True
 
-    def extract_path(self, request):
+    def list_calls(self, req):
+        return CallContext(req)
+
+    def extract_path(self, context):
         return ['touch']
 
-    def read_arguments(self, funcdef, request):
-        self.lastreq = request
+    def read_arguments(self, context):
+        self.lastreq = context.request
         self.hits += 1
         return {}
 
-    def encode_result(self, funcdef, result):
+    def encode_result(self, context, result):
         return str(result)
 
-    def encode_error(self, infos):
+    def encode_error(self, context, infos):
         return str(infos)
 
 
@@ -46,8 +49,8 @@ def test_getprotocol():
 
 def test_pexpose():
     class Proto(DummyProtocol):
-        def extract_path(self, request):
-            if request.path.endswith('ufunc'):
+        def extract_path(self, context):
+            if context.request.path.endswith('ufunc'):
                 return ['_protocol', 'dummy', 'ufunc']
             else:
                 return ['_protocol', 'dummy', 'func']

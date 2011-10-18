@@ -1,6 +1,7 @@
 import logging
 
 from wsme.exc import UnknownFunction, MissingArgument, UnknownArgument
+from wsme.controller import CallContext
 
 log = logging.getLogger(__name__)
 
@@ -15,7 +16,23 @@ class RestProtocol(object):
             return True
         return request.headers.get('Content-Type') in self.content_types
 
-    def read_arguments(self, funcdef, request):
+    def list_calls(self, request):
+        return CallContext(request)
+
+    def extract_path(self, context):
+        path = context.request.path
+        assert path.startswith(self.root._webpath)
+        path = path[len(self.root._webpath):]
+        path = path.strip('/').split('/')
+
+        if path[-1].endswith('.' + self.dataformat):
+            path[-1] = path[-1][:-len(self.dataformat) - 1]
+
+        return path
+
+    def read_arguments(self, context):
+        request = context.request
+        funcdef = context.funcdef
         if len(request.params) and request.body:
             raise ClientSideError(
                 "Cannot read parameters from both a body and GET/POST params")
@@ -49,13 +66,3 @@ class RestProtocol(object):
             raise UnknownArgument(parsed_args.keys()[0])
         return kw
 
-    def extract_path(self, request):
-        path = request.path
-        assert path.startswith(self.root._webpath)
-        path = path[len(self.root._webpath):]
-        path = path.strip('/').split('/')
-
-        if path[-1].endswith('.' + self.dataformat):
-            path[-1] = path[-1][:-len(self.dataformat) - 1]
-
-        return path

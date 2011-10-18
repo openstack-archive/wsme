@@ -185,10 +185,10 @@ class RestXmlProtocol(RestProtocol):
     def parse_args(self, body):
         return dict((sub.tag, sub) for sub in et.fromstring(body))
 
-    def encode_result(self, funcdef, result):
-        return et.tostring(toxml(funcdef.return_type, 'result', result))
+    def encode_result(self, context, result):
+        return et.tostring(toxml(context.funcdef.return_type, 'result', result))
 
-    def encode_error(self, errordetail):
+    def encode_error(self, context, errordetail):
         el = et.Element('error')
         et.SubElement(el, 'faultcode').text = errordetail['faultcode']
         et.SubElement(el, 'faultstring').text = errordetail['faultstring']
