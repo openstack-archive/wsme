@@ -1,6 +1,20 @@
 Changes
 =======
 
+0.1.1 (next)
+------------
+
+*   Changed the internal API by introducing a CallContext object.
+    It makes it easier to implement some protocols that have
+    a transaction or call id that has to be returned. It will also
+    make it possible to implement batch-calls in a later version.
+
+*   More test coverage.
+
+*   Fix a problem with array attribute types not being registered.
+
+*   Fix the mandatory / default detection on function arguments.
+
 0.1.0 (2011-10-14)
 ------------------
 
