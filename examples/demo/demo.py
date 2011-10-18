@@ -12,9 +12,7 @@ Then::
 """
 
 from wsme import *
-from wsme.wsgi import WSRoot
-
-from wsme.protocols import soap
+from wsme.wsgi import adapt
 
 import logging
 
@@ -45,13 +43,16 @@ class DemoRoot(WSRoot):
         return p
 
 def app_factory(global_config, **local_conf):
-    protocols = [ 
-        'restjson',
-        soap.SoapProtocol(
+    root = DemoRoot()
+    
+    root.addprotocol('soap',
             tns='http://example.com/demo',
             typenamespace='http://example.com/demo/types',
             baseURL='http://127.0.0.1:8989/',
-        )]
-    return DemoRoot(protocols)
+    )
+
+    root.addprotocol('restjson')
+
+    return adapt(root)
 
 logging.basicConfig(level=logging.DEBUG)
