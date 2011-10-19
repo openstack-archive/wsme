@@ -2,7 +2,8 @@ from setuptools import setup
 
 setup(name='demo',
     install_requires=[
-        'wsme',
+        'WSME',
+        'WSME-Soap',
         'PasteScript',
         'PasteDeploy',
         'WSGIUtils',
