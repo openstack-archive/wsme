@@ -43,6 +43,16 @@ class NestedOuter(object):
         self.inner = NestedInner(0)
 
 
+class NestedInnerApi(object):
+    @expose(bool)
+    def deepfunction(self):
+        return True
+
+
+class NestedOuterApi(object):
+    inner = NestedInnerApi()
+
+
 class ReturnTypes(object):
     @expose(str)
     def getstr(self):
@@ -207,6 +217,7 @@ class WSTestRoot(WSRoot):
     argtypes = ArgTypes()
     returntypes = ReturnTypes()
     witherrors = WithErrors()
+    nested = NestedOuterApi()
 
     def reset(self):
         self._touched = False
@@ -385,6 +396,10 @@ class ProtocolTestCase(unittest.TestCase):
                          value=(value, [NestedOuter]),
                          _rt=[NestedOuter])
         assert r == value
+
+    def test_nested_api(self):
+        r = self.call('nested/inner/deepfunction', _rt=bool)
+        assert r is True
 
     def test_missing_argument(self):
         try:
