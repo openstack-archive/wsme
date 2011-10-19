@@ -213,11 +213,19 @@ class WithErrors(object):
         1 / 0
 
 
+class MiscFunctions(object):
+    @expose(int)
+    @validate(int, int)
+    def multiply(self, a, b):
+        return a * b
+
+
 class WSTestRoot(WSRoot):
     argtypes = ArgTypes()
     returntypes = ReturnTypes()
     witherrors = WithErrors()
     nested = NestedOuterApi()
+    misc = MiscFunctions()
 
     def reset(self):
         self._touched = False
@@ -409,6 +417,9 @@ class ProtocolTestCase(unittest.TestCase):
             print e
             assert e.faultcode == 'Client'
             assert e.faultstring == u'Missing argument: "value"'
+
+    def test_misc_multiply(self):
+        assert self.call('misc/multiply', a=5, b=2, _rt=int) == 10
 
     def test_html_format(self):
         res = self.call('argtypes/setdatetime', _accept="text/html",
