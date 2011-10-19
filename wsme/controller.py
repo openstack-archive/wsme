@@ -44,7 +44,7 @@ def scan_api(controller, path=[]):
         a = getattr(controller, name)
         if inspect.ismethod(a):
             if hasattr(a, '_wsme_definition'):
-                yield path, a._wsme_definition
+                yield path + [name], a._wsme_definition
         elif inspect.isclass(a):
             continue
         else:
