@@ -142,8 +142,8 @@ class TestController(unittest.TestCase):
 
         api = list(scan_api(r))
         assert len(api) == 1
-        fd = api[0]
-        assert fd.path == ['ns']
+        path, fd = api[0]
+        assert path == ['ns']
         assert fd.name == 'multiply'
 
     def test_scan_subclass(self):

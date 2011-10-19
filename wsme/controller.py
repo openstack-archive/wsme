@@ -44,8 +44,7 @@ def scan_api(controller, path=[]):
         a = getattr(controller, name)
         if inspect.ismethod(a):
             if hasattr(a, '_wsme_definition'):
-                a._wsme_definition.path = path
-                yield a._wsme_definition
+                yield path, a._wsme_definition
         elif inspect.isclass(a):
             continue
         else:
@@ -97,9 +96,6 @@ class FunctionDefinition(object):
         #: Override the contenttype of the returned value.
         #: Make sense only with :attr:`protocol_specific` functions.
         self.contenttype = None
-
-        #: Path of the function in the api tree.
-        self.path = None
 
         #: Dictionnary of protocol-specific options.
         self.extra_options = {}
@@ -254,7 +250,7 @@ class WSRoot(object):
         """
         Returns the api description.
 
-        :rtype: list of :class:`FunctionDefinition`
+        :rtype: list of (path, :class:`FunctionDefinition`)
         """
         if self._api is None:
             self._api = [i for i in scan_api(self)]
