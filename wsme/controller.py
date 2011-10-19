@@ -298,10 +298,7 @@ class WSRoot(object):
                 return res
 
             context = None
-            calls = protocol.list_calls(request)
-
-            if isinstance(calls, CallContext):
-                calls = [calls]
+            calls = list(protocol.iter_calls(request))
 
             if len(calls) != 1:
                 raise NotImplementedError("Batch calls are not yet supported")

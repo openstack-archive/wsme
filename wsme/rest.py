@@ -16,8 +16,8 @@ class RestProtocol(object):
             return True
         return request.headers.get('Content-Type') in self.content_types
 
-    def list_calls(self, request):
-        return CallContext(request)
+    def iter_calls(self, request):
+        yield CallContext(request)
 
     def extract_path(self, context):
         path = context.request.path

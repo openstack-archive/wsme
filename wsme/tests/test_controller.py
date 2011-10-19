@@ -21,8 +21,8 @@ class DummyProtocol(object):
     def accept(self, req):
         return True
 
-    def list_calls(self, req):
-        return CallContext(req)
+    def iter_calls(self, req):
+        yield CallContext(req)
 
     def extract_path(self, context):
         return ['touch']
