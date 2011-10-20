@@ -42,8 +42,8 @@ html:
 	@echo "Build finished. The HTML pages are in $(BUILDDIR)/html."
 
 ziphtml: html
-	rm -f $(BUILDDIR)/html/wsme-documentation.zip
-	cd $(BUILDDIR)/html && zip -r wsme-documentation.zip .
+	rm -f $(BUILDDIR)/wsme-documentation.zip
+	cd $(BUILDDIR)/html && zip -r ../wsme-documentation.zip .
 
 dirhtml:
 	$(SPHINXBUILD) -b dirhtml $(ALLSPHINXOPTS) $(BUILDDIR)/dirhtml
