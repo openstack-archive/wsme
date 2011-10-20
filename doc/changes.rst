@@ -1,8 +1,8 @@
 Changes
 =======
 
-0.1.1 (next)
-------------
+0.1.1 (2011-10-20)
+------------------
 
 *   Changed the internal API by introducing a CallContext object.
     It makes it easier to implement some protocols that have
@@ -14,6 +14,11 @@ Changes
 *   Fix a problem with array attribute types not being registered.
 
 *   Fix the mandatory / default detection on function arguments.
+
+*   Fix issues with the SOAP protocol implementation which should now
+    work properly with a suds client.
+
+*   Fix issues with the ExtDirect protocol implementation.
 
 0.1.0 (2011-10-14)
 ------------------
