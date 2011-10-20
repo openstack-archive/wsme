@@ -26,3 +26,6 @@ be done :
 
 -   Add unittests for adapters
 
+-   Address the authentication subject (which should be handled by
+    some other wsgi framework/middleware, but a little integration
+    could help).
