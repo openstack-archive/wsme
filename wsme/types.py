@@ -93,7 +93,11 @@ def sort_attributes(class_, attributes):
         names_order = []
         try:
             lines = []
-            for line in inspect.getsourcelines(class_)[0]:
+            for cls in inspect.getmro(class_):
+                if cls is object:
+                    continue
+                lines[len(lines):] = inspect.getsourcelines(cls)[0]
+            for line in lines:
                 line = line.strip().replace(" ", "")
                 if '=' in line:
                     aname = line[:line.index('=')]

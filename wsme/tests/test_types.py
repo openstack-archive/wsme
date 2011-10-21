@@ -103,3 +103,13 @@ class TestTypes(unittest.TestCase):
 
         assert hasattr(Inner, '_wsme_attributes')
         assert len(Inner._wsme_attributes) == 1
+
+    def test_inspect_with_inheritance(self):
+        class Parent(object):
+            parent_attribute = int
+
+        class Child(Parent):
+            child_attribute = int
+
+        types.register_type(Child)
+
