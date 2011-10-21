@@ -14,6 +14,12 @@ complex_types = []
 array_types = []
 
 
+class UnsetType(object):
+    pass
+
+Unset = UnsetType()
+
+
 def iscomplex(datatype):
     return hasattr(datatype, '_wsme_attributes')
 
@@ -119,6 +125,8 @@ def inspect_class(class_):
             attrdef = wsattr(attr)
 
         attributes.append((name, attrdef))
+        setattr(class_, name, Unset)
+
     sort_attributes(class_, attributes)
     return attributes
 
