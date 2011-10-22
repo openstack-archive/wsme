@@ -22,5 +22,3 @@ Indices and tables
 * :ref:`modindex`
 * :ref:`search`
 
-.. _python-wsme mailinglist: http://groups.google.com/group/python-wsme
-.. _WSME issue tracker: https://bitbucket.org/cdevienne/wsme/issues?status=new&status=open
