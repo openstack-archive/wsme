@@ -4,6 +4,8 @@ from setuptools import setup
 
 execfile(os.path.join('wsme', 'release.py'))
 
+long_description = open("README").read()
+
 setup(
     name=name,
     version=version,

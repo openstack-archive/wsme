@@ -4,42 +4,7 @@ Web Services Made Easy
 Introduction
 ------------
 
-Web Service Made Easy (WSME) is a very easy way to implement webservices
-in your python web application. It is originally a rewrite of TGWebServices
-with focus on extensibility, framework-independance and better type handling.
-
-Main features
-~~~~~~~~~~~~~
-
--   Very simple API.
--   Supports user defined complex types.
--   Multi-protocol : REST+Json, REST+XML, SOAP, and more to come.
--   Extensible : easy to add more protocols or more base types.
--   Framework independance : adapters are provided to easily integrate
-    your API in any web framework, for example a wsgi container,
-    turbogears, and more to come.
--   Very few runtime dependencies: webob, simplegeneric
-    (+ Genshi if you use SOAP).
--   Integration in Sphinx for making clean documentation with
-    sphinxcontrib-wsme (not released yet).
-
-Install
-~~~~~~~
-
-.. code-block:: bash
-
-    easy_install WSME
-
-Getting Help
-~~~~~~~~~~~~
-
-Questions about WSME should to the `python-wsme mailinglist`_.
-
-Contribute
-~~~~~~~~~~
-
-:Report issues: `WSME issue tracker`_
-:Source code: hg clone https://bitbucket.org/cdevienne/wsme/
+.. include:: ../README
 
 Contents
 --------
