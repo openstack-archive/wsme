@@ -1,8 +1,3 @@
-Web Services Made Easy
-======================
-
-Introduction
-------------
 
 .. include:: ../README
 
