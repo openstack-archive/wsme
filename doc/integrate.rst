@@ -29,6 +29,36 @@ Example
     application = wsme.wsgi.adapt(
             MyRoot(protocols=['restjson']))
 
+
+Pyramid
+-------
+
+The WSRoot._handle_request method is a valid pyramid view:
+
+.. code-block:: python
+
+    from paste.httpserver import serve
+    from pyramid.config import Configurator
+
+    from wsme import *
+
+    class WSController(WSRoot):
+        @expose(int)
+        @validate(int, int)
+        def multiply(self, a, b):
+            return a * b
+
+    myroot = WSRoot()
+    myroot.addprotocol('restjson')
+    myroot.addprotocol('extdirect')
+
+    if __name__ == '__main__':
+        config = Configurator()
+        config.add_route('ws', '')
+        config.add_view(wsroot._handle_request, route_name='ws')
+        app = config.make_wsgi_app()
+        serve(app, host='0.0.0.0')
+
 Turbogears 1.x
 --------------
 
