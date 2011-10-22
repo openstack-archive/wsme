@@ -31,7 +31,8 @@ Install
 Getting Help
 ~~~~~~~~~~~~
 
-Questions about WSME should to the `python-wsme mailinglist`_.
+-   Read the `WSME Documentation`_.
+-   Questions about WSME should to the `python-wsme mailinglist`_.
 
 Contribute
 ~~~~~~~~~~
@@ -41,4 +42,5 @@ Contribute
 
 
 .. _python-wsme mailinglist: http://groups.google.com/group/python-wsme
+.. _WSME Documentation: http://packages.python.org/WSME/
 .. _WSME issue tracker: https://bitbucket.org/cdevienne/wsme/issues?status=new&status=open
