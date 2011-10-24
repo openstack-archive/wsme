@@ -103,6 +103,9 @@ def sort_attributes(class_, attributes):
                     aname = line[:line.index('=')]
                     if aname in names and aname not in names_order:
                         names_order.append(aname)
+            if len(names_order) < len(names):
+                names_order.extend((
+                    name for name in names if name not in names_order))
             assert len(names_order) == len(names)
         except (TypeError, IOError):
             names_order = list(names)
@@ -156,6 +159,7 @@ def register_type(class_):
         array_types.append(class_[0])
         return
 
+    class_._wsme_attributes = None
     class_._wsme_attributes = inspect_class(class_)
 
     complex_types.append(weakref.ref(class_))

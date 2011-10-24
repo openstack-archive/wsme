@@ -113,3 +113,11 @@ class TestTypes(unittest.TestCase):
 
         types.register_type(Child)
 
+    def test_selfreftype(self):
+        class SelfRefType(object):
+            pass
+
+
+        SelfRefType.parent = SelfRefType
+
+        types.register_type(SelfRefType)
