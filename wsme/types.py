@@ -172,3 +172,9 @@ def list_attributes(class_):
     if not hasattr(class_, '_wsme_attributes'):
         register_type(class_)
     return class_._wsme_attributes
+
+
+def getattrdef(class_, name):
+    for attrname, attrdef in class_._wsme_attributes:
+        if attrname == name:
+            return attrdef
