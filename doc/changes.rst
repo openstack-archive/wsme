@@ -1,6 +1,21 @@
 Changes
 =======
 
+0.2.0 (next)
+------------
+
+*   Added batch-calls abilities.
+
+*   Implement batch-call in the ExtDirect protocol.
+
+*   Introduce a :class:`UnsetType` and a :data:`Unset` constant
+    so that non-mandatory attributes can remain unset (which is
+    different from null).
+
+*   Fix inspection of complex types with inheritance.
+
+*   Fix inspection of self-referencing complex types.
+
 0.1.1 (2011-10-20)
 ------------------
 
