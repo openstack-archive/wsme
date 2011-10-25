@@ -82,6 +82,7 @@ class TestTypes(unittest.TestCase):
 
         types.register_type(WithWSProp)
 
+        print WithWSProp._wsme_attributes
         assert len(WithWSProp._wsme_attributes) == 1
         a = WithWSProp._wsme_attributes[0][1]
         assert a.datatype == int
@@ -121,3 +122,14 @@ class TestTypes(unittest.TestCase):
         SelfRefType.parent = SelfRefType
 
         types.register_type(SelfRefType)
+
+    def test_inspect_with_property(self):
+        class AType(object):
+            @property
+            def test(self):
+                return 'test'
+
+        types.register_type(AType)
+
+        assert len(AType._wsme_attributes) == 0
+        assert AType().test == 'test'

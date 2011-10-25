@@ -120,6 +120,8 @@ def inspect_class(class_):
     for name, attr in inspect.getmembers(class_, iswsattr):
         if name.startswith('_'):
             continue
+        if isinstance(attr, property) and not isinstance(attr, wsproperty):
+            continue
 
         if isinstance(attr, wsattr):
             attrdef = attr
