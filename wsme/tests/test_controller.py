@@ -63,9 +63,10 @@ def test_pexpose():
         def ufunc(self):
             return u"<p>é</p>"
 
-    assert FunctionDefinition.get(Proto.func).return_type is None
-    assert FunctionDefinition.get(Proto.func).protocol_specific
-    assert FunctionDefinition.get(Proto.func).contenttype == "text/xml"
+    func, fd = FunctionDefinition.get(Proto.func)
+    assert fd.return_type is None
+    assert fd.protocol_specific
+    assert fd.contenttype == "text/xml"
 
     p = Proto()
     r = WSRoot()
