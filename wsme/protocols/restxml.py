@@ -129,16 +129,6 @@ def datetime_toxml(datatype, key, value):
     return el
 
 
-@toxml.when_object(wsme.types.binary)
-def binary_toxml(datatype, key, value):
-    el = et.Element(key)
-    if value is None:
-        el.set('nil', 'true')
-    else:
-        el.text = base64.encodestring(value)
-    return el
-
-
 @fromxml.when_type(list)
 def array_fromxml(datatype, element):
     if element.get('nil') == 'true':
@@ -164,11 +154,6 @@ def time_fromxml(datatype, element):
 @fromxml.when_object(datetime.datetime)
 def datetime_fromxml(datatype, element):
     return datetime.datetime.strptime(element.text, '%Y-%m-%dT%H:%M:%S')
-
-
-@fromxml.when_object(wsme.types.binary)
-def binary_fromxml(datatype, element):
-    return base64.decodestring(element.text)
 
 
 class RestXmlProtocol(RestProtocol):

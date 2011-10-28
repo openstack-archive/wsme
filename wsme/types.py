@@ -1,10 +1,8 @@
+import base64
 import datetime
 import decimal
-import weakref
 import inspect
-
-binary = object()
-
+import weakref
 
 class UserType(object):
     basetype = None
@@ -17,6 +15,27 @@ class UserType(object):
 
     def frombasetype(self, value):
         return value
+
+
+def isusertype(class_):
+    return isinstance(class_, UserType)
+
+
+class BinaryType(UserType):
+    """
+    A user type that use base64 strings to carry binary data.
+    """
+    basetype = str
+
+    def tobasetype(self, value):
+        return base64.encodestring(value)
+
+    def frombasetype(self, value):
+        return base64.decodestring(value)
+
+#: The binary almost-native type
+binary = BinaryType()
+
 
 class Enum(UserType):
     """
@@ -41,9 +60,6 @@ class Enum(UserType):
 
     def frombasetype(self, value):
         return value
-
-def isusertype(class_):
-    return isinstance(class_, UserType)
 
 pod_types = [str, unicode, int, float, bool]
 dt_types = [datetime.date, datetime.time, datetime.datetime]

@@ -65,11 +65,6 @@ def datetime_tojson(datatype, value):
     return value.isoformat()
 
 
-@tojson.when_object(wsme.types.binary)
-def datetime_tojson(datatype, value):
-    return base64.encodestring(value)
-
-
 @generic
 def fromjson(datatype, value):
     """
@@ -122,11 +117,6 @@ def time_fromjson(datatype, value):
 @fromjson.when_object(datetime.datetime)
 def time_fromjson(datatype, value):
     return datetime.datetime.strptime(value, '%Y-%m-%dT%H:%M:%S')
-
-
-@fromjson.when_object(wsme.types.binary)
-def binary_fromjson(datatype, value):
-    return base64.decodestring(value)
 
 
 class RestJsonProtocol(RestProtocol):
