@@ -112,15 +112,25 @@ The function parameters can be transmitted in two ways :
 
 The result will be return Json or XML encoded (see below).
 
+In case of error, a 400 or 500 status code is returned, and the
+response body contains details about the error (see below).
+
 REST+Json
-~~~~~~~~~
+---------
 
 :name: ``'restjson'``
 
 Implements a REST+Json protocol.
 
+This protocol is selected if:
+
+-   The request content-type is either text/javascript or application/json
+-   The request 'Accept' header contains 'text/javascript' or 'application.json'
+-   A trailing '.json' is added to the path
+-   A 'wsmeproto=restjson' is added in the query string
+
 Types
-'''''
+~~~~~
 
 +---------------+-------------------------------+
 | Type          | Json type                     |
@@ -151,7 +161,7 @@ Types
 +---------------+-------------------------------+
 
 Return
-''''''
+~~~~~~
 
 A json object with a single 'result' property, OR a json object
 with error properties ('faulcode', 'faultstring' and 'debuginfo' if
@@ -184,9 +194,91 @@ And in case of error:
     }
 
 REST+XML
-~~~~~~~~
+--------
 
 :name: ``'restxml'``
+
+This protocol is selected if
+
+-   The request content-type is text/xml
+-   The request 'Accept' header contains 'text/xml'
+-   A trailing '.xml' is added to the path
+-   A 'wsmeproto=restxml' is added in the query string
+
+Types
+~~~~~
+
++---------------+------------------------------------+
+| Type          | XML example                        |
++===============+====================================+
+| ``str``       | .. code-block:: xml                |
+|               |                                    |
+|               |     <value>a string</value>        |
++---------------+------------------------------------+
+| ``unicode``   | .. code-block:: xml                |
+|               |                                    |
+|               |     <value>a string</value>        |
++---------------+------------------------------------+
+| ``int``       | .. code-block:: xml                |
+|               |                                    |
+|               |     <value>5</value>               |
++---------------+------------------------------------+
+| ``float``     | <value>3.14</value>                |
++---------------+------------------------------------+
+| ``bool``      | <value>true</value>                |
++---------------+------------------------------------+
+| ``Decimal``   | <value>5.46</value>                |
++---------------+------------------------------------+
+| ``date``      | <value>2010-04-27</value>          |
++---------------+------------------------------------+
+| ``time``      | <value>12:54:18</value>            |
++---------------+------------------------------------+
+| ``datetime``  | <value>2010-04-27T12:54:18</value> |
++---------------+------------------------------------+
+| Arrays        | .. code-block:: xml                |
+|               |                                    |
+|               |     <value>                        |
+|               |         <item>Dinausaurs<item>     |
+|               |         <item>Rachel<item>         |
+|               |     </value>                       |
++---------------+------------------------------------+
+| None          | .. code-block:: xml                |
+|               |                                    |
+|               |     <value nil="true"/>            |
++---------------+------------------------------------+
+| Complex types | .. code-block:: xml                |
+|               |                                    |
+|               |     <value>                        |
+|               |         <id>1</id>                 |
+|               |         <fistname>1</fistname>     |
+|               |     </value>                       |
++---------------+------------------------------------+
+
+Return
+~~~~~~
+
+A xml tree with a top 'result' element.
+
+.. code-block:: xml
+
+    <result>
+        <id>1</id>
+        <firstname>Ross</firstname>
+        <lastname>Geller</lastname>
+    </result>
+
+Errors
+~~~~~~
+
+A xml tree with a top 'error' element, having 'faultcode', 'faultstring'
+and 'debuginfo' subelements:
+
+.. code-block:: xml
+
+    <error>
+        <faultcode>Client</faultcode>
+        <faultstring>id is missing</faultstring>
+    </error>
 
 SOAP
 ----
@@ -195,6 +287,14 @@ SOAP
 :package: WSME-Soap
 
 Implements the SOAP protocol.
+
+A wsdl definition of the webservice is available at the 'api.wsdl' subpath.
+(``/ws/api.wsdl`` in our example).
+
+The protocol is selected if the request match one of the following condition:
+
+-   The Content-Type is 'application/soap+xml'
+-   A header 'Soapaction' is present
 
 Options
 ~~~~~~~
