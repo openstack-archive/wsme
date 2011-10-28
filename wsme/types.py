@@ -5,6 +5,46 @@ import inspect
 
 binary = object()
 
+
+class UserType(object):
+    basetype = None
+
+    def validate(self, value):
+        return
+
+    def tobasetype(self, value):
+        return value
+
+    def frombasetype(self, value):
+        return value
+
+class Enum(UserType):
+    """
+    A simple enumeration type. Can be based on any non-complex type.
+
+    :param basetype: The actual data type
+    :param values: A set of possible values
+
+    If nullable, 'None' should be added the values set.
+    """
+    def __init__(self, basetype, values):
+        self.basetype = basetype
+        self.values = values
+
+    def validate(self, value):
+        if value not in self.values:
+            raise ValueError("Value '%s' is invalid (should be one of: %s)" % (
+                value, ', '.join(self.values)))
+
+    def tobasetype(self, value):
+        return value
+
+    def frombasetype(self, value):
+        return value
+
+def isusertype(class_):
+    return isinstance(class_, UserType)
+
 pod_types = [str, unicode, int, float, bool]
 dt_types = [datetime.date, datetime.time, datetime.datetime]
 extra_types = [binary, decimal.Decimal]
@@ -23,6 +63,17 @@ Unset = UnsetType()
 def iscomplex(datatype):
     return hasattr(datatype, '_wsme_attributes')
 
+
+def validate_value(datatype, value):
+    print datatype
+    if hasattr(datatype, 'validate'):
+        return datatype.validate(value)
+    else:
+        if value is not None and not isinstance(value, datatype):
+            raise ValueError(
+                "Wrong type. Expected '%s', got '%s'" % (
+                    datatype, type(value)
+                ))
 
 class wsproperty(property):
     """
@@ -76,11 +127,7 @@ class wsattr(object):
         return getattr(instance, '_' + self.key, Unset)
 
     def __set__(self, instance, value):
-        if value is not None and not isinstance(value, self.datatype):
-            raise ValueError(
-                "Wrong type for attribute %s. Expected '%s', got '%s'" % (
-                    self.key, self.datatype, type(value)
-                ))
+        validate_value(self.datatype, value)
         setattr(instance, '_' + self.key, value)
 
     def __delete__(self, instance):
@@ -177,7 +224,7 @@ def register_type(class_):
     """
     if class_ is None or \
             class_ in native_types or \
-            hasattr(class_, '_wsme_attributes'):
+            isusertype(class_) or iscomplex(class_):
         return
 
     if isinstance(class_, list):

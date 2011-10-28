@@ -133,3 +133,25 @@ class TestTypes(unittest.TestCase):
 
         assert len(AType._wsme_attributes) == 0
         assert AType().test == 'test'
+
+    def test_enum(self):
+        aenum = types.Enum(str, ['v1', 'v2'])
+        assert aenum.basetype is str
+
+        class AType(object):
+            a = aenum
+
+        types.register_type(AType)
+
+        assert AType.a.datatype is aenum
+
+        obj = AType()
+        obj.a = 'v1'
+        assert obj.a == 'v1'
+
+
+        try:
+            obj.a = 'v3'
+            assert False, 'ValueError was not raised'
+        except ValueError, e:
+            assert str(e) == "Value 'v3' is invalid (should be one of: v1, v2)"

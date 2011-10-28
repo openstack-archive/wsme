@@ -11,6 +11,7 @@ except:
 import wsme.protocols.restjson
 from wsme.protocols.restjson import fromjson
 from wsme.utils import *
+from wsme.types import isusertype
 
 
 def prepare_value(value, datatype):
@@ -26,6 +27,8 @@ def prepare_value(value, datatype):
 
 
 def prepare_result(value, datatype):
+    if isusertype(datatype):
+        datatype = datatype.basetype
     if isinstance(datatype, list):
         return [prepare_result(item, datatype[0]) for item in value]
     if datatype == datetime.date:

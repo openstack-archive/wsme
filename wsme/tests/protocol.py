@@ -29,6 +29,9 @@ class CallException(RuntimeError):
                 self.faultcode, self.faultstring, self.debuginfo)
 
 
+myenumtype = wsme.types.Enum(str, set(['v1', 'v2']))
+
+
 class NestedInner(object):
     aint = int
 
@@ -102,6 +105,10 @@ class ReturnTypes(object):
     @expose([NestedOuter])
     def getnestedarray(self):
         return [NestedOuter(), NestedOuter()]
+
+    @expose(myenumtype)
+    def getenum(self):
+        return 'v2'
 
 
 class ArgTypes(object):
@@ -206,6 +213,12 @@ class ArgTypes(object):
         assert type(value[0]) == NestedOuter
         return value
 
+    @expose(myenumtype)
+    @validate(myenumtype)
+    def setenum(self, value):
+        print value
+        assert type(value) == str
+        return value
 
 class WithErrors(object):
     @expose()
@@ -328,6 +341,10 @@ class ProtocolTestCase(unittest.TestCase):
         r = self.call('returntypes/getnestedarray', _rt=[NestedOuter])
         assert r == [{'inner': {'aint': 0}}, {'inner': {'aint': 0}}], r
 
+    def test_return_enum(self):
+        r = self.call('returntypes/getenum', _rt=myenumtype)
+        assert r == 'v2', r
+
     def test_setstr(self):
         assert self.call('argtypes/setstr', value='astring') == 'astring'
 
@@ -403,6 +420,12 @@ class ProtocolTestCase(unittest.TestCase):
         r = self.call('argtypes/setnestedarray',
                          value=(value, [NestedOuter]),
                          _rt=[NestedOuter])
+        assert r == value
+
+    def test_setenum(self):
+        value = 'v1'
+        r = self.call('argtypes/setenum', value=value,
+                      _rt=myenumtype)
         assert r == value
 
     def test_nested_api(self):

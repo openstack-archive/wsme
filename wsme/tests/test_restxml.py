@@ -4,6 +4,7 @@ import base64
 
 import wsme.tests.protocol
 from wsme.utils import *
+from wsme.types import isusertype
 
 try:
     import xml.etree.ElementTree as et
@@ -56,6 +57,8 @@ def loadxml(el, datatype):
         print d
         return d
     else:
+        if isusertype(datatype):
+            datatype = datatype.basetype
         if datatype == datetime.date:
             return parse_isodate(el.text)
         if datatype == datetime.time:
