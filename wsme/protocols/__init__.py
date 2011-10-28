@@ -1,0 +1,37 @@
+import weakref
+
+import pkg_resources
+
+__all__ = [
+    'CallContext',
+
+    'register_protocol', 'getprotocol',
+]
+
+registered_protocols = {}
+
+
+class CallContext(object):
+    def __init__(self, request):
+        self.request = weakref.proxy(request)
+        self.path = None
+
+        self.func = None
+        self.funcdef = None
+
+
+def register_protocol(protocol):
+    registered_protocols[protocol.name] = protocol
+
+
+def getprotocol(name, **options):
+    protocol_class = registered_protocols.get(name)
+    if protocol_class is None:
+        for entry_point in pkg_resources.iter_entry_points(
+                'wsme.protocols', name):
+            if entry_point.name == name:
+                protocol_class = entry_point.load()
+        if protocol_class is None:
+            raise ValueError("Cannot find protocol '%s'" % name)
+        registered_protocols[name] = protocol_class
+    return protocol_class(**options)

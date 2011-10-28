@@ -1,7 +1,7 @@
 import logging
 
 from wsme.exc import UnknownFunction, MissingArgument, UnknownArgument
-from wsme.controller import CallContext
+from wsme.protocols import CallContext
 
 log = logging.getLogger(__name__)
 

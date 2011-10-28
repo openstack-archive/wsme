@@ -8,7 +8,7 @@ except ImportError:
 
 from simplegeneric import generic
 
-from wsme.rest import RestProtocol
+from wsme.protocols.rest import RestProtocol
 from wsme.exc import *
 import wsme.types
 

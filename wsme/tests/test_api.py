@@ -6,47 +6,12 @@ from webob.dec import wsgify
 import webtest
 
 from wsme import *
-from wsme.controller import getprotocol, scan_api, pexpose
-from wsme.controller import FunctionArgument, FunctionDefinition, CallContext
+from wsme.api import scan_api, pexpose
+from wsme.api import FunctionArgument, FunctionDefinition
 from wsme.types import iscomplex
 import wsme.wsgi
 
-
-class DummyProtocol(object):
-    name = 'dummy'
-    content_types = ['', None]
-
-    def __init__(self):
-        self.hits = 0
-
-    def accept(self, req):
-        return True
-
-    def iter_calls(self, req):
-        yield CallContext(req)
-
-    def extract_path(self, context):
-        return ['touch']
-
-    def read_arguments(self, context):
-        self.lastreq = context.request.__init__.__self__
-        self.hits += 1
-        return {}
-
-    def encode_result(self, context, result):
-        return str(result)
-
-    def encode_error(self, context, infos):
-        return str(infos)
-
-
-def test_getprotocol():
-    try:
-        getprotocol('invalid')
-        assert False, "ValueError was not raised"
-    except ValueError, e:
-        pass
-
+from wsme.tests.test_protocols import DummyProtocol
 
 def test_pexpose():
     class Proto(DummyProtocol):
@@ -123,22 +88,6 @@ class TestController(unittest.TestCase):
         assert args[2].default == 0
 
         assert iscomplex(ComplexType)
-
-    def test_register_protocol(self):
-        import wsme.controller
-        wsme.controller.register_protocol(DummyProtocol)
-        assert wsme.controller.registered_protocols['dummy'] == DummyProtocol
-
-        r = WSRoot()
-        assert len(r.protocols) == 0
-
-        r.addprotocol('dummy')
-        assert len(r.protocols) == 1
-        assert r.protocols[0].__class__ == DummyProtocol
-
-        r = WSRoot(['dummy'])
-        assert len(r.protocols) == 1
-        assert r.protocols[0].__class__ == DummyProtocol
 
     def test_scan_api(self):
         class NS(object):
