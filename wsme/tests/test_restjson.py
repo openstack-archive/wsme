@@ -35,10 +35,10 @@ def prepare_result(value, datatype):
     if datatype == datetime.datetime:
         return parse_isodatetime(value)
     if hasattr(datatype, '_wsme_attributes'):
-        for name, attr in datatype._wsme_attributes:
-            if name not in value:
+        for attr in datatype._wsme_attributes:
+            if attr.key not in value:
                 continue
-            value[name] = prepare_result(value[name], attr.datatype)
+            value[attr.key] = prepare_result(value[attr.key], attr.datatype)
         return value
     if datatype == wsme.types.binary:
         return base64.decodestring(value)

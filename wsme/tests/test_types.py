@@ -22,13 +22,13 @@ class TestTypes(unittest.TestCase):
         attrs = Flat._wsme_attributes
         print attrs
 
-        assert attrs[0][0] == 'aint'
-        assert isinstance(attrs[0][1], types.wsattr)
-        assert attrs[0][1].datatype == int
-        assert attrs[0][1].mandatory == False
-        assert attrs[1][0] == 'astr'
-        assert attrs[2][0] == 'auni'
-        assert attrs[3][0] == 'afloat'
+        assert attrs[0].key == 'aint'
+        assert isinstance(attrs[0], types.wsattr)
+        assert attrs[0].datatype == int
+        assert attrs[0].mandatory == False
+        assert attrs[1].key == 'astr'
+        assert attrs[2].key == 'auni'
+        assert attrs[3].key == 'afloat'
 
     def test_private_attr(self):
         class WithPrivateAttrs(object):
@@ -48,9 +48,9 @@ class TestTypes(unittest.TestCase):
         types.register_type(ForcedOrder)
 
         print ForcedOrder._wsme_attributes
-        assert ForcedOrder._wsme_attributes[0][0] == 'a2'
-        assert ForcedOrder._wsme_attributes[1][0] == 'a1'
-        assert ForcedOrder._wsme_attributes[2][0] == 'a3'
+        assert ForcedOrder._wsme_attributes[0].key == 'a2'
+        assert ForcedOrder._wsme_attributes[1].key == 'a1'
+        assert ForcedOrder._wsme_attributes[2].key == 'a3'
 
         c = gen_class()
         print c
@@ -63,9 +63,9 @@ class TestTypes(unittest.TestCase):
 
         types.register_type(c)
 
-        assert c._wsme_attributes[0][0] == 'a1'
-        assert c._wsme_attributes[1][0] == 'a2'
-        assert c._wsme_attributes[2][0] == 'a3'
+        assert c._wsme_attributes[0].key == 'a1'
+        assert c._wsme_attributes[1].key == 'a2'
+        assert c._wsme_attributes[2].key == 'a3'
 
     def test_wsproperty(self):
         class WithWSProp(object):
@@ -84,7 +84,8 @@ class TestTypes(unittest.TestCase):
 
         print WithWSProp._wsme_attributes
         assert len(WithWSProp._wsme_attributes) == 1
-        a = WithWSProp._wsme_attributes[0][1]
+        a = WithWSProp._wsme_attributes[0]
+        assert a.key == 'aint'
         assert a.datatype == int
         assert a.mandatory
 

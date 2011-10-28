@@ -34,8 +34,8 @@ def tojson(datatype, value):
     """
     if wsme.types.iscomplex(datatype):
         d = dict()
-        for name, attr in wsme.types.list_attributes(datatype):
-            d[name] = tojson(attr.datatype, getattr(value, name))
+        for attr in wsme.types.list_attributes(datatype):
+            d[attr.key] = tojson(attr.datatype, getattr(value, attr.key))
         return d
     return value
 
@@ -91,9 +91,10 @@ def fromjson(datatype, value):
         return None
     if wsme.types.iscomplex(datatype):
         obj = datatype()
-        for name, attrdef in wsme.types.list_attributes(datatype):
-            if name in value:
-                setattr(obj, name, fromjson(attrdef.datatype, value[name]))
+        for attrdef in wsme.types.list_attributes(datatype):
+            if attrdef.key in value:
+                setattr(obj, attrdef.key,
+                        fromjson(attrdef.datatype, value[attrdef.key]))
         return obj
     return value
 

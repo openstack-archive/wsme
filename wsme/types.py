@@ -42,28 +42,50 @@ class wsproperty(property):
     def __init__(self, datatype, fget, fset=None,
                  mandatory=False, doc=None):
         property.__init__(self, fget, fset)
+        self.key = None
         self.datatype = datatype
         self.mandatory = mandatory
 
 
 class wsattr(object):
     """
-    Complex type attribute definition when the datatype only is not
-    enough.
+    Complex type attribute definition.
+
     Example::
 
         class MyComplexType(object):
             optionalvalue = int
             mandatoryvalue = wsattr(int, mandatory=True)
 
+    After inspection, the non-wsattr attributes will be replace, and
+    the above class will be equivalent to::
+
+        class MyComplexType(object):
+            optionalvalue = wsattr(int)
+            mandatoryvalue = wsattr(int, mandatory=True)
+
     """
     def __init__(self, datatype, mandatory=False):
+        self.key = None  # will be set by class inspection
         self.datatype = datatype
         self.mandatory = mandatory
+
+    def __get__(self, instance, owner):
+        if instance is None:
+            return self
+        return getattr(instance, '_' + self.key, Unset)
+
+    def __set__(self, instance, value):
+        setattr(instance, '_' + self.key, value)
+
+    def __delete__(self, instance):
+        delattr(instance, '_' + self.key)
 
 
 def iswsattr(attr):
     if inspect.isfunction(attr) or inspect.ismethod(attr):
+        return False
+    if isinstance(attr, property) and not isinstance(attr, wsproperty):
         return False
     return True
 
@@ -84,7 +106,7 @@ def sort_attributes(class_, attributes):
     if not len(attributes):
         return
 
-    attrs = dict(attributes)
+    attrs = dict((a.key, a) for a in attributes)
 
     if hasattr(class_, '_wsme_attr_order'):
         names_order = class_._wsme_attr_order
@@ -111,7 +133,7 @@ def sort_attributes(class_, attributes):
             names_order = list(names)
             names_order.sort()
 
-    attributes[:] = [(name, attrs[name]) for name in names_order]
+    attributes[:] = [attrs[name] for name in names_order]
 
 
 def inspect_class(class_):
@@ -119,8 +141,6 @@ def inspect_class(class_):
     attributes = []
     for name, attr in inspect.getmembers(class_, iswsattr):
         if name.startswith('_'):
-            continue
-        if isinstance(attr, property) and not isinstance(attr, wsproperty):
             continue
 
         if isinstance(attr, wsattr):
@@ -133,8 +153,9 @@ def inspect_class(class_):
                 register_type(attr)
             attrdef = wsattr(attr)
 
-        attributes.append((name, attrdef))
-        setattr(class_, name, Unset)
+        attrdef.key = name
+        attributes.append(attrdef)
+        setattr(class_, name, attrdef)
 
     sort_attributes(class_, attributes)
     return attributes
@@ -174,9 +195,3 @@ def list_attributes(class_):
     if not hasattr(class_, '_wsme_attributes'):
         register_type(class_)
     return class_._wsme_attributes
-
-
-def getattrdef(class_, name):
-    for attrname, attrdef in class_._wsme_attributes:
-        if attrname == name:
-            return attrdef

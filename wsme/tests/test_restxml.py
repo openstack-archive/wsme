@@ -27,7 +27,8 @@ def dumpxml(key, obj, datatype=None):
     elif type(obj) in (datetime.date, datetime.time, datetime.datetime):
         el.text = obj.isoformat()
     elif hasattr(datatype, '_wsme_attributes'):
-        for name, attr in datatype._wsme_attributes:
+        for attr in datatype._wsme_attributes:
+            name = attr.key
             if name not in obj:
                 continue
             o = obj[name]
@@ -46,7 +47,8 @@ def loadxml(el, datatype):
         return [loadxml(item, datatype[0]) for item in el.findall('item')]
     elif len(el):
         d = {}
-        for name, attr in datatype._wsme_attributes:
+        for attr in datatype._wsme_attributes:
+            name = attr.key
             child = el.find(name)
             print name, attr, child
             if child is not None:
