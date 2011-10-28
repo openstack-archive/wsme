@@ -12,12 +12,12 @@ Main features
 ~~~~~~~~~~~~~
 
 -   Very simple API.
--   Supports user defined complex types.
--   Multi-protocol : REST+Json, REST+XML, SOAP, and more to come.
+-   Supports user defined simple and complex types.
+-   Multi-protocol : REST+Json, REST+XML, SOAP, ExtDirect and more to come.
 -   Extensible : easy to add more protocols or more base types.
 -   Framework independance : adapters are provided to easily integrate
     your API in any web framework, for example a wsgi container,
-    turbogears, and more to come.
+    turbogears...
 -   Very few runtime dependencies: webob, simplegeneric
     (+ Genshi if you use SOAP).
 -   Integration in Sphinx for making clean documentation with
@@ -25,6 +25,8 @@ Main features
 
 Install
 ~~~~~~~
+
+::
 
     easy_install WSME
 

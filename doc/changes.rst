@@ -1,8 +1,8 @@
 Changes
 =======
 
-0.2.0 (next)
-------------
+0.2.0 (2011-10-29)
+------------------
 
 *   Added batch-calls abilities.
 
