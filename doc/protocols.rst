@@ -1,13 +1,190 @@
 Protocols
 =========
 
+The example
+-----------
+
+In this document the same webservice example will be used to
+illustrate the different protocols:
+
+.. code-block:: python
+
+    class Person(object):
+        id = int
+        lastname = unicode
+        firstname = unicode
+        age = int
+
+        hobbies = [unicode]
+
+        def __init__(self, id=None, lastname=None, firstname=None, age=None,
+                    hobbies=None):
+            if id:
+                self.id = id
+            if lastname:
+                self.lastname = lastname
+            if firstname:
+                self.firstname = firstname
+            if age:
+                self.age = age
+            if hobbies:
+                self.hobbies = hobbies
+
+    persons = {
+        1: Person(1, "Geller", "Ross", 30, ["Dinosaurs", "Rachel"]),
+        2: Person(2, "Geller", "Monica", 28, ["Food", "Cleaning"])
+    }
+
+    class PersonController(object):
+        @expose(Person)
+        @validate(int)
+        def get(self, id):
+            return persons[id]
+
+        @expose([Person])
+        def list(self):
+            return persons.values()
+
+        @expose(Person)
+        @validate(Person)
+        def update(self, p):
+            if p.id is Unset:
+                raise ClientSideError("id is missing")
+            persons[p.id] = p
+            return p
+
+        @expose(Person)
+        @validate(Person)
+        def create(self, p):
+            if p.id is not Unset:
+                raise ClientSideError("I don't want an id")
+            p.id = max(persons.keys()) + 1
+            persons[p.id] = p
+            return p
+
+        @expose()
+        @validate(int)
+        def destroy(self, id):
+            if id not in persons:
+                raise ClientSideError("Unknown ID")
+
+
+    class WS(WSRoot):
+        person = PersonController()
+
+    root = WS(webpath='ws')
+
+REST
+----
+
+The two REST protocols share common characterics.
+
+Each function corresponds to distinct webpath that starts with the
+root webpath, followed by the controllers names if any, and finally
+the function name.
+
+For example, the functions exposed functions will be mapped to the
+following paths :
+
+-   ``/ws/persons/create``
+-   ``/ws/persons/get``
+-   ``/ws/persons/list``
+-   ``/ws/persons/update``
+-   ``/ws/persons/destroy``
+
+In a near future, an additional expose option `restverb` will allow
+to use the HTTP verb to select the function, in which case the path
+will not containt the function name.
+
+The function parameters can be transmitted in two ways :
+
+#.  As a GET query string or POST form parameters.
+
+    Simple types are straight forward :
+
+    ``/ws/person/get?id=5``
+
+    Complex types, although not yet implemented, should work this way:
+
+    ``/ws/person/update?p.id=1&p.name=Ross&p.hobbies[0]=Dinausaurs&p.hobbies[1]=Rachel``
+
+#.  In a Json or XML encoded POST body (see below)
+
+The result will be return Json or XML encoded (see below).
+
 REST+Json
----------
+~~~~~~~~~
 
 :name: ``'restjson'``
 
+Implements a REST+Json protocol.
+
+Types
+'''''
+
++---------------+-------------------------------+
+| Type          | Json type                     |
++===============+===============================+
+| ``str``       | String                        |
++---------------+-------------------------------+
+| ``unicode``   | String                        |
++---------------+-------------------------------+
+| ``int``       | Number                        |
++---------------+-------------------------------+
+| ``float``     | Number                        |
++---------------+-------------------------------+
+| ``bool``      | Boolean                       |
++---------------+-------------------------------+
+| ``Decimal``   | String                        |
++---------------+-------------------------------+
+| ``date``      | String (YYYY-MM-DD)           |
++---------------+-------------------------------+
+| ``time``      | String (hh:mm:ss)             |
++---------------+-------------------------------+
+| ``datetime``  | String (YYYY-MM-DDThh:mm:ss)  |
++---------------+-------------------------------+
+| Arrays        | Array                         |
++---------------+-------------------------------+
+| None          | null                          |
++---------------+-------------------------------+
+| Complex types | Object                        |
++---------------+-------------------------------+
+
+Return
+''''''
+
+A json object with a single 'result' property, OR a json object
+with error properties ('faulcode', 'faultstring' and 'debuginfo' if
+available).
+
+For example, the /ws/person/get result looks like:
+
+.. code-block:: javascript
+
+    {
+        'result': {
+            'id': 2
+            'fistname': 'Monica',
+            'lastname': 'Geller',
+            'age': 28,
+            'hobbies': [
+                'Food',
+                'Cleaning'
+            ]
+        }
+    }
+
+And in case of error:
+
+.. code-block:: javascript
+    
+    {
+        'faultcode': 'Client',
+        'faultstring': 'id is missing'
+    }
+
 REST+XML
---------
+~~~~~~~~
 
 :name: ``'restxml'``
 
@@ -16,6 +193,8 @@ SOAP
 
 :name: ``'soap'``
 :package: WSME-Soap
+
+Implements the SOAP protocol.
 
 Options
 ~~~~~~~
