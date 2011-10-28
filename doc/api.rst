@@ -28,15 +28,15 @@ Internals
 .. automodule:: wsme.types
     :members: register_type
 
-:mod:`wsme.controller` -- Controller
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+:mod:`wsme.api` -- API related api
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-.. automodule:: wsme.controller
+.. automodule:: wsme.api
     :members: scan_api, FunctionArgument, FunctionDefinition
 
-:mod:`wsme.rest` -- REST protocol commons
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+:mod:`wsme.protocols.rest` -- REST protocol commons
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-.. automodule:: wsme.rest
+.. automodule:: wsme.protocols.rest
     :members:
 

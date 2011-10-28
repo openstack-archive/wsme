@@ -13,6 +13,12 @@ Changes
 *   Fix: If a complex type was only used as an input type, it was
     not registered.
 
+*   Add support for user types.
+
+*   Add an Enum type (which is a user type).
+
+*   The 'binary' type is now a user type.
+
 *   Complex types:
 
     -   Fix inspection of complex types with inheritance.

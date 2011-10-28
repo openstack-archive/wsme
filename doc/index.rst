@@ -9,6 +9,7 @@ Contents
 
    gettingstarted
    api
+   types
    protocols
    integrate
 
