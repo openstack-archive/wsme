@@ -4,8 +4,6 @@ TODO
 WSME is a work in progress. Here is a list of things that should
 be done :
 
--   Add batch-calls for protocols that supports it.
-
 -   Implement new protocols :
 
     -   json-rpc
@@ -15,8 +13,6 @@ be done :
 -   Implement adapters for other framework :
 
     -   TurboGears 2
-
-    -   Pyramid
 
     -   Pylons
 
