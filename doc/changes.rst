@@ -10,9 +10,21 @@ Changes
     so that non-mandatory attributes can remain unset (which is
     different from null).
 
-*   Fix inspection of complex types with inheritance.
+*   Fix: If a complex type was only used as an input type, it was
+    not registered.
 
-*   Fix inspection of self-referencing complex types.
+*   Complex types:
+
+    -   Fix inspection of complex types with inheritance.
+
+    -   Fix inspection of self-referencing complex types.
+
+    -   wsattr is now a python Descriptor, which makes it possible
+        to retrieve the attribute definition on a class while
+        manipulating values on the instance.
+    
+    -   Add strong type validation on assignment (made possible by
+        the use of Descriptors).
 
 *   ExtDirect:
 
