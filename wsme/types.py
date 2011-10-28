@@ -4,6 +4,7 @@ import decimal
 import inspect
 import weakref
 
+
 class UserType(object):
     basetype = None
 
@@ -45,10 +46,16 @@ class Enum(UserType):
     :param values: A set of possible values
 
     If nullable, 'None' should be added the values set.
+
+    Example::
+
+        Gender = Enum(str, 'male', 'female')
+        Specie = Enum(str, 'cat', 'dog')
+
     """
-    def __init__(self, basetype, values):
+    def __init__(self, basetype, *values):
         self.basetype = basetype
-        self.values = values
+        self.values = set(values)
 
     def validate(self, value):
         if value not in self.values:
@@ -90,6 +97,7 @@ def validate_value(datatype, value):
                 "Wrong type. Expected '%s', got '%s'" % (
                     datatype, type(value)
                 ))
+
 
 class wsproperty(property):
     """

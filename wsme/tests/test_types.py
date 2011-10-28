@@ -135,7 +135,7 @@ class TestTypes(unittest.TestCase):
         assert AType().test == 'test'
 
     def test_enum(self):
-        aenum = types.Enum(str, ['v1', 'v2'])
+        aenum = types.Enum(str, 'v1', 'v2')
         assert aenum.basetype is str
 
         class AType(object):
@@ -148,7 +148,6 @@ class TestTypes(unittest.TestCase):
         obj = AType()
         obj.a = 'v1'
         assert obj.a == 'v1'
-
 
         try:
             obj.a = 'v3'

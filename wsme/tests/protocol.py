@@ -29,7 +29,7 @@ class CallException(RuntimeError):
                 self.faultcode, self.faultstring, self.debuginfo)
 
 
-myenumtype = wsme.types.Enum(str, set(['v1', 'v2']))
+myenumtype = wsme.types.Enum(str, 'v1', 'v2')
 
 
 class NestedInner(object):
@@ -219,6 +219,7 @@ class ArgTypes(object):
         print value
         assert type(value) == str
         return value
+
 
 class WithErrors(object):
     @expose()
