@@ -197,6 +197,3 @@ class validate(object):
             fd.arguments.append(FunctionArgument(argname, datatype,
                                                  mandatory, default))
         return func
-
-
-

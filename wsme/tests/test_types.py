@@ -119,7 +119,6 @@ class TestTypes(unittest.TestCase):
         class SelfRefType(object):
             pass
 
-
         SelfRefType.parent = SelfRefType
 
         types.register_type(SelfRefType)

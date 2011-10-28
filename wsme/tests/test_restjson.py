@@ -95,4 +95,3 @@ class TestRestJson(wsme.tests.protocol.ProtocolTestCase):
     def test_keyargs(self):
         r = self.app.get('/argtypes/setint.json?value=2')
         assert json.loads(r.body) == {'result': 2}
-

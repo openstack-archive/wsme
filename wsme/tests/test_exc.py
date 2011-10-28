@@ -29,4 +29,3 @@ def test_unknownargument():
 
     assert e.faultstring == \
         u'Unknown argument: "argname": error message', e.faultstring
-

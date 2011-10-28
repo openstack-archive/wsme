@@ -13,6 +13,7 @@ import wsme.wsgi
 
 from wsme.tests.test_protocols import DummyProtocol
 
+
 def test_pexpose():
     class Proto(DummyProtocol):
         def extract_path(self, context):
@@ -160,7 +161,7 @@ class TestController(unittest.TestCase):
 
         p = NoPathProto()
         r = MyRoot(protocols=[p])
-        
+
         app = webtest.TestApp(wsme.wsgi.adapt(r))
 
         res = app.get('/', expect_errors=True)

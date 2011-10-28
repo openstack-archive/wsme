@@ -72,4 +72,3 @@ def parse_isodatetime(value):
     except ValueError, e:
         raise validators.Invalid("%s is a out-of-range datetime" % (value),
                                  value, None)
-

@@ -6,6 +6,7 @@ from wsme import WSRoot
 from wsme.protocols import getprotocol, CallContext
 import wsme.protocols
 
+
 class DummyProtocol(object):
     name = 'dummy'
     content_types = ['', None]
@@ -41,6 +42,7 @@ def test_getprotocol():
     except ValueError, e:
         pass
 
+
 class TestProtocols(unittest.TestCase):
     def test_register_protocol(self):
         wsme.protocols.register_protocol(DummyProtocol)
@@ -56,5 +58,3 @@ class TestProtocols(unittest.TestCase):
         r = WSRoot(['dummy'])
         assert len(r.protocols) == 1
         assert r.protocols[0].__class__ == DummyProtocol
-
-

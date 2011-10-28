@@ -187,7 +187,8 @@ class RestXmlProtocol(RestProtocol):
         return dict((sub.tag, sub) for sub in et.fromstring(body))
 
     def encode_result(self, context, result):
-        return et.tostring(toxml(context.funcdef.return_type, 'result', result))
+        return et.tostring(
+            toxml(context.funcdef.return_type, 'result', result))
 
     def encode_error(self, context, errordetail):
         el = et.Element('error')

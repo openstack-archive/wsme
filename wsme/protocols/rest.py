@@ -65,4 +65,3 @@ class RestProtocol(object):
         if parsed_args:
             raise UnknownArgument(parsed_args.keys()[0])
         return kw
-
