@@ -230,6 +230,7 @@ class validate(object):
             args = args[1:]
         for i, argname in enumerate(args):
             datatype = self.param_types[i]
+            register_type(datatype)
             mandatory = defaults is None or i < (len(args) - len(defaults))
             default = None
             if not mandatory:

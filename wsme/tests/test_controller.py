@@ -8,6 +8,7 @@ import webtest
 from wsme import *
 from wsme.controller import getprotocol, scan_api, pexpose
 from wsme.controller import FunctionArgument, FunctionDefinition, CallContext
+from wsme.types import iscomplex
 import wsme.wsgi
 
 
@@ -90,11 +91,19 @@ class TestController(unittest.TestCase):
         assert MyWS.getint._wsme_definition.return_type == int
 
     def test_validate(self):
+        class ComplexType(object):
+            attr = int
+
         class MyWS(object):
             @expose(int)
             @validate(int, int, int)
             def add(self, a, b, c=0):
                 return a + b + c
+
+            @expose(bool)
+            @validate(ComplexType)
+            def setcplx(self, obj):
+                pass
 
         args = MyWS.add._wsme_definition.arguments
 
@@ -112,6 +121,8 @@ class TestController(unittest.TestCase):
         assert args[2].datatype == int
         assert not args[2].mandatory
         assert args[2].default == 0
+
+        assert iscomplex(ComplexType)
 
     def test_register_protocol(self):
         import wsme.controller
