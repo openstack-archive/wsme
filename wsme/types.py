@@ -76,6 +76,11 @@ class wsattr(object):
         return getattr(instance, '_' + self.key, Unset)
 
     def __set__(self, instance, value):
+        if value is not None and not isinstance(value, self.datatype):
+            raise ValueError(
+                "Wrong type for attribute %s. Expected '%s', got '%s'" % (
+                    self.key, self.datatype, type(value)
+                ))
         setattr(instance, '_' + self.key, value)
 
     def __delete__(self, instance):
