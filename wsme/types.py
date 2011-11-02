@@ -87,16 +87,27 @@ def iscomplex(datatype):
     return hasattr(datatype, '_wsme_attributes')
 
 
+def isarray(datatype):
+    return isinstance(datatype, list)
+
+
 def validate_value(datatype, value):
-    print datatype
     if hasattr(datatype, 'validate'):
         return datatype.validate(value)
     else:
-        if value is not None and not isinstance(value, datatype):
-            raise ValueError(
-                "Wrong type. Expected '%s', got '%s'" % (
-                    datatype, type(value)
-                ))
+        if value is not None:
+            if isarray(datatype):
+                if not isinstance(value, list):
+                    raise ValueError("Wrong type. Expected '%s', got '%s'" % (
+                            datatype, type(value)
+                        ))
+                for item in value:
+                    validate_value(datatype[0], item)
+            elif not isinstance(value, datatype):
+                raise ValueError(
+                    "Wrong type. Expected '%s', got '%s'" % (
+                        datatype, type(value)
+                    ))
 
 
 class wsproperty(property):

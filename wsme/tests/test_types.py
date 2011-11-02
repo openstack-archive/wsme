@@ -154,3 +154,20 @@ class TestTypes(unittest.TestCase):
             assert False, 'ValueError was not raised'
         except ValueError, e:
             assert str(e) == "Value 'v3' is invalid (should be one of: v1, v2)"
+
+    def test_attribute_validation(self):
+        class AType(object):
+            alist = [int]
+            aint = int
+
+        types.register_type(AType)
+
+        obj = AType()
+
+        obj.alist = [1, 2, 3]
+        assert obj.alist == [1, 2, 3]
+        obj.aint = 5
+        assert obj.aint == 5
+
+        self.assertRaises(ValueError, setattr, obj, 'alist', 12)
+        self.assertRaises(ValueError, setattr, obj, 'alist', [2, 'a'])
