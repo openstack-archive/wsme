@@ -95,6 +95,8 @@ def validate_value(datatype, value):
     if hasattr(datatype, 'validate'):
         return datatype.validate(value)
     else:
+        if value is Unset:
+            return True
         if value is not None:
             if isarray(datatype):
                 if not isinstance(value, list):
@@ -163,11 +165,14 @@ class wsattr(object):
 
     def __set__(self, instance, value):
         validate_value(self.datatype, value)
-        setattr(instance, '_' + self.key, value)
+        if value is Unset:
+            if hasattr(instance, '_' + self.key):
+                delattr(instance, '_' + self.key)
+        else:
+            setattr(instance, '_' + self.key, value)
 
     def __delete__(self, instance):
-        delattr(instance, '_' + self.key)
-
+        self.__set__(instance, Unset)
 
 def iswsattr(attr):
     if inspect.isfunction(attr) or inspect.ismethod(attr):
