@@ -113,7 +113,10 @@ class TestTypes(unittest.TestCase):
         class Child(Parent):
             child_attribute = int
 
+        types.register_type(Parent)
         types.register_type(Child)
+
+        assert len(Child._wsme_attributes) == 2
 
     def test_selfreftype(self):
         class SelfRefType(object):
