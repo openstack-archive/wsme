@@ -16,23 +16,20 @@ time_re = re.compile(time_re)
 def parse_isodate(value):
     m = date_re.match(value)
     if m is None:
-        raise validators.Invalid("%s is not a legal date value" % (value),
-                                 value, None)
+        raise ValueError("'%s' is not a legal date value" % (value))
     try:
         return datetime.date(
             int(m.group('year')),
             int(m.group('month')),
             int(m.group('day')))
     except ValueError, e:
-        raise validators.Invalid("%s is a out-of-range date" % (value),
-                                 value, None)
+        raise ValueError("'%s' is a out-of-range date" % (value))
 
 
 def parse_isotime(value):
     m = time_re.match(value)
     if m is None:
-        raise validators.Invalid("%s is not a legal time value" % (value),
-                                 value, None)
+        raise ValueError("'%s' is not a legal time value" % (value))
     try:
         ms = 0
         if m.group('sec_frac') is not None:
@@ -45,16 +42,14 @@ def parse_isotime(value):
             int(m.group('sec')),
             ms)
     except ValueError, e:
-        raise validators.Invalid("%s is a out-of-range time" % (value),
-                                 value, None)
+        raise ValueError("'%s' is a out-of-range time" % (value))
 
 
 # TODO handle timezone
 def parse_isodatetime(value):
     m = datetime_re.match(value)
     if m is None:
-        raise validators.Invalid("%s is not a legal datetime value" % (value),
-                                 value, None)
+        raise ValueError("'%s' is not a legal datetime value" % (value))
     try:
         ms = 0
         if m.group('sec_frac') is not None:
@@ -70,5 +65,4 @@ def parse_isodatetime(value):
             int(m.group('sec')),
             ms)
     except ValueError, e:
-        raise validators.Invalid("%s is a out-of-range datetime" % (value),
-                                 value, None)
+        raise ValueError("'%s' is a out-of-range datetime" % (value))
