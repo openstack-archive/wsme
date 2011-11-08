@@ -41,7 +41,7 @@ Contribute
 
 :Report issues: `WSME issue tracker`_
 :Source code: hg clone https://bitbucket.org/cdevienne/wsme/
-
+:Jenkins: https://jenkins.shiningpanda.com/wsme/job/wsme/
 
 .. _python-wsme mailinglist: http://groups.google.com/group/python-wsme
 .. _WSME Documentation: http://packages.python.org/WSME/
