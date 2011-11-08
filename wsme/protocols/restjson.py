@@ -37,31 +37,43 @@ def tojson(datatype, value):
         for attr in wsme.types.list_attributes(datatype):
             d[attr.key] = tojson(attr.datatype, getattr(value, attr.key))
         return d
+    elif wsme.types.isusertype(datatype):
+        return tojson(datatype.basetype, datatype.tobasetype(value))
     return value
 
 
 @tojson.when_type(list)
 def array_tojson(datatype, value):
+    if value is None:
+        return None
     return [tojson(datatype[0], item) for item in value]
 
 
 @tojson.when_object(decimal.Decimal)
 def decimal_tojson(datatype, value):
+    if value is None:
+        return None
     return str(value)
 
 
 @tojson.when_object(datetime.date)
 def date_tojson(datatype, value):
+    if value is None:
+        return None
     return value.isoformat()
 
 
 @tojson.when_object(datetime.time)
 def time_tojson(datatype, value):
+    if value is None:
+        return None
     return value.isoformat()
 
 
 @tojson.when_object(datetime.datetime)
 def datetime_tojson(datatype, value):
+    if value is None:
+        return None
     return value.isoformat()
 
 
@@ -91,31 +103,51 @@ def fromjson(datatype, value):
                 setattr(obj, attrdef.key,
                         fromjson(attrdef.datatype, value[attrdef.key]))
         return obj
+    elif wsme.types.isusertype(datatype):
+        value = datatype.frombasetype(
+            fromjson(datatype.basetype, value))
     return value
 
 
 @fromjson.when_type(list)
 def array_fromjson(datatype, value):
+    if value is None:
+        return None
     return [fromjson(datatype[0], item) for item in value]
+
+
+@fromjson.when_object(str)
+def str_fromjson(datatype, value):
+    if value is None:
+        return None
+    return str(value)
 
 
 @fromjson.when_object(decimal.Decimal)
 def decimal_fromjson(datatype, value):
+    if value is None:
+        return None
     return decimal.Decimal(value)
 
 
 @fromjson.when_object(datetime.date)
 def date_fromjson(datatype, value):
+    if value is None:
+        return None
     return datetime.datetime.strptime(value, '%Y-%m-%d').date()
 
 
 @fromjson.when_object(datetime.time)
 def time_fromjson(datatype, value):
+    if value is None:
+        return None
     return datetime.datetime.strptime(value, '%H:%M:%S').time()
 
 
 @fromjson.when_object(datetime.datetime)
 def time_fromjson(datatype, value):
+    if value is None:
+        return None
     return datetime.datetime.strptime(value, '%Y-%m-%dT%H:%M:%S')
 
 
