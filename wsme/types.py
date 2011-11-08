@@ -84,7 +84,8 @@ Unset = UnsetType()
 
 
 def iscomplex(datatype):
-    return hasattr(datatype, '_wsme_attributes')
+    return inspect.isclass(datatype) \
+            and '_wsme_attributes' in datatype.__dict__
 
 
 def isarray(datatype):
