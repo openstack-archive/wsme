@@ -49,7 +49,7 @@ def loadxml(el, datatype):
     elif len(el):
         d = {}
         for attr in datatype._wsme_attributes:
-            name = attr.key
+            name = attr.name
             child = el.find(name)
             print name, attr, child
             if child is not None:

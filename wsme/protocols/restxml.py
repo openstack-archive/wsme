@@ -47,7 +47,7 @@ def toxml(datatype, key, value):
                             key, datatype.tobasetype(value))
         elif wsme.types.iscomplex(datatype):
             for attrdef in datatype._wsme_attributes:
-                el.append(toxml(attrdef.datatype, attrdef.key,
+                el.append(toxml(attrdef.datatype, attrdef.name,
                                 getattr(value, attrdef.key)))
         else:
             el.text = unicode(value)
@@ -81,7 +81,7 @@ def fromxml(datatype, element):
     if wsme.types.iscomplex(datatype):
         obj = datatype()
         for attrdef in datatype._wsme_attributes:
-            sub = element.find(attrdef.key)
+            sub = element.find(attrdef.name)
             if sub is not None:
                 setattr(obj, attrdef.key, fromxml(attrdef.datatype, sub))
         return obj

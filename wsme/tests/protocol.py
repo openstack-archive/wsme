@@ -46,6 +46,15 @@ class NestedOuter(object):
         self.inner = NestedInner(0)
 
 
+class NamedAttrsObject(object):
+    def __init__(self, v1=Unset, v2=Unset):
+        self.attr_1 = v1
+        self.attr_2 = v2
+
+    attr_1 = wsme.types.wsattr(int, name='attr.1')
+    attr_2 = wsme.types.wsattr(int, name='attr.2')
+
+
 class NestedInnerApi(object):
     @expose(bool)
     def deepfunction(self):
@@ -109,6 +118,10 @@ class ReturnTypes(object):
     @expose(myenumtype)
     def getenum(self):
         return 'v2'
+
+    @expose(NamedAttrsObject)
+    def getnamedattrsobj(self):
+        return NamedAttrsObject(5, 6)
 
 
 class ArgTypes(object):
@@ -218,6 +231,15 @@ class ArgTypes(object):
     def setenum(self, value):
         print value
         assert type(value) == str
+        return value
+
+    @expose(NamedAttrsObject)
+    @validate(NamedAttrsObject)
+    def setnamedattrsobj(self, value):
+        print value
+        assert type(value) == NamedAttrsObject
+        assert value.attr_1 == 10, value.attr_1
+        assert value.attr_2 == 20, value.attr_2
         return value
 
 
@@ -346,6 +368,10 @@ class ProtocolTestCase(unittest.TestCase):
         r = self.call('returntypes/getenum', _rt=myenumtype)
         assert r == 'v2', r
 
+    def test_return_namedattrsobj(self):
+        r = self.call('returntypes/getnamedattrsobj', _rt=NamedAttrsObject)
+        assert r == {'attr.1': 5, 'attr.2': 6}
+
     def test_setstr(self):
         assert self.call('argtypes/setstr', value='astring') == 'astring'
 
@@ -429,6 +455,12 @@ class ProtocolTestCase(unittest.TestCase):
                       _rt=myenumtype)
         assert r == value
 
+    def test_setnamedattrsobj(self):
+        value = {'attr.1': 10, 'attr.2': 20}
+        r = self.call('argtypes/setnamedattrsobj', value=value,
+                      _rt=NamedAttrsObject)
+        assert r == value
+
     def test_nested_api(self):
         r = self.call('nested/inner/deepfunction', _rt=bool)
         assert r is True
@@ -449,3 +481,4 @@ class ProtocolTestCase(unittest.TestCase):
         res = self.call('argtypes/setdatetime', _accept="text/html",
             _no_result_decode=True)
         assert res.content_type == 'text/html', res.content_type
+
