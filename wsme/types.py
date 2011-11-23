@@ -78,7 +78,8 @@ array_types = []
 
 
 class UnsetType(object):
-    pass
+    def __nonzero__(self):
+        return False
 
 Unset = UnsetType()
 
