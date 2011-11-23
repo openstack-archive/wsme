@@ -130,10 +130,16 @@ class wsproperty(property):
             aint = wsproperty(int, get_aint, set_aint, mandatory=True)
     """
     def __init__(self, datatype, fget, fset=None,
-                 mandatory=False, doc=None):
+                 mandatory=False, doc=None, name=None):
         property.__init__(self, fget, fset)
+        #: The property name in the parent python class
         self.key = None
+        #: The attribute name on the public of the api.
+        #: Defaults to :attr:`key`
+        self.name = name
+        #: property data type
         self.datatype = datatype
+        #: True if the property is mandatory
         self.mandatory = mandatory
 
 
@@ -146,6 +152,7 @@ class wsattr(object):
         class MyComplexType(object):
             optionalvalue = int
             mandatoryvalue = wsattr(int, mandatory=True)
+            named_value = wsattr(int, name='named.value')
 
     After inspection, the non-wsattr attributes will be replace, and
     the above class will be equivalent to::
@@ -155,9 +162,16 @@ class wsattr(object):
             mandatoryvalue = wsattr(int, mandatory=True)
 
     """
-    def __init__(self, datatype, mandatory=False):
+    def __init__(self, datatype, mandatory=False, name=None):
+        #: The attribute name in the parent python class.
+        #: Set by :func:`inspect_class`
         self.key = None  # will be set by class inspection
+        #: The attribute name on the public of the api.
+        #: Defaults to :attr:`key`
+        self.name = name
+        #: attribute data type
         self.datatype = datatype
+        #: True if the attribute is mandatory
         self.mandatory = mandatory
 
     def __get__(self, instance, owner):
@@ -248,6 +262,8 @@ def inspect_class(class_):
             attrdef = wsattr(attr)
 
         attrdef.key = name
+        if attrdef.name is None:
+            attrdef.name = name
         attributes.append(attrdef)
         setattr(class_, name, attrdef)
 

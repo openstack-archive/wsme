@@ -23,12 +23,16 @@ class TestTypes(unittest.TestCase):
         print attrs
 
         assert attrs[0].key == 'aint'
+        assert attrs[0].name == 'aint'
         assert isinstance(attrs[0], types.wsattr)
         assert attrs[0].datatype == int
         assert attrs[0].mandatory == False
         assert attrs[1].key == 'astr'
+        assert attrs[1].name == 'astr'
         assert attrs[2].key == 'auni'
+        assert attrs[2].name == 'auni'
         assert attrs[3].key == 'afloat'
+        assert attrs[3].name == 'afloat'
 
     def test_private_attr(self):
         class WithPrivateAttrs(object):
@@ -174,3 +178,19 @@ class TestTypes(unittest.TestCase):
 
         self.assertRaises(ValueError, setattr, obj, 'alist', 12)
         self.assertRaises(ValueError, setattr, obj, 'alist', [2, 'a'])
+
+    def test_named_attribute(self):
+        class AType(object):
+            a_list = types.wsattr([int], name='a.list')
+            astr = str
+
+        types.register_type(AType)
+
+        assert len(AType._wsme_attributes) == 2
+        attrs = AType._wsme_attributes
+        print attrs
+
+        assert attrs[0].key == 'a_list', attrs[0].key
+        assert attrs[0].name == 'a.list', attrs[0].name
+        assert attrs[1].key == 'astr', attrs[1].key
+        assert attrs[1].name == 'astr', attrs[1].name
