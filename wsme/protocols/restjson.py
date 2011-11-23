@@ -1,7 +1,6 @@
 """
 REST+Json protocol implementation.
 """
-import base64
 import datetime
 import decimal
 
@@ -145,7 +144,7 @@ def time_fromjson(datatype, value):
 
 
 @fromjson.when_object(datetime.datetime)
-def time_fromjson(datatype, value):
+def datetime_fromjson(datatype, value):
     if value is None:
         return None
     return datetime.datetime.strptime(value, '%Y-%m-%dT%H:%M:%S')
