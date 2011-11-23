@@ -457,8 +457,9 @@ class ProtocolTestCase(unittest.TestCase):
 
     def test_setnamedattrsobj(self):
         value = {'attr.1': 10, 'attr.2': 20}
-        r = self.call('argtypes/setnamedattrsobj', value=value,
-                      _rt=NamedAttrsObject)
+        r = self.call('argtypes/setnamedattrsobj',
+            value=(value, NamedAttrsObject),
+            _rt=NamedAttrsObject)
         assert r == value
 
     def test_nested_api(self):
