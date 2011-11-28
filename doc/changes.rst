@@ -14,18 +14,16 @@ next
 
 *   The restjson protocol do not nest the results in an object anymore.
 
-*   Fixes
+*   Fix array attributes validation.
 
-    *   Fix array attributes validation.
+*   Fix date|time parsing errors.
 
-    *   Fix date|time parsing errors.
+*   Fix Unset values validation.
 
-    *   Fix Unset values validation.
+*   Fix registering of complex types inheriting form already
+    registered complex types.
 
-    *   Fix registering of complex types inheriting form already
-        registered complex types.
-
-    *   Fix user types, str and None values encoding/decoding.
+*   Fix user types, str and None values encoding/decoding.
 
 0.2.0 (2011-10-29)
 ------------------

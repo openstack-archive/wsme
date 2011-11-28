@@ -18,6 +18,9 @@ Public API
 .. autoclass:: wsproperty
 .. autoclass:: wsattr
 
+.. data:: Unset
+
+    Default value of the complex type attributes.
 
 Internals
 ---------

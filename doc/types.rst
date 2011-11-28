@@ -167,7 +167,8 @@ A few things you should know about complex types:
             assert Person.name.key == "name"
             assert Person.name.mandatory is False
 
-    -   The default value of instances attributes is :data:`Unset <wsme.types.Unset>`.
+    -   The default value of instances attributes is
+        :data:`Unset <wsme.Unset>`.
 
         ::
 
