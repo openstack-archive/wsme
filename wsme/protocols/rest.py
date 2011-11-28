@@ -1,7 +1,9 @@
 import logging
 
-from wsme.exc import UnknownFunction, MissingArgument, UnknownArgument
+from wsme.exc import ClientSideError, UnknownArgument
 from wsme.protocols import CallContext
+from wsme.protocols.commons import from_params
+from wsme.types import Unset
 
 log = logging.getLogger(__name__)
 
@@ -42,9 +44,13 @@ class RestProtocol(object):
             body = request.params['body']
 
         if body is None and len(request.params):
-            parsed_args = {}
-            for key, value in request.params.items():
-                parsed_args[key] = self.parse_arg(key, value)
+            kw = {}
+            for argdef in funcdef.arguments:
+                value = from_params(
+                    argdef.datatype, request.params, argdef.name)
+                if value is not Unset:
+                    kw[argdef.name] = value
+            return kw
         else:
             if body is None:
                 body = request.body
