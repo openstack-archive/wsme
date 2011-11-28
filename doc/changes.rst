@@ -14,6 +14,8 @@ next
 
 *   The restjson protocol do not nest the results in an object anymore.
 
+*   Improved the documentation
+
 *   Fix array attributes validation.
 
 *   Fix date|time parsing errors.
