@@ -170,6 +170,10 @@ class RestJsonProtocol(RestProtocol):
         'text/javascript',
          '']
 
+    def __init__(self, nest_result=False):
+        super(RestJsonProtocol, self).__init__()
+        self.nest_result = nest_result
+
     def decode_arg(self, value, arg):
         return fromjson(arg.datatype, value)
 
@@ -182,7 +186,9 @@ class RestJsonProtocol(RestProtocol):
 
     def encode_result(self, context, result):
         r = tojson(context.funcdef.return_type, result)
-        return json.dumps({'result': r}, ensure_ascii=False).encode('utf8')
+        if self.nest_result:
+            r = {'result': r}
+        return json.dumps(r, ensure_ascii=False).encode('utf8')
 
     def encode_error(self, context, errordetail):
         return json.dumps(errordetail, encoding='utf-8')

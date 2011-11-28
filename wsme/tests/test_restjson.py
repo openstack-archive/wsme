@@ -1,5 +1,6 @@
 import decimal
 import base64
+import datetime
 
 import wsme.tests.protocol
 
@@ -10,7 +11,7 @@ except:
 
 import wsme.protocols.restjson
 from wsme.protocols.restjson import fromjson
-from wsme.utils import *
+from wsme.utils import parse_isodatetime, parse_isotime, parse_isodate
 from wsme.types import isusertype
 
 
@@ -79,8 +80,7 @@ class TestRestJson(wsme.tests.protocol.ProtocolTestCase):
             return res
 
         r = json.loads(res.body)
-        if 'result' in r:
-            r = r['result']
+        if res.status_int == 200:
             if _rt and r:
                 r = prepare_result(r, _rt)
             return r
@@ -97,4 +97,12 @@ class TestRestJson(wsme.tests.protocol.ProtocolTestCase):
 
     def test_keyargs(self):
         r = self.app.get('/argtypes/setint.json?value=2')
-        assert json.loads(r.body) == {'result': 2}
+        print r
+        assert json.loads(r.body) == 2
+
+        nestedarray = 'value[0].inner.aint=54&value[1].inner.aint=55'
+        r = self.app.get('/argtypes/setnestedarray.json?' + nestedarray)
+        print r
+        assert json.loads(r.body) == [
+            {'inner': {'aint': 54}},
+            {'inner': {'aint': 55}}]
