@@ -29,7 +29,7 @@ def dumpxml(key, obj, datatype=None):
         el.text = obj.isoformat()
     elif hasattr(datatype, '_wsme_attributes'):
         for attr in datatype._wsme_attributes:
-            name = attr.key
+            name = attr.name
             if name not in obj:
                 continue
             o = obj[name]
