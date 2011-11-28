@@ -6,10 +6,10 @@ import datetime
 import decimal
 import base64
 
-from webob.dec import wsgify
 from webtest import TestApp
 
-from wsme import *
+from wsme import WSRoot, Unset
+from wsme import expose, validate
 import wsme.wsgi
 import wsme.types
 
@@ -284,6 +284,7 @@ class ProtocolTestCase(unittest.TestCase):
     def test_invalid_path(self):
         try:
             res = self.call('invalid_function')
+            print res
             assert "No error raised"
         except CallException, e:
             assert e.faultcode == 'Client'
@@ -293,6 +294,7 @@ class ProtocolTestCase(unittest.TestCase):
     def test_serverside_error(self):
         try:
             res = self.call('witherrors/divide_by_zero')
+            print res
             assert "No error raised"
         except CallException, e:
             print e
@@ -304,6 +306,7 @@ class ProtocolTestCase(unittest.TestCase):
         self.root._debug = False
         try:
             res = self.call('witherrors/divide_by_zero')
+            print res
             assert "No error raised"
         except CallException, e:
             print e
@@ -414,6 +417,7 @@ class ProtocolTestCase(unittest.TestCase):
         value = binarysample
         r = self.call('argtypes/setbinary', value=(value, wsme.types.binary),
                     _rt=wsme.types.binary) == value
+        print r
 
     def test_setnested(self):
         value = {'inner': {'aint': 54}}
@@ -469,6 +473,7 @@ class ProtocolTestCase(unittest.TestCase):
     def test_missing_argument(self):
         try:
             r = self.call('argtypes/setdatetime')
+            print r
             assert "No error raised"
         except CallException, e:
             print e
@@ -482,4 +487,3 @@ class ProtocolTestCase(unittest.TestCase):
         res = self.call('argtypes/setdatetime', _accept="text/html",
             _no_result_decode=True)
         assert res.content_type == 'text/html', res.content_type
-

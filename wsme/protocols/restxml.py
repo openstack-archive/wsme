@@ -1,4 +1,3 @@
-import base64
 import datetime
 
 try:
@@ -9,7 +8,6 @@ except ImportError:
 from simplegeneric import generic
 
 from wsme.protocols.rest import RestProtocol
-from wsme.exc import *
 import wsme.types
 
 import re

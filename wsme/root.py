@@ -173,7 +173,7 @@ class WSRoot(object):
             else:
                 res.status = protocol.get_response_status(request)
                 res_content_type = protocol.get_response_contenttype(request)
-        except Exception, e:
+        except Exception:
             infos = self._format_exception(sys.exc_info())
             request.server_errorcount += 1
             res.body = protocol.encode_error(context, infos)
@@ -181,7 +181,6 @@ class WSRoot(object):
 
         if res_content_type is None:
             # Attempt to correctly guess what content-type we should return.
-            last_q = 0
             ctypes = [ct for ct in protocol.content_types if ct]
             if ctypes:
                 res_content_type = request.accept.best_match(ctypes)

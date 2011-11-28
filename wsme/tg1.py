@@ -1,4 +1,3 @@
-import wsme
 import cherrypy
 import webob
 from turbogears import expose

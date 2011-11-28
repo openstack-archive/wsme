@@ -190,6 +190,7 @@ class wsattr(object):
     def __delete__(self, instance):
         self.__set__(instance, Unset)
 
+
 def iswsattr(attr):
     if inspect.isfunction(attr) or inspect.ismethod(attr):
         return False

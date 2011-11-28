@@ -1,5 +1,6 @@
-import re
+import decimal
 import datetime
+import re
 
 date_re = r'(?P<year>-?\d{4,})-(?P<month>\d{2})-(?P<day>\d{2})'
 time_re = r'(?P<hour>\d{2}):(?P<min>\d{2}):(?P<sec>\d{2})' + \
@@ -22,7 +23,7 @@ def parse_isodate(value):
             int(m.group('year')),
             int(m.group('month')),
             int(m.group('day')))
-    except ValueError, e:
+    except ValueError:
         raise ValueError("'%s' is a out-of-range date" % (value))
 
 
@@ -41,7 +42,7 @@ def parse_isotime(value):
             int(m.group('min')),
             int(m.group('sec')),
             ms)
-    except ValueError, e:
+    except ValueError:
         raise ValueError("'%s' is a out-of-range time" % (value))
 
 
@@ -64,5 +65,5 @@ def parse_isodatetime(value):
             int(m.group('min')),
             int(m.group('sec')),
             ms)
-    except ValueError, e:
+    except ValueError:
         raise ValueError("'%s' is a out-of-range datetime" % (value))

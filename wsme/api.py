@@ -1,7 +1,5 @@
 import inspect
 
-import pkg_resources
-
 from wsme.types import register_type
 
 __all__ = ['expose', 'validate']
