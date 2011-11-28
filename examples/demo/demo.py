@@ -11,7 +11,7 @@ Then::
     paster serve demo.cfg
 """
 
-from wsme import *
+from wsme import WSRoot, expose, validate
 from wsme.wsgi import adapt
 
 import logging
@@ -33,7 +33,6 @@ class DemoRoot(WSRoot):
     def helloworld(self):
         return u"こんにちは世界 (<- Hello World in Japanese !)"
 
-
     @expose(Person)
     def getperson(self):
         p = Person()
@@ -42,9 +41,15 @@ class DemoRoot(WSRoot):
         p.lastname = u'Geler'
         return p
 
+    @expose(Person)
+    @validate(Person)
+    def setperson(self, person):
+        return person
+
+
 def app_factory(global_config, **local_conf):
     root = DemoRoot()
-    
+
     root.addprotocol('soap',
             tns='http://example.com/demo',
             typenamespace='http://example.com/demo/types',
