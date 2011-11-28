@@ -7,6 +7,7 @@ import decimal
 from simplegeneric import generic
 
 from wsme.protocols.rest import RestProtocol
+from wsme.types import Unset
 import wsme.types
 
 try:
@@ -34,7 +35,9 @@ def tojson(datatype, value):
     if wsme.types.iscomplex(datatype):
         d = dict()
         for attr in wsme.types.list_attributes(datatype):
-            d[attr.name] = tojson(attr.datatype, getattr(value, attr.key))
+            attr_value = getattr(value, attr.key)
+            if attr_value is not Unset:
+                d[attr.name] = tojson(attr.datatype, attr_value)
         return d
     elif wsme.types.isusertype(datatype):
         return tojson(datatype.basetype, datatype.tobasetype(value))
