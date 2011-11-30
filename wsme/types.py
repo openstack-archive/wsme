@@ -75,6 +75,7 @@ native_types = pod_types + dt_types + extra_types
 
 complex_types = []
 array_types = []
+dict_types = []
 
 
 class UnsetType(object):
@@ -93,6 +94,10 @@ def isarray(datatype):
     return isinstance(datatype, list)
 
 
+def isdict(datatype):
+    return isinstance(datatype, dict)
+
+
 def validate_value(datatype, value):
     if hasattr(datatype, 'validate'):
         return datatype.validate(value)
@@ -107,6 +112,16 @@ def validate_value(datatype, value):
                         ))
                 for item in value:
                     validate_value(datatype[0], item)
+            elif isdict(datatype):
+                if not isinstance(value, dict):
+                    raise ValueError("Wrong type. Expected '%s', got '%s'" % (
+                            datatype, type(value)
+                        ))
+                key_type = datatype.keys()[0]
+                value_type = datatype.values()[0]
+                for key, v in value.items():
+                    validate_value(key_type, key)
+                    validate_value(value_type, value)
             elif not isinstance(value, datatype):
                 raise ValueError(
                     "Wrong type. Expected '%s', got '%s'" % (
@@ -290,7 +305,19 @@ def register_type(class_):
         if len(class_) != 1:
             raise ValueError("Cannot register type %s" % repr(class_))
         register_type(class_[0])
-        array_types.append(class_[0])
+        if class_[0] not in array_types:
+            array_types.append(class_[0])
+        return
+
+    if isinstance(class_, dict):
+        if len(class_) != 1:
+            raise ValueError("Cannot register type %s" % repr(class_))
+        if class_.keys()[0] not in pod_types:
+            raise ValueError("Dictionnaries key can only be a pod type")
+        register_type(class_.values()[0])
+        t = (class_.keys()[0], class_.values()[0])
+        if t not in dict_types:
+            dict_types.append(t)
         return
 
     class_._wsme_attributes = None

@@ -51,6 +51,18 @@ def array_tojson(datatype, value):
     return [tojson(datatype[0], item) for item in value]
 
 
+@tojson.when_type(dict)
+def dict_tojson(datatype, value):
+    if value is None:
+        return None
+    key_type = datatype.keys()[0]
+    value_type = datatype.values()[0]
+    return dict((
+        (tojson(key_type, item[0]), tojson(value_type, item[1]))
+        for item in value.items()
+    ))
+
+
 @tojson.when_object(decimal.Decimal)
 def decimal_tojson(datatype, value):
     if value is None:
@@ -116,6 +128,17 @@ def array_fromjson(datatype, value):
     if value is None:
         return None
     return [fromjson(datatype[0], item) for item in value]
+
+
+@fromjson.when_type(dict)
+def dict_fromjson(datatype, value):
+    if value is None:
+        return None
+    key_type = datatype.keys()[0]
+    value_type = datatype.values()[0]
+    return dict((
+        (fromjson(key_type, item[0]), fromjson(value_type, item[1]))
+        for item in value.items()))
 
 
 @fromjson.when_object(str)

@@ -18,6 +18,12 @@ from wsme.types import isusertype
 def prepare_value(value, datatype):
     if isinstance(datatype, list):
         return [prepare_value(item, datatype[0]) for item in value]
+    if isinstance(datatype, dict):
+        return dict((
+            (prepare_value(item[0], datatype.keys()[0]),
+                prepare_value(item[1], datatype.values()[0]))
+            for item in value.items()
+        ))
     if datatype in (datetime.date, datetime.time, datetime.datetime):
         return value.isoformat()
     if datatype == decimal.Decimal:
@@ -32,6 +38,12 @@ def prepare_result(value, datatype):
         datatype = datatype.basetype
     if isinstance(datatype, list):
         return [prepare_result(item, datatype[0]) for item in value]
+    if isinstance(datatype, dict):
+        return dict((
+            (prepare_result(item[0], datatype.keys()[0]),
+                prepare_result(item[1], datatype.values()[0]))
+            for item in value.items()
+        ))
     if datatype == datetime.date:
         return parse_isodate(value)
     if datatype == datetime.time:

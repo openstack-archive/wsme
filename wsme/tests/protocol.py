@@ -115,6 +115,10 @@ class ReturnTypes(object):
     def getnestedarray(self):
         return [NestedOuter(), NestedOuter()]
 
+    @expose({str: NestedOuter})
+    def getnesteddict(self):
+        return {'a': NestedOuter(), 'b': NestedOuter()}
+
     @expose(myenumtype)
     def getenum(self):
         return 'v2'
@@ -224,6 +228,15 @@ class ArgTypes(object):
         print repr(value)
         assert type(value) == list
         assert type(value[0]) == NestedOuter
+        return value
+
+    @expose({str: NestedOuter})
+    @validate({str: NestedOuter})
+    def setnesteddict(self, value):
+        print repr(value)
+        assert type(value) == dict
+        assert type(value.keys()[0]) == str
+        assert type(value.values()[0]) == NestedOuter
         return value
 
     @expose(myenumtype)
@@ -363,9 +376,13 @@ class ProtocolTestCase(unittest.TestCase):
         r = self.call('returntypes/getstrarray', _rt=[str])
         assert r == ['A', 'B', 'C'], r
 
-    def test_return_strnested(self):
+    def test_return_nestedarray(self):
         r = self.call('returntypes/getnestedarray', _rt=[NestedOuter])
         assert r == [{'inner': {'aint': 0}}, {'inner': {'aint': 0}}], r
+
+    def test_return_nesteddict(self):
+        r = self.call('returntypes/getnesteddict', _rt={str:NestedOuter})
+        assert r == {'a': {'inner': {'aint': 0}}, 'b': {'inner': {'aint': 0}}}
 
     def test_return_enum(self):
         r = self.call('returntypes/getenum', _rt=myenumtype)
@@ -451,6 +468,17 @@ class ProtocolTestCase(unittest.TestCase):
         r = self.call('argtypes/setnestedarray',
                          value=(value, [NestedOuter]),
                          _rt=[NestedOuter])
+        assert r == value
+
+    def test_setnesteddict(self):
+        value = {
+            'o1': {'inner': {'aint': 54}},
+            'o2': {'inner': {'aint': 55}},
+        }
+        r = self.call('argtypes/setnesteddict',
+                        value=(value, {str: NestedOuter}),
+                        _rt={str: NestedOuter})
+        print r
         assert r == value
 
     def test_setenum(self):

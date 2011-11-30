@@ -3,7 +3,7 @@ import datetime
 import base64
 
 import wsme.tests.protocol
-from wsme.utils import *
+from wsme.utils import parse_isodatetime, parse_isodate, parse_isotime
 from wsme.types import isusertype
 
 try:
@@ -19,6 +19,11 @@ def dumpxml(key, obj, datatype=None):
     if isinstance(datatype, list):
         for item in obj:
             el.append(dumpxml('item', item, datatype[0]))
+    elif isinstance(datatype, dict):
+        for item in obj.items():
+            node = et.SubElement(el, 'item')
+            node.append(dumpxml('key', item[0], datatype.keys()[0]))
+            node.append(dumpxml('value', item[1], datatype.values()[0]))
     elif datatype == wsme.types.binary:
         el.text = base64.encodestring(obj)
     elif isinstance(obj, basestring):
@@ -46,6 +51,12 @@ def loadxml(el, datatype):
         return None
     if isinstance(datatype, list):
         return [loadxml(item, datatype[0]) for item in el.findall('item')]
+    elif isinstance(datatype, dict):
+        return dict((
+            (loadxml(item.find('key'), datatype.keys()[0]),
+                loadxml(item.find('value'), datatype.values()[0]))
+            for item in el.findall('item')
+        ))
     elif len(el):
         d = {}
         for attr in datatype._wsme_attributes:
