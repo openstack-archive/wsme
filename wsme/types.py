@@ -273,7 +273,9 @@ def inspect_class(class_):
             attrdef = attr
         else:
             if attr not in native_types and (
-                    inspect.isclass(attr) or isinstance(attr, list)):
+                    inspect.isclass(attr)
+                    or isinstance(attr, list)
+                    or isinstance(attr, dict)):
                 register_type(attr)
             attrdef = wsattr(attr)
 
@@ -312,12 +314,12 @@ def register_type(class_):
     if isinstance(class_, dict):
         if len(class_) != 1:
             raise ValueError("Cannot register type %s" % repr(class_))
-        if class_.keys()[0] not in pod_types:
+        key_type, value_type = class_.items()[0]
+        if key_type not in pod_types:
             raise ValueError("Dictionnaries key can only be a pod type")
-        register_type(class_.values()[0])
-        t = (class_.keys()[0], class_.values()[0])
-        if t not in dict_types:
-            dict_types.append(t)
+        register_type(value_type)
+        if (key_type, value_type) not in dict_types:
+            dict_types.append((key_type, value_type))
         return
 
     class_._wsme_attributes = None
