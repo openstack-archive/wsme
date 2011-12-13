@@ -121,7 +121,7 @@ def validate_value(datatype, value):
                 value_type = datatype.values()[0]
                 for key, v in value.items():
                     validate_value(key_type, key)
-                    validate_value(value_type, value)
+                    validate_value(value_type, v)
             elif not isinstance(value, datatype):
                 raise ValueError(
                     "Wrong type. Expected '%s', got '%s'" % (
