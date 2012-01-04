@@ -122,6 +122,12 @@ def validate_value(datatype, value):
                 for key, v in value.items():
                     validate_value(key_type, key)
                     validate_value(value_type, v)
+            elif datatype in (int, long):
+                if not isinstance(value, int) and not isinstance(value, long):
+                    raise ValueError(
+                        "Wrong type. Expected an integer, got '%s'" % (
+                            type(value)
+                        ))
             elif not isinstance(value, datatype):
                 raise ValueError(
                     "Wrong type. Expected '%s', got '%s'" % (
@@ -195,7 +201,10 @@ class wsattr(object):
         return getattr(instance, '_' + self.key, Unset)
 
     def __set__(self, instance, value):
-        validate_value(self.datatype, value)
+        try:
+            validate_value(self.datatype, value)
+        except ValueError, e:
+            raise ValueError("%s: %s" % (self.name, e))
         if value is Unset:
             if hasattr(instance, '_' + self.key):
                 delattr(instance, '_' + self.key)
