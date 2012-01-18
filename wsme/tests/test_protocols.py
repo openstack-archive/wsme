@@ -24,7 +24,7 @@ class DummyProtocol(object):
         return ['touch']
 
     def read_arguments(self, context):
-        self.lastreq = context.request.__init__.__self__
+        self.lastreq = context.request
         self.hits += 1
         return {}
 

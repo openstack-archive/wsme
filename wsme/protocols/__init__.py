@@ -13,11 +13,15 @@ registered_protocols = {}
 
 class CallContext(object):
     def __init__(self, request):
-        self.request = weakref.proxy(request)
+        self._request = weakref.ref(request)
         self.path = None
 
         self.func = None
         self.funcdef = None
+
+    @property
+    def request(self):
+        return self._request()
 
 
 def register_protocol(protocol):
