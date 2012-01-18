@@ -4,6 +4,8 @@ Changes
 next
 ----
 
+*   Per-call database transaction handling.
+
 *   :class:`Unset` is now imported in the wsme module
 
 *   Attributes of complex types can now have a different name in

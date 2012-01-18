@@ -25,21 +25,55 @@ html_body = """
 """
 
 
+class DummyTransaction:
+    def commit(self):
+        pass
+
+    def abort(self):
+        pass
+
+
 class WSRoot(object):
     """
     Root controller for webservices.
 
     :param protocols: A list of protocols to enable (see :meth:`addprotocol`)
     :param webpath: The web path where the webservice is published.
+
+    :type  transaction: A `transaction
+                        <http://pypi.python.org/pypi/transaction>`_-like
+                        object or ``True``.
+    :param transaction: If specified, a transaction will be created and
+                        handled on a per-call base.
+
+                        This option *can* be enabled along with `repoze.tm2
+                        <http://pypi.python.org/pypi/repoze.tm2>`_
+                        (it will only make it void).
+
+                        If ``True``, the default :mod:`transaction`
+                        module will be imported and used.
+
     """
-    def __init__(self, protocols=[], webpath=''):
+    def __init__(self, protocols=[], webpath='', transaction=None):
         self._debug = True
         self._webpath = webpath
         self.protocols = []
+
+        self.transaction = transaction
+        if self.transaction is True:
+            import transaction
+            self.transaction = transaction
+
         for protocol in protocols:
             self.addprotocol(protocol)
 
         self._api = None
+
+    def begin(self):
+        if self.transaction:
+            return self.transaction.begin()
+        else:
+            return DummyTransaction()
 
     def addprotocol(self, protocol, **options):
         """
@@ -104,7 +138,13 @@ class WSRoot(object):
                 if arg.mandatory and arg.name not in kw:
                     raise exc.MissingArgument(arg.name)
 
-            result = context.func(**kw)
+            txn = self.begin()
+            try:
+                result = context.func(**kw)
+                txn.commit()
+            except:
+                txn.abort()
+                raise
 
             if context.funcdef.protocol_specific \
                     and context.funcdef.return_type is None:
