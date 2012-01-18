@@ -17,6 +17,11 @@ warnings.filterwarnings('ignore', module='webob.dec')
 
 binarysample = r'\x00\xff\x43'
 
+try:
+    1 / 0
+except ZeroDivisionError, e:
+    zerodivisionerrormsg = str(e)
+
 
 class CallException(RuntimeError):
     def __init__(self, faultcode, faultstring, debuginfo):
@@ -312,7 +317,7 @@ class ProtocolTestCase(unittest.TestCase):
         except CallException, e:
             print e
             assert e.faultcode == 'Server'
-            assert e.faultstring == u'integer division or modulo by zero'
+            assert e.faultstring == zerodivisionerrormsg
             assert e.debuginfo is not None
 
     def test_serverside_error_nodebug(self):
@@ -324,7 +329,7 @@ class ProtocolTestCase(unittest.TestCase):
         except CallException, e:
             print e
             assert e.faultcode == 'Server'
-            assert e.faultstring == u'integer division or modulo by zero'
+            assert e.faultstring == zerodivisionerrormsg
             assert e.debuginfo is None
 
     def test_touch(self):
