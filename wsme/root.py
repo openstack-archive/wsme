@@ -59,10 +59,10 @@ class WSRoot(object):
         self._webpath = webpath
         self.protocols = []
 
-        self.transaction = transaction
-        if self.transaction is True:
+        self._transaction = transaction
+        if self._transaction is True:
             import transaction
-            self.transaction = transaction
+            self._transaction = transaction
 
         for protocol in protocols:
             self.addprotocol(protocol)
@@ -70,8 +70,8 @@ class WSRoot(object):
         self._api = None
 
     def begin(self):
-        if self.transaction:
-            return self.transaction.begin()
+        if self._transaction:
+            return self._transaction.begin()
         else:
             return DummyTransaction()
 
