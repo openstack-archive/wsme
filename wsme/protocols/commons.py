@@ -3,7 +3,7 @@ import re
 
 from simplegeneric import generic
 
-from wsme.types import iscomplex, list_attributes, Unset
+from wsme.types import iscomplex, list_attributes, Unset, UserType
 from wsme.utils import parse_isodate, parse_isotime, parse_isodatetime
 
 
@@ -28,6 +28,12 @@ def time_from_param(datatype, value):
 @from_param.when_object(datetime.datetime)
 def datetime_from_param(datatype, value):
     return parse_isodatetime(value) if value else None
+
+
+@from_param.when_type(UserType)
+def usertype_from_param(datatype, value):
+    return datatype.frombasetype(
+        from_param(datatype.basetype, value))
 
 
 @generic
@@ -74,3 +80,23 @@ def array_from_params(datatype, params, path):
 
         return [from_params(datatype[0], params, '%s[%s]' % (path, index))
                 for index in indexes]
+
+
+@from_params.when_type(dict)
+def dict_from_params(datatype, params, path):
+
+    keys = set()
+    r = re.compile('^%s\[(?P<key>\w+)\]' % path)
+
+    for p in params.keys():
+        m = r.match(p)
+        if m:
+            keys.add(from_param(datatype.keys()[0], m.group('key')))
+
+    if not keys:
+        return Unset
+
+    return dict((
+        (key, from_params(datatype.values()[0],
+                          params, '%s[%s]' % (path, key)))
+        for key in keys))
