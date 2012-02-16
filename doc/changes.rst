@@ -4,6 +4,11 @@ Changes
 next
 ----
 
+*   Now handle dict and UserType types as GET/POST params.
+
+0.3b1
+-----
+
 *   Per-call database transaction handling.
 
 *   :class:`Unset` is now imported in the wsme module
