@@ -65,7 +65,7 @@ def array_from_params(datatype, params, path):
             from_param(datatype[0], value) for value in params.getall(path)]
     else:
         indexes = set()
-        r = re.compile('^%s\[(?P<index>\d+)\]' % path)
+        r = re.compile('^%s\[(?P<index>\d+)\]' % re.escape(path))
 
         for p in params.keys():
             m = r.match(p)
@@ -86,7 +86,7 @@ def array_from_params(datatype, params, path):
 def dict_from_params(datatype, params, path):
 
     keys = set()
-    r = re.compile('^%s\[(?P<key>\w+)\]' % path)
+    r = re.compile('^%s\[(?P<key>[a-zA-Z0-9_\.]+)\]' % re.escape(path))
 
     for p in params.keys():
         m = r.match(p)
