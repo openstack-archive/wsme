@@ -183,7 +183,7 @@ class wsattr(object):
             mandatoryvalue = wsattr(int, mandatory=True)
 
     """
-    def __init__(self, datatype, mandatory=False, name=None):
+    def __init__(self, datatype, mandatory=False, name=None, default=Unset):
         #: The attribute name in the parent python class.
         #: Set by :func:`inspect_class`
         self.key = None  # will be set by class inspection
@@ -194,11 +194,14 @@ class wsattr(object):
         self.datatype = datatype
         #: True if the attribute is mandatory
         self.mandatory = mandatory
+        #: Default value. The attribute will return this instead
+        #: of :data:`Unset` if no value has been set.
+        self.default = default
 
     def __get__(self, instance, owner):
         if instance is None:
             return self
-        return getattr(instance, '_' + self.key, Unset)
+        return getattr(instance, '_' + self.key, self.default)
 
     def __set__(self, instance, value):
         try:

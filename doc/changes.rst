@@ -6,6 +6,9 @@ next
 
 *   Now handle dict and UserType types as GET/POST params.
 
+*   :class:`wsattr` now takes a 'default' parameter that will be returned
+    instead of 'Unset' if no value has been set.
+
 0.3b1
 -----
 
