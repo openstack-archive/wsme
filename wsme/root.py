@@ -167,23 +167,32 @@ class WSRoot(object):
 
         res = webob.Response()
         res_content_type = None
+
         try:
+            msg = None
             protocol = self._select_protocol(request)
-            if protocol is None:
+        except Exception, e:
+            msg = ("Error while selecting protocol: %s" % str(e))
+            protocol = None
+
+        if protocol is None:
+            if msg is None:
                 msg = ("None of the following protocols can handle this "
                        "request : %s" % ','.join(
                             (p.name for p in self.protocols)))
-                res.status = 500
-                res.content_type = 'text/plain'
-                res.body = msg
-                log.error(msg)
-                return res
+            res.status = 500
+            res.content_type = 'text/plain'
+            res.body = msg
+            log.error(msg)
+            return res
+
+        request.calls = []
+        request.client_errorcount = 0
+        request.server_errorcount = 0
+
+        try:
 
             context = None
-
-            request.calls = []
-            request.client_errorcount = 0
-            request.server_errorcount = 0
 
             if hasattr(protocol, 'prepare_response_body'):
                 prepare_response_body = protocol.prepare_response_body
