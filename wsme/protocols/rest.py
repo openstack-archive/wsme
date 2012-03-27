@@ -35,7 +35,15 @@ class RestProtocol(object):
     def read_arguments(self, context):
         request = context.request
         funcdef = context.funcdef
-        if len(request.params) and request.body:
+
+        if "application/x-www-form-urlencoded" in \
+                request.headers['Content-Type']:
+            # The params were read from the body, ignoring the body then
+            pass
+        elif len(request.params) and request.body:
+            log.warning("The request has both a body and params.")
+            log.debug("Params: %s" % request.params)
+            log.debug("Body: %s" % request.body)
             raise ClientSideError(
                 "Cannot read parameters from both a body and GET/POST params")
 
