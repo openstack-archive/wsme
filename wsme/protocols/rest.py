@@ -36,8 +36,9 @@ class RestProtocol(object):
         request = context.request
         funcdef = context.funcdef
 
-        if "application/x-www-form-urlencoded" in \
-                request.headers['Content-Type']:
+        if 'Content-Type' in request.headers \
+                and "application/x-www-form-urlencoded" in \
+                    request.headers['Content-Type']:
             # The params were read from the body, ignoring the body then
             pass
         elif len(request.params) and request.body:
