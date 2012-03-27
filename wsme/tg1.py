@@ -1,9 +1,16 @@
 import cherrypy
+from cherrypy.filters.basefilter import BaseFilter
 import webob
 from turbogears import expose
 
 
+class WSMECherrypyFilter(BaseFilter):
+    def on_start_resource(self):
+        cherrypy.request.processRequestBody = False
+
+
 class Controller(object):
+    _cp_filters = [WSMECherrypyFilter()]
 
     def __init__(self, wsroot):
         self._wsroot = wsroot
