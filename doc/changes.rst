@@ -4,7 +4,12 @@ Changes
 next
 ----
 
+*   Fixed issues with the TG1 adapter.
+
 *   Now handle dict and UserType types as GET/POST params.
+
+*   Better handling of application/x-www-form-urlencoded encoded POSTs
+    in rest protocols.
 
 *   :class:`wsattr` now takes a 'default' parameter that will be returned
     instead of 'Unset' if no value has been set.
