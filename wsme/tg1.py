@@ -13,7 +13,7 @@ class Controller(object):
         req = webob.Request(cherrypy.request.wsgi_environ)
         res = self._wsroot._handle_request(req)
         cherrypy.response.header_list = res.headerlist
-        cherrypy.status = res.status
+        cherrypy.response.status = res.status
         return res.body
 
 
