@@ -1,8 +1,8 @@
 Changes
 =======
 
-0.3b2
------
+0.3b2 (2012-03-29)
+------------------
 
 *   Fixed issues with the TG1 adapter.
 
@@ -14,8 +14,8 @@ Changes
 *   :class:`wsattr` now takes a 'default' parameter that will be returned
     instead of 'Unset' if no value has been set.
 
-0.3b1
------
+0.3b1 (2012-01-19)
+------------------
 
 *   Per-call database transaction handling.
 
