@@ -2,18 +2,20 @@ import os
 
 from setuptools import setup
 
-execfile(os.path.join('wsme', 'release.py'))
+filename = os.path.join('wsme', 'release.py')
+release = {}
+exec(compile(open(filename).read(), filename, 'exec'), release)
 
-long_description = open("README").read()
+long_description = open("README", 'rt').read()
 
 setup(
-    name=name,
-    version=version,
-    description=description,
+    name=release['name'],
+    version=release['version'],
+    description=release['description'],
     long_description=long_description,
-    author=author,
-    author_email=email,
-    url=url,
+    author=release['author'],
+    author_email=release['email'],
+    url=release['url'],
     packages=['wsme', 'wsme.protocols'],
     package_data={
         'wsme.protocols': ['templates/*.html'],
