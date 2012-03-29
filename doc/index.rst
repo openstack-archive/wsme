@@ -12,6 +12,7 @@ Contents
    types
    protocols
    integrate
+   document
 
    todo
    changes

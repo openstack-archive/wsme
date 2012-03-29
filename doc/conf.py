@@ -25,7 +25,7 @@ sys.path.insert(0, os.path.abspath('..'))
 
 # Add any Sphinx extension module names here, as strings. They can be extensions
 # coming with Sphinx (named 'sphinx.ext.*') or your custom ones.
-extensions = ['sphinx.ext.autodoc', 'sphinx.ext.viewcode']
+extensions = ['sphinx.ext.autodoc', 'sphinx.ext.viewcode', 'wsme.sphinxext']
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
@@ -92,7 +92,7 @@ pygments_style = 'sphinx'
 
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.
-html_theme = 'agogo'
+html_theme = 'sphinxdoc'
 
 html_style = 'wsme.css'
 
@@ -106,7 +106,7 @@ html_style = 'wsme.css'
 
 # The name for this set of Sphinx documents.  If None, it defaults to
 # "<project> v<release> documentation".
-#html_title = None
+html_title = "WSME %s" % release
 
 # A shorter title for the navigation bar.  Default is the same as html_title.
 #html_short_title = None
