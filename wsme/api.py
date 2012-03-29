@@ -62,6 +62,7 @@ def funcproxy(func):
         return func(*args, **kw)
     newfunc._is_wsme_funcproxy = True
     newfunc._original_func = func
+    newfunc.__doc__ = func.__doc__
     return newfunc
 
 

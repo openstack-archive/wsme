@@ -6,6 +6,7 @@ from sphinx.util.docfields import Field, GroupedField, TypedField
 from sphinx.locale import l_, _
 
 from docutils.parsers.rst import Directive
+from docutils.parsers.rst import directives
 
 import wsme
 
@@ -23,6 +24,17 @@ class SampleType(object):
     @classmethod
     def sample(cls):
         return SampleType(10)
+
+
+class SampleService(wsme.WSRoot):
+    @wsme.expose(SampleType)
+    @wsme.validate(SampleType, int)
+    def change_aint(data, aint):
+        """
+        Returns the data object with its aint fields changed
+        """
+        data.aint = aint
+        return data
 
 
 class TypeDirective(PyClasslike):
@@ -96,9 +108,10 @@ class TypeDocumenter(autodoc.ClassDocumenter):
                     u' ' * 8 + line for line in sample.split('\n')))
         for line in content:
             self.add_line(line, u'<wsme.sphinxext')
+
+        self.add_line(u'', '<wsme.sphinxext>')
         super(TypeDocumenter, self).add_content(
             more_content, no_docstring)
-
 
 
 class AttributeDocumenter(autodoc.AttributeDocumenter):
@@ -125,16 +138,77 @@ class AttributeDocumenter(autodoc.AttributeDocumenter):
         super(AttributeDocumenter, self).add_directive_header(sig)
 
 
+class RootDirective(Directive):
+    """
+    This directive is to tell what class is the Webservice root
+    """
+    has_content = False
+    required_arguments = 1
+    optional_arguments = 0
+    final_argument_whitespace = False
+    option_spec = {
+        'webpath': directives.unchanged
+    }
+
+    def run(self):
+        env = self.state.document.settings.env
+        rootpath = self.arguments[0].strip()
+        env.temp_data['wsme:root'] = rootpath
+        return []
+
+
+class ServiceDirective(PyClasslike):
+    name = 'service'
+
+
+class ServiceDocumenter(autodoc.ClassDocumenter):
+    domain = 'wsme'
+    objtype = 'service'
+    directivetype = 'service'
+
+    def add_directive_header(self, sig):
+        super(ServiceDocumenter, self).add_directive_header(sig)
+        # remove the :module: option that was added by ClassDocumenter
+        if ':module:' in self.directive.result[-1]:
+            self.directive.result.pop()
+
+    def format_signature(self):
+        return u''
+
+
+class FunctionDirective(PyClassmember):
+    name = 'function'
+    objtype = 'function'
+
+    def get_signature_prefix(self, sig):
+        return 'function '
+
+
+class FunctionDocumenter(autodoc.MethodDocumenter):
+    domain = 'wsme'
+    directivetype = 'function'
+    objtype = 'function'
+
+    @classmethod
+    def can_document_member(cls, member, membername, isattr, parent):
+        return isinstance(parent, ServiceDocumenter) \
+            and wsme.api.isfuncproxy(member)
+
+
 class WSMEDomain(Domain):
     name = 'wsme'
 
     directives = {
         'type': TypeDirective,
-        'attribute':  AttributeDirective
+        'attribute':  AttributeDirective,
+        'service': ServiceDirective,
+        'root': RootDirective,
+        'function': FunctionDirective,
     }
 
     object_types = {
-        'type': ObjType(l_('type'), 'type', 'obj')
+        'type': ObjType(l_('type'), 'type', 'obj'),
+        'service': ObjType(l_('service'), 'service', 'obj')
     }
 
 
@@ -142,6 +216,8 @@ def setup(app):
     app.add_domain(WSMEDomain)
     app.add_autodocumenter(TypeDocumenter)
     app.add_autodocumenter(AttributeDocumenter)
+    app.add_autodocumenter(ServiceDocumenter)
+    app.add_autodocumenter(FunctionDocumenter)
 
     app.add_config_value('wsme_protocols', ['restjson', 'restxml'], 'env')
     app.add_javascript('toggle.js')
