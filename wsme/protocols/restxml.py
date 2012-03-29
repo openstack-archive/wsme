@@ -15,6 +15,20 @@ import re
 time_re = re.compile(r'(?P<h>[0-2][0-9]):(?P<m>[0-5][0-9]):(?P<s>[0-6][0-9])')
 
 
+def xml_indent(elem, level=0):
+    i = "\n" + level * "  "
+    if len(elem):
+        if not elem.text or not elem.text.strip():
+            elem.text = i + "  "
+        for e in elem:
+            xml_indent(e, level + 1)
+        if not e.tail or not e.tail.strip():
+            e.tail = i
+    if level and (not elem.tail or not elem.tail.strip()):
+        elem.tail = i
+
+
+
 @generic
 def toxml(datatype, key, value):
     """
@@ -193,6 +207,7 @@ class RestXmlProtocol(RestProtocol):
     .. autoattribute:: content_types
     """
     name = 'restxml'
+    displayname = 'REST+Xml'
     dataformat = 'xml'
     content_types = ['text/xml']
 
@@ -216,3 +231,12 @@ class RestXmlProtocol(RestProtocol):
         if 'debuginfo' in errordetail:
             et.SubElement(el, 'debuginfo').text = errordetail['debuginfo']
         return et.tostring(el)
+
+    def encode_sample_value(self, datatype, value, format=False):
+        r = toxml(datatype, 'value', value)
+        if format:
+            xml_indent(r)
+        content = et.tostring(r)
+            #indent=4 if format else 0,
+            #sort_keys=format)
+        return ('xml', content)

@@ -186,6 +186,7 @@ class RestJsonProtocol(RestProtocol):
     """
 
     name = 'restjson'
+    displayname = 'REST+Json'
     dataformat = 'json'
     content_types = [
         'application/json',
@@ -215,3 +216,10 @@ class RestJsonProtocol(RestProtocol):
 
     def encode_error(self, context, errordetail):
         return json.dumps(errordetail, encoding='utf-8')
+
+    def encode_sample_value(self, datatype, value, format=False):
+        r = tojson(datatype, value)
+        content = json.dumps(r, ensure_ascii=False,
+            indent=4 if format else 0,
+            sort_keys=format)
+        return ('javascript', content)

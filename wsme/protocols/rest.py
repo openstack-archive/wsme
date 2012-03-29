@@ -1,23 +1,14 @@
 import logging
 
 from wsme.exc import ClientSideError, UnknownArgument
-from wsme.protocols import CallContext
+from wsme.protocols import CallContext, Protocol
 from wsme.protocols.commons import from_params
 from wsme.types import Unset
 
 log = logging.getLogger(__name__)
 
 
-class RestProtocol(object):
-    name = None
-    dataformat = None
-    content_types = []
-
-    def accept(self, request):
-        if request.path.endswith('.' + self.dataformat):
-            return True
-        return request.headers.get('Content-Type') in self.content_types
-
+class RestProtocol(Protocol):
     def iter_calls(self, request):
         yield CallContext(request)
 
