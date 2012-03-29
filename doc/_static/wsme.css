@@ -1,4 +1,14 @@
-@import "sphinxdoc.css";
+@import "agogo.css";
+
+div.header,
+div.content,
+div.footer {
+    width: 60em;
+}
+
+div.document {
+    width: 40em;
+}
 
 table.docutils {
     margin: 0;
