@@ -16,6 +16,14 @@ class SampleType(object):
     #: A Int
     aint = int
 
+    def __init__(self, aint=None):
+        if aint:
+            self.aint = aint
+
+    @classmethod
+    def sample(cls):
+        return SampleType(10)
+
 
 class TypeDirective(PyClasslike):
     pass
@@ -35,6 +43,10 @@ class TypeDocumenter(autodoc.ClassDocumenter):
 
     required_arguments = 1
 
+    option_spec = dict(autodoc.ClassDocumenter.option_spec, **{
+        'protocols': lambda l: [v.strip() for v in l.split(',')]
+    })
+
     @classmethod
     def can_document_member(cls, member, membername, isattr, parent):
         # we don't want to be automaticaly used
@@ -43,6 +55,9 @@ class TypeDocumenter(autodoc.ClassDocumenter):
 
     def format_name(self):
         return self.object.__name__
+
+    def format_signature(self):
+        return u''
 
     def add_directive_header(self, sig):
         super(TypeDocumenter, self).add_directive_header(sig)
@@ -56,6 +71,34 @@ class TypeDocumenter(autodoc.ClassDocumenter):
             return True
         else:
             return False
+
+    def add_content(self, more_content, no_docstring=False):
+        protocols = self.options.protocols or self.env.app.config.wsme_protocols
+        protocols = [wsme.protocols.getprotocol(p) for p in protocols]
+        content = []
+        if protocols:
+            sample_obj = getattr(self.object, 'sample', self.object)()
+            content.extend([
+                l_(u'Data samples:'),
+                u'',
+                u'.. cssclass:: toggle',
+                u''
+            ])
+            for protocol in protocols:
+                language, sample = protocol.encode_sample_value(
+                    self.object, sample_obj, format=True)
+                content.extend([
+                    protocol.displayname or protocol.name,
+                    u'    .. code-block:: ' + language,
+                    u'',
+                ])
+                content.extend((
+                    u' ' * 8 + line for line in sample.split('\n')))
+        for line in content:
+            self.add_line(line, u'<wsme.sphinxext')
+        super(TypeDocumenter, self).add_content(
+            more_content, no_docstring)
+
 
 
 class AttributeDocumenter(autodoc.AttributeDocumenter):
@@ -73,7 +116,8 @@ class AttributeDocumenter(autodoc.AttributeDocumenter):
         return success
 
     def add_content(self, more_content, no_docstring=False):
-        self.add_line(u':type: %s' % self.datatype.__name__, '<sphinxext>')
+        self.add_line(u':type: %s' % self.datatype.__name__, '<wsme.sphinxext>')
+        self.add_line(u'', '<wsme.sphinxext>')
         super(AttributeDocumenter, self).add_content(
             more_content, no_docstring)
 
@@ -98,3 +142,7 @@ def setup(app):
     app.add_domain(WSMEDomain)
     app.add_autodocumenter(TypeDocumenter)
     app.add_autodocumenter(AttributeDocumenter)
+
+    app.add_config_value('wsme_protocols', ['restjson', 'restxml'], 'env')
+    app.add_javascript('toggle.js')
+    app.add_stylesheet('toggle.css')

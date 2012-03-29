@@ -224,3 +224,7 @@ man_pages = [
 
 
 autodoc_member_order = 'bysource'
+
+wsme_protocols = [
+    'restjson', 'restxml', 'soap', 'extdirect'
+]
