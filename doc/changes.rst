@@ -1,8 +1,8 @@
 Changes
 =======
 
-next
-----
+0.3b2
+-----
 
 *   Fixed issues with the TG1 adapter.
 
