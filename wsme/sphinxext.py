@@ -8,6 +8,7 @@ from sphinx.domains.python import PyClasslike, PyClassmember
 from sphinx.domains import Domain, ObjType
 from sphinx.directives import ObjectDescription
 from sphinx.util.docfields import Field, GroupedField, TypedField
+from sphinx.util.nodes import make_refnode
 
 from sphinx.roles import XRefRole
 from sphinx.locale import l_, _
@@ -95,7 +96,14 @@ def find_service_path(env, service):
 
 
 class TypeDirective(PyClasslike):
-    pass
+    def get_index_text(self, modname, name_cls):
+        return _('%s (webservice type)') % name_cls[0]
+
+    def add_target_and_index(self, name_cls, sig, signode):
+        print name_cls, sig, signode
+        ret = super(TypeDirective, self).add_target_and_index(name_cls, sig, signode)
+        print self.indexnode
+        return ret
 
 
 class AttributeDirective(PyClassmember):
@@ -363,6 +371,12 @@ class FunctionDocumenter(autodoc.MethodDocumenter):
 
 class WSMEDomain(Domain):
     name = 'wsme'
+    label = 'WSME'
+
+    object_types = {
+        'type': ObjType(l_('type'), 'type', 'obj'),
+        'service': ObjType(l_('service'), 'service', 'obj')
+    }
 
     directives = {
         'type': TypeDirective,
@@ -372,14 +386,19 @@ class WSMEDomain(Domain):
         'function': FunctionDirective,
     }
 
-    object_types = {
-        'type': ObjType(l_('type'), 'type', 'obj'),
-        'service': ObjType(l_('service'), 'service', 'obj')
-    }
-
     roles = {
         'type': XRefRole()
     }
+
+    initial_data = {
+        'types': {},  # fullname -> docname
+    }
+
+    def resolve_xref(self, env, fromdocname, builder,
+                     type, target, node, contnode):
+        print "Target: ", target, node
+        return make_refnode(
+            builder, fromdocname, fromdocname, target, contnode, target)
 
 
 def setup(app):

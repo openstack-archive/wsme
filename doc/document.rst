@@ -113,7 +113,9 @@ Example
 
         .. wsme:service:: name/space/SampleService
             
-            .. wsme:function:: doit
+            .. wsme:function:: getType
+                
+                Returns a :wsme:type:`MyType <MyType>`
 
 
 Autodoc directives
