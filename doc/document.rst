@@ -102,7 +102,7 @@ Example
                 
                 .. wsme:function:: doit
                     
-      - .. wsme:root:: wsme:wsme.sphinxext.SampleService
+      - .. wsme:root:: wsme.sphinxext.SampleService
             :webpath: /api
 
         .. wsme:type:: MyType
@@ -145,7 +145,7 @@ Python source
 ~~~~~~~~~~~~~
 
 .. literalinclude:: ../wsme/sphinxext.py
-    :lines: 20-45
+    :lines: 23-49
     :language: python
 
 Documentation source

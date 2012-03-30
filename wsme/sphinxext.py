@@ -1,5 +1,6 @@
 import inspect
 import re
+import sys
 
 from sphinx import addnodes
 from sphinx.ext import autodoc
@@ -45,6 +46,55 @@ class SampleService(wsme.WSRoot):
         """
         data.aint = aint
         return data
+
+
+def getroot(env, force=False):
+    root = env.temp_data.get('wsme:root')
+    if not force and root:
+        return root
+    rootpath = env.temp_data.get('wsme:rootpath', env.app.config.wsme_root)
+
+    print rootpath
+
+    if rootpath is None:
+        return None
+
+    modname, classname = rootpath.rsplit('.', 1)
+    print modname, classname
+    __import__(modname)
+    module = sys.modules[modname]
+    root = getattr(module, classname)
+    env.temp_data['wsme:root'] = root
+    return root
+
+
+def scan_services(service, path=[]):
+    has_functions = False
+    for name in dir(service):
+        if name.startswith('_'):
+            continue
+        a = getattr(service, name)
+        if inspect.ismethod(a):
+            if hasattr(a, '_wsme_definition'):
+                has_functions = True
+        if inspect.isclass(a):
+            continue
+        if len(path) > wsme.api.APIPATH_MAXLEN:
+            raise ValueError("Path is too long: " + str(path))
+        for value in scan_services(a, path + [name]):
+            yield value
+    if has_functions:
+        yield service, path
+
+
+def find_service_path(env, service):
+    root = getroot(env)
+    if service == root:
+        return []
+    for s, path in scan_services(root):
+        if s == service:
+            return path
+    return None
 
 
 class TypeDirective(PyClasslike):
@@ -163,7 +213,11 @@ class RootDirective(Directive):
     def run(self):
         env = self.state.document.settings.env
         rootpath = self.arguments[0].strip()
-        env.temp_data['wsme:root'] = rootpath
+        env.temp_data['wsme:rootpath'] = rootpath
+        if 'wsme:root' in env.temp_data:
+            del env.temp_data['wsme:root']
+        if 'webpath' in self.options:
+            env.temp_data['wsme:webpath'] = self.options['webpath']
         return []
 
 
@@ -180,6 +234,9 @@ class ServiceDirective(ObjectDescription):
             namespace += '/'
 
         servicename = path[-1]
+
+        if not namespace and not servicename:
+            servicename = '/'
 
         signode += addnodes.desc_annotation('service ', 'service ')
 
@@ -202,6 +259,11 @@ class ServiceDocumenter(autodoc.ClassDocumenter):
 
     def format_signature(self):
         return u''
+
+    def format_name(self):
+        path = find_service_path(self.env, self.object)
+        print self.object.__name__, path
+        return '/' + '/'.join(path)
 
 
 class FunctionDirective(PyClassmember):
@@ -294,6 +356,16 @@ class FunctionDocumenter(autodoc.MethodDocumenter):
     def add_content(self, more_content, no_docstring=False):
         super(FunctionDocumenter, self).add_content(more_content, no_docstring)
 
+    def format_name(self):
+        print self.wsme_fd.name
+        return self.wsme_fd.name
+
+    def add_directive_header(self, sig):
+        super(FunctionDocumenter, self).add_directive_header(sig)
+        # remove the :module: option that was added by ClassDocumenter
+        if ':module:' in self.directive.result[-1]:
+            self.directive.result.pop()
+
 
 class WSMEDomain(Domain):
     name = 'wsme'
@@ -323,6 +395,8 @@ def setup(app):
     app.add_autodocumenter(ServiceDocumenter)
     app.add_autodocumenter(FunctionDocumenter)
 
+    app.add_config_value('wsme_root', None, 'env')
+    app.add_config_value('wsme_webpath', '/', 'env')
     app.add_config_value('wsme_protocols', ['restjson', 'restxml'], 'env')
     app.add_javascript('toggle.js')
     app.add_stylesheet('toggle.css')
