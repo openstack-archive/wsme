@@ -140,7 +140,7 @@ Python source
 ~~~~~~~~~~~~~
 
 .. literalinclude:: ../wsme/sphinxext.py
-    :lines: 14-37
+    :lines: 20-45
     :language: python
 
 Documentation source

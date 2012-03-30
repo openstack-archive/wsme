@@ -1,14 +1,20 @@
+import inspect
+import re
+
 from sphinx.ext import autodoc
 from sphinx.domains.python import PyClasslike, PyClassmember
 from sphinx.domains import Domain, ObjType
 from sphinx.util.docfields import Field, GroupedField, TypedField
 
+from sphinx.roles import XRefRole
 from sphinx.locale import l_, _
 
 from docutils.parsers.rst import Directive
 from docutils.parsers.rst import directives
 
 import wsme
+
+field_re = re.compile(r':(?P<field>\w+)(\s+(?P<name>\w+))?:')
 
 
 class SampleType(object):
@@ -28,10 +34,12 @@ class SampleType(object):
 
 class SampleService(wsme.WSRoot):
     @wsme.expose(SampleType)
-    @wsme.validate(SampleType, int)
-    def change_aint(data, aint):
+    @wsme.validate(SampleType, int, str)
+    def change_aint(data, aint, dummy='useless'):
         """
-        Returns the data object with its aint field value changed
+        :param aint: The new value
+
+        :return: The data object with its aint field value changed.
         """
         data.aint = aint
         return data
@@ -188,11 +196,83 @@ class FunctionDocumenter(autodoc.MethodDocumenter):
     domain = 'wsme'
     directivetype = 'function'
     objtype = 'function'
+    priority = 1
 
     @classmethod
     def can_document_member(cls, member, membername, isattr, parent):
         return isinstance(parent, ServiceDocumenter) \
             and wsme.api.isfuncproxy(member)
+
+    def import_object(self):
+        ret = super(FunctionDocumenter, self).import_object()
+        self.directivetype = 'function'
+        self.object, self.wsme_fd = \
+            wsme.api.FunctionDefinition.get(self.object)
+        self.retann = self.wsme_fd.return_type.__name__
+        return ret
+
+    def format_args(self):
+        args = [arg.name for arg in self.wsme_fd.arguments]
+        defaults = [arg.default
+            for arg in self.wsme_fd.arguments if not arg.mandatory]
+        return inspect.formatargspec(args, defaults=defaults)
+
+    def get_doc(self, encoding=None):
+        """Inject the type and param fields into the docstrings so that the
+        user can add its own param fields to document the parameters"""
+        docstrings = super(FunctionDocumenter, self).get_doc(encoding)
+        print docstrings
+        found_params = set()
+
+        for si, docstring in enumerate(docstrings):
+            for i, line in enumerate(docstring):
+                m = field_re.match(line)
+                if m and m.group('field') == 'param':
+                    found_params.add(m.group('name'))
+
+        next_param_pos = (0, 0)
+
+        for arg in self.wsme_fd.arguments:
+            content = [
+                u':type  %s: :wsme:type:`%s`' % (
+                    arg.name, arg.datatype.__name__)
+            ]
+            if arg.name not in found_params:
+                content.insert(0, u':param %s: ' % (arg.name))
+                pos = next_param_pos
+            else:
+                for si, docstring in enumerate(docstrings):
+                    for i, line in enumerate(docstring):
+                        m = field_re.match(line)
+                        if m and m.group('field') == 'param' \
+                                and m.group('name') == arg.name:
+                            pos = (si, i + 1)
+                            break
+                            break
+            docstring = docstrings[pos[0]]
+            docstring[pos[1]:pos[1]] = content
+            next_param_pos = (pos[0], pos[1] + len(content))
+
+        if self.wsme_fd.return_type:
+            content = [
+                u':rtype: %s' % self.wsme_fd.return_type.__name__
+            ]
+            pos = None
+            for si, docstring in enumerate(docstrings):
+                for i, line in enumerate(docstring):
+                    m = field_re.match(line)
+                    if m and m.group('field') == 'return':
+                        pos = (si, i + 1)
+                        break
+                        break
+            if pos is None:
+                pos = next_param_pos
+            docstring = docstrings[pos[0]]
+            docstring[pos[1]:pos[1]] = content
+        return docstrings
+
+    def add_content(self, more_content, no_docstring=False):
+        super(FunctionDocumenter, self).add_content(more_content, no_docstring)
 
 
 class WSMEDomain(Domain):
@@ -209,6 +289,10 @@ class WSMEDomain(Domain):
     object_types = {
         'type': ObjType(l_('type'), 'type', 'obj'),
         'service': ObjType(l_('service'), 'service', 'obj')
+    }
+
+    roles = {
+        'type': XRefRole()
     }
 
 
