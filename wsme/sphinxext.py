@@ -54,13 +54,10 @@ def getroot(env, force=False):
         return root
     rootpath = env.temp_data.get('wsme:rootpath', env.app.config.wsme_root)
 
-    print rootpath
-
     if rootpath is None:
         return None
 
     modname, classname = rootpath.rsplit('.', 1)
-    print modname, classname
     __import__(modname)
     module = sys.modules[modname]
     root = getattr(module, classname)
@@ -262,7 +259,6 @@ class ServiceDocumenter(autodoc.ClassDocumenter):
 
     def format_name(self):
         path = find_service_path(self.env, self.object)
-        print self.object.__name__, path
         return '/' + '/'.join(path)
 
 
@@ -303,7 +299,6 @@ class FunctionDocumenter(autodoc.MethodDocumenter):
         """Inject the type and param fields into the docstrings so that the
         user can add its own param fields to document the parameters"""
         docstrings = super(FunctionDocumenter, self).get_doc(encoding)
-        print docstrings
         found_params = set()
 
         for si, docstring in enumerate(docstrings):
@@ -357,7 +352,6 @@ class FunctionDocumenter(autodoc.MethodDocumenter):
         super(FunctionDocumenter, self).add_content(more_content, no_docstring)
 
     def format_name(self):
-        print self.wsme_fd.name
         return self.wsme_fd.name
 
     def add_directive_header(self, sig):
