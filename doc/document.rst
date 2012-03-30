@@ -51,7 +51,7 @@ Config values
 Directives
 ~~~~~~~~~~
 
-.. rst:directive:: .. wsme:root:: <WSRoot full path>
+.. rst:directive:: .. root:: <WSRoot full path>
 
     Allow to define the service root controller in one documentation source file.
     To set it globally, see :confval:`wsme_root`.
@@ -65,16 +65,21 @@ Directives
         .. wsme:root:: myapp.controllers.MyWSRoot
             :webpath: /api
 
-.. rst:directive:: .. wsme:type:: MyComplexType
+.. rst:directive:: .. service:: name/space/ServiceName
+
+    Declare a service.
+
+.. rst:directive:: .. type:: MyComplexType
 
     Equivalent to the :rst:dir:`py:class` directive to document a complex type
 
-.. rst:directive:: .. wsme:attribute:: aname
+.. rst:directive:: .. attribute:: aname
 
     Equivalent to the :rst:dir:`py:attribute` directive to document a complex type
     attribute. It takes an additionnal ``:type:`` field.
 
-Example:
+Example
+~~~~~~~
 
 .. list-table::
     :header-rows: 1
@@ -93,7 +98,7 @@ Example:
 
                     :type: int
 
-            .. wsme:service:: SampleService
+            .. wsme:service:: name/space/SampleService
                 
                 .. wsme:function:: doit
                     
@@ -106,7 +111,7 @@ Example:
 
                 :type: int
 
-        .. wsme:service:: SampleService
+        .. wsme:service:: name/space/SampleService
             
             .. wsme:function:: doit
 
@@ -117,19 +122,19 @@ Autodoc directives
 Theses directives scan your code to generate the documentation from the
 docstrings and your API types and controllers.
 
-.. rst:directive:: .. wsme:autotype:: myapp.MyType
+.. rst:directive:: .. autotype:: myapp.MyType
 
     Generate the myapp.MyType documentation.
 
-.. rst:directive:: .. wsme:autoattribute:: myapp.MyType.aname
+.. rst:directive:: .. autoattribute:: myapp.MyType.aname
 
     Generate the myapp.MyType.aname documentation.
 
-.. rst:directive:: .. wsme:autoservice:: myapp.MyService
+.. rst:directive:: .. autoservice:: myapp.MyService
 
     Generate the myapp.MyService documentation.
 
-.. rst:directive:: .. wsme:autofunction:: myapp.MyService.myfunction
+.. rst:directive:: .. autofunction:: myapp.MyService.myfunction
 
     Generate the myapp.MyService.myfunction documentation.
 

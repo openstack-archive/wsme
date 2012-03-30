@@ -1,9 +1,11 @@
 import inspect
 import re
 
+from sphinx import addnodes
 from sphinx.ext import autodoc
 from sphinx.domains.python import PyClasslike, PyClassmember
 from sphinx.domains import Domain, ObjType
+from sphinx.directives import ObjectDescription
 from sphinx.util.docfields import Field, GroupedField, TypedField
 
 from sphinx.roles import XRefRole
@@ -165,8 +167,26 @@ class RootDirective(Directive):
         return []
 
 
-class ServiceDirective(PyClasslike):
+class ServiceDirective(ObjectDescription):
     name = 'service'
+
+    optional_arguments = 1
+
+    def handle_signature(self, sig, signode):
+        path = sig.split('/')
+
+        namespace = '/'.join(path[:-1])
+        if namespace and not namespace.endswith('/'):
+            namespace += '/'
+
+        servicename = path[-1]
+
+        signode += addnodes.desc_annotation('service ', 'service ')
+
+        if namespace:
+            signode += addnodes.desc_addname(namespace, namespace)
+
+        signode += addnodes.desc_name(servicename, servicename)
 
 
 class ServiceDocumenter(autodoc.ClassDocumenter):
