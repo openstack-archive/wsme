@@ -1,18 +1,171 @@
 Document your API
 =================
 
+Web services without a proper documentation are usually useless.
+
+To make it easy to document your own API, WSME provides a Sphinx_ extension.
+
+Install the extension
+---------------------
+
+Here we consider that you already quick-started a sphinx project.
+
+#.  In your ``conf.py`` file, add ``'wsme.sphinxext'`` to you extensions,
+    and optionally set the enabled protocols.
+
+    .. code-block:: python
+
+        extensions = ['wsme.sphinxext']
+
+        wsme_protocols = ['restjson', 'restxml', 'extdirect']
+
+The ``wsme`` domain
+-------------------
+
+The extension will add a new Sphinx domain providing a few directives.
+
+Config values
+~~~~~~~~~~~~~
+
+.. confval:: wsme_protocols
+
+    A list of strings that are WSME protocol names. If provided by an
+    additionnal package (for example WSME-Soap or WSME-ExtDirect), it must
+    be installed.
+
+    The types and services generated documentation will include code samples
+    for each of these protocols.
+
+.. confval:: wsme_root
+
+    A string that is the full name of the service root controller.
+    It will be used
+    to determinate the relative path of the other controllers when they
+    are autodocumented, and calculate the complete webpath of the other
+    controllers.
+
+.. confval:: wsme_webpath
+
+    A string that is the webpath where the :confval:`wsme_root` is mounted.
+
+Directives
+~~~~~~~~~~
+
+.. rst:directive:: .. wsme:root:: <WSRoot full path>
+
+    Allow to define the service root controller in one documentation source file.
+    To set it globally, see :confval:`wsme_root`.
+
+    A ``webpath`` option allow to override :confval:`wsme_webpath`.
+    
+    Example:
+
+    .. code-block:: rst
+
+        .. wsme:root:: myapp.controllers.MyWSRoot
+            :webpath: /api
+
+.. rst:directive:: .. wsme:type:: MyComplexType
+
+    Equivalent to the :rst:dir:`py:class` directive to document a complex type
+
+.. rst:directive:: .. wsme:attribute:: aname
+
+    Equivalent to the :rst:dir:`py:attribute` directive to document a complex type
+    attribute. It takes an additionnal ``:type:`` field.
+
+Example:
+
+.. list-table::
+    :header-rows: 1
+
+    * - Source
+      - Result
+
+    * - .. code-block:: rst
+
+            .. wsme:root:: wsme.sphinxext.SampleService
+                :webpath: /api
+
+            .. wsme:type:: MyType
+
+                .. wsme:attribute:: test
+
+                    :type: int
+
+            .. wsme:service:: SampleService
+                
+                .. wsme:function:: doit
+                    
+      - .. wsme:root:: wsme:wsme.sphinxext.SampleService
+            :webpath: /api
+
+        .. wsme:type:: MyType
+
+            .. wsme:attribute:: test
+
+                :type: int
+
+        .. wsme:service:: SampleService
+            
+            .. wsme:function:: doit
+
+
+Autodoc directives
+~~~~~~~~~~~~~~~~~~
+
+Theses directives scan your code to generate the documentation from the
+docstrings and your API types and controllers.
+
+.. rst:directive:: .. wsme:autotype:: myapp.MyType
+
+    Generate the myapp.MyType documentation.
+
+.. rst:directive:: .. wsme:autoattribute:: myapp.MyType.aname
+
+    Generate the myapp.MyType.aname documentation.
+
+.. rst:directive:: .. wsme:autoservice:: myapp.MyService
+
+    Generate the myapp.MyService documentation.
+
+.. rst:directive:: .. wsme:autofunction:: myapp.MyService.myfunction
+
+    Generate the myapp.MyService.myfunction documentation.
+
+Full Example
+------------
+
+Python source
+~~~~~~~~~~~~~
+
+.. literalinclude:: ../wsme/sphinxext.py
+    :lines: 14-37
+    :language: python
+
+Documentation source
+~~~~~~~~~~~~~~~~~~~~
+
+.. code-block:: rst
+
+    .. default-domain:: wsme
+
+    .. autotype:: wsme.sphinxext.SampleType
+        :members:
+
+    .. autoservice:: wsme.sphinxext.SampleService
+        :members:
+
+Result
+~~~~~~
+
 .. default-domain:: wsme
-
-.. root:: wsme.sphinxext.SampleService
-
-.. type:: MyType
-
-    .. attribute:: test
-
-        :type: int
 
 .. autotype:: wsme.sphinxext.SampleType
     :members:
 
 .. autoservice:: wsme.sphinxext.SampleService
     :members:
+
+
+.. _Sphinx: http://sphinx.pocoo.org/

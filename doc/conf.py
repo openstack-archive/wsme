@@ -228,3 +228,10 @@ autodoc_member_order = 'bysource'
 wsme_protocols = [
     'restjson', 'restxml', 'soap', 'extdirect'
 ]
+
+
+def setup(app):
+    # confval directive taken from the sphinx doc
+    app.add_object_type('confval', 'confval',
+                        objname='configuration value',
+                        indextemplate='pair: %s; configuration value')

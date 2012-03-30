@@ -31,7 +31,7 @@ class SampleService(wsme.WSRoot):
     @wsme.validate(SampleType, int)
     def change_aint(data, aint):
         """
-        Returns the data object with its aint fields changed
+        Returns the data object with its aint field value changed
         """
         data.aint = aint
         return data
