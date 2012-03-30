@@ -250,6 +250,8 @@ class ServiceDirective(ObjectDescription):
 
         signode += addnodes.desc_name(servicename, servicename)
 
+        return sig
+
 
 class ServiceDocumenter(autodoc.ClassDocumenter):
     domain = 'wsme'
