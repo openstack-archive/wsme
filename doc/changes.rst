@@ -1,6 +1,11 @@
 Changes
 =======
 
+0.3b3 (next)
+------------
+
+*   Initial Sphinx integration.
+
 0.3b2 (2012-03-29)
 ------------------
 
