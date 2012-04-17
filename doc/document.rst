@@ -19,6 +19,10 @@ Here we consider that you already quick-started a sphinx project.
 
         wsme_protocols = ['restjson', 'restxml', 'extdirect']
 
+#.  Copy :download:`toggle.js <_static/toggle.js>`
+    and :download:`toggle.css <_static/toggle.css>`
+    in your _static directory.
+
 The ``wsme`` domain
 -------------------
 
