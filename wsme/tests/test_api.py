@@ -197,6 +197,17 @@ class TestController(unittest.TestCase):
         assert res.status_int == 400
         assert res.content_type == 'text/plain', res.content_type
 
+    def test_double_expose(self):
+        try:
+            class MyRoot(WSRoot):
+                @expose()
+                @expose()
+                def atest(self):
+                    pass
+            assert False, "A ValueError should have been raised"
+        except ValueError:
+            pass
+
     def test_getapi(self):
         class MyRoot(WSRoot):
             pass

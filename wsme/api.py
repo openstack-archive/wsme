@@ -99,7 +99,7 @@ class FunctionDefinition(object):
         self.contenttype = None
 
         #: Dictionnary of protocol-specific options.
-        self.extra_options = {}
+        self.extra_options = None
 
     @classmethod
     def get(cls, func):
@@ -143,7 +143,7 @@ class expose(object):
 
     def __call__(self, func):
         func, fd = FunctionDefinition.get(func)
-        if fd.return_type is not None:
+        if fd.extra_options is not None:
             raise ValueError("This function is already exposed")
         fd.return_type = self.return_type
         fd.extra_options = self.options
