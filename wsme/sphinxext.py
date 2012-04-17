@@ -100,9 +100,13 @@ class TypeDirective(PyClasslike):
         return _('%s (webservice type)') % name_cls[0]
 
     def add_target_and_index(self, name_cls, sig, signode):
-        print name_cls, sig, signode
         ret = super(TypeDirective, self).add_target_and_index(name_cls, sig, signode)
-        print self.indexnode
+        name = name_cls[0]
+        types = self.env.domaindata['wsme']['types']
+        if name in types:
+            self.state_machine.reporter.warning(
+                'duplicate type description of %s ' % name)
+        types[name] = self.env.docname
         return ret
 
 
@@ -127,7 +131,7 @@ class TypeDocumenter(autodoc.ClassDocumenter):
     @classmethod
     def can_document_member(cls, member, membername, isattr, parent):
         # we don't want to be automaticaly used
-        # TODO check if the member is registered a an exposed type
+        # TODO check if the member is registered an an exposed type
         return False
 
     def format_name(self):
@@ -396,11 +400,19 @@ class WSMEDomain(Domain):
         'types': {},  # fullname -> docname
     }
 
+    def clear_doc(self, docname):
+        for name, value in self.data['types'].items():
+            if value == docname:
+                del self.data['types'][name]
+
+
     def resolve_xref(self, env, fromdocname, builder,
                      type, target, node, contnode):
-        print "Target: ", target, node
+        if target not in self.data['types']:
+            return None
+        todocname = self.data['types'][target]
         return make_refnode(
-            builder, fromdocname, fromdocname, target, contnode, target)
+            builder, fromdocname, todocname, target, contnode, target)
 
 
 def setup(app):

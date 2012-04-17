@@ -11,15 +11,41 @@ the different protocols will map to theirs own basic types.
 
 The native types are :
 
-    -   :class:`str`
-    -   :class:`unicode`
-    -   :class:`int`
-    -   :class:`float`
-    -   :class:`bool`
-    -   :class:`decimal.Decimal`
-    -   :class:`datetime.date`
-    -   :class:`datetime.datetime`
-    -   :class:`datetime.time`
+    -   .. wsme:type:: str
+    
+            A non unicode string (:py:class:`str`)
+
+    -   .. wsme:type:: unicode
+
+            A unicode string (:py:class:`unicode`)
+
+    -   .. wsme:type:: int
+    
+            An integer (:py:class:`int`)
+
+    -   .. wsme:type:: float
+    
+            A float (:py:class:`float`)
+
+    -   .. wsme:type:: bool
+    
+            A boolean (:py:class:`bool`)
+
+    -   .. wsme:type:: Decimal
+    
+            A fixed-width decimal (:py:class:`decimal.Decimal`)
+
+    -   .. wsme:type:: date
+            
+            A date (:py:class:`datetime.date`)
+
+    -   .. wsme:type:: datetime
+
+            A date and time (:py:class:`datetime.datetime`)
+
+    -   .. wsme:type:: time
+    
+            A time (:py:class:`datetime.time`)
 
     -   Arrays -- This is a special case. When stating a list
         datatype, always state its content type as the unique element
@@ -30,7 +56,15 @@ The native types are :
                 def getlist(self):
                     return ['a', 'b', 'c']
 
-There are other types that are supported out of the boxe, see
+    -   Dictionnaries -- Statically typed mapping are allowed. When exposing
+        a dictionnary datatype, you can specify the key and value types,
+        with a restriction on the key value that must be a 'pod' type.
+        Example::
+
+            class SomeType(object):
+                amap = {str: SomeOthertype}
+
+There are other types that are supported out of the box, see
 the :ref:`pre-defined-user-types`.
 
 User types

@@ -172,6 +172,10 @@ Result
 
 .. default-domain:: wsme
 
+.. type:: int
+
+    An integer
+
 .. autotype:: wsme.sphinxext.SampleType
     :members:
 
