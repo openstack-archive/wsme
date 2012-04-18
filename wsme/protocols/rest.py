@@ -45,11 +45,16 @@ class RestProtocol(Protocol):
 
         if body is None and len(request.params):
             kw = {}
+            hit_paths = set()
             for argdef in funcdef.arguments:
                 value = from_params(
-                    argdef.datatype, request.params, argdef.name)
+                    argdef.datatype, request.params, argdef.name, hit_paths)
                 if value is not Unset:
                     kw[argdef.name] = value
+            paths = set(request.params.keys())
+            unknown_paths = paths - hit_paths
+            if unknown_paths:
+                raise UnknownArgument(', '.join(unknown_paths))
             return kw
         else:
             if body is None:

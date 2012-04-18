@@ -3,8 +3,6 @@
 import datetime
 import unittest
 
-from wsme import WSRoot
-from wsme.protocols import getprotocol, CallContext
 from wsme.protocols.commons import from_param, from_params
 
 from wsme.types import UserType, Unset
@@ -31,22 +29,22 @@ class TestProtocolsCommons(unittest.TestCase):
         assert from_param(MyUserType(), 'test') == 'test'
 
     def test_from_params_empty(self):
-        assert from_params(str, {}, '') is Unset
-        
+        assert from_params(str, {}, '', set()) is Unset
+
     def test_from_params_native_array(self):
         class params(dict):
             def getall(self, path):
                 return ['1', '2']
         p = params({'a': []})
-        assert from_params([int], p, 'a') == [1, 2]
+        assert from_params([int], p, 'a', set()) == [1, 2]
 
     def test_from_params_empty_array(self):
-        assert from_params([int], {}, 'a') is Unset
+        assert from_params([int], {}, 'a', set()) is Unset
 
     def test_from_params_dict(self):
         assert from_params({int: str}, {
-                'a[2]': 'a2', 'a[3]': 'a3'}, 'a') == \
+                'a[2]': 'a2', 'a[3]': 'a3'}, 'a', set()) == \
             {2: 'a2', 3: 'a3'}
 
     def test_from_params_dict_unset(self):
-        assert from_params({int: str}, {}, 'a') is Unset
+        assert from_params({int: str}, {}, 'a', set()) is Unset

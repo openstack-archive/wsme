@@ -37,7 +37,7 @@ def usertype_from_param(datatype, value):
 
 
 @generic
-def from_params(datatype, params, path):
+def from_params(datatype, params, path, hit_paths):
     if iscomplex(datatype):
         objfound = False
         for key in params:
@@ -48,18 +48,19 @@ def from_params(datatype, params, path):
             r = datatype()
             for attrdef in list_attributes(datatype):
                 value = from_params(attrdef.datatype,
-                        params, '%s.%s' % (path, attrdef.key))
+                        params, '%s.%s' % (path, attrdef.key), hit_paths)
                 if value is not Unset:
                     setattr(r, attrdef.key, value)
             return r
     else:
         if path in params:
+            hit_paths.add(path)
             return from_param(datatype, params[path])
     return Unset
 
 
 @from_params.when_type(list)
-def array_from_params(datatype, params, path):
+def array_from_params(datatype, params, path, hit_paths):
     if path in params:
         return [
             from_param(datatype[0], value) for value in params.getall(path)]
@@ -78,12 +79,13 @@ def array_from_params(datatype, params, path):
         indexes = list(indexes)
         indexes.sort()
 
-        return [from_params(datatype[0], params, '%s[%s]' % (path, index))
+        return [from_params(datatype[0], params,
+                            '%s[%s]' % (path, index), hit_paths)
                 for index in indexes]
 
 
 @from_params.when_type(dict)
-def dict_from_params(datatype, params, path):
+def dict_from_params(datatype, params, path, hit_paths):
 
     keys = set()
     r = re.compile('^%s\[(?P<key>[a-zA-Z0-9_\.]+)\]' % re.escape(path))
@@ -98,5 +100,5 @@ def dict_from_params(datatype, params, path):
 
     return dict((
         (key, from_params(datatype.values()[0],
-                          params, '%s[%s]' % (path, key)))
+                          params, '%s[%s]' % (path, key), hit_paths))
         for key in keys))

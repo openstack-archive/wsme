@@ -133,3 +133,45 @@ class TestRestJson(wsme.tests.protocol.ProtocolTestCase):
         assert json.loads(r.body) == [
             {'inner': {'aint': 54}},
             {'inner': {'aint': 55}}]
+
+    def test_body_and_params(self):
+        r = self.app.post('/argtypes/setint.json?value=2',
+                '{"value": 2}',
+                headers={"Content-Type": "application/json"},
+                expect_errors=True)
+        print r
+        assert r.status_int == 400
+        assert json.loads(r.body)['faultstring'] == \
+            "Cannot read parameters from both a body and GET/POST params"
+
+    def test_inline_body(self):
+        params = urllib.urlencode({'body': '{"value": 4}'})
+        r = self.app.get('/argtypes/setint.json?' + params)
+        print r
+        assert json.loads(r.body) == 4
+
+    def test_empty_body(self):
+        params = urllib.urlencode({'body': ''})
+        r = self.app.get('/returntypes/getint.json?' + params)
+        print r
+        assert json.loads(r.body) == 2
+
+    def test_unknown_arg(self):
+        r = self.app.post('/returntypes/getint.json',
+            '{"a": 2}',
+            headers={"Content-Type": "application/json"},
+            expect_errors=True)
+        print r
+        assert r.status_int == 400
+        assert json.loads(r.body)['faultstring'].startswith(
+                "Unknown argument:")
+
+        r = self.app.get('/returntypes/getint.json?a=2',
+            expect_errors=True)
+        print r
+        assert r.status_int == 400
+        assert json.loads(r.body)['faultstring'].startswith(
+                "Unknown argument:")
+
+
+
