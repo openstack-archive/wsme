@@ -11,9 +11,9 @@ except:
     import json
 
 import wsme.protocols.restjson
-from wsme.protocols.restjson import fromjson
+from wsme.protocols.restjson import fromjson, tojson
 from wsme.utils import parse_isodatetime, parse_isotime, parse_isodate
-from wsme.types import isusertype
+from wsme.types import isusertype, register_type
 
 
 def prepare_value(value, datatype):
@@ -173,5 +173,50 @@ class TestRestJson(wsme.tests.protocol.ProtocolTestCase):
         assert json.loads(r.body)['faultstring'].startswith(
                 "Unknown argument:")
 
+    def test_array_tojson(self):
+        assert tojson([int], None) is None
+        assert tojson([int], []) == []
+        assert tojson([str], ['1', '4']) == ['1', '4']
 
+    def test_dict_tojson(self):
+        assert tojson({int: str}, None) is None
+        assert tojson({int: str}, {5: '5'}) == {5: '5'}
 
+    def test_None_tojson(self):
+        for dt in (datetime.date, datetime.time, datetime.datetime,
+                decimal.Decimal):
+            assert tojson(dt, None) is None
+
+    def test_None_fromjson(self):
+        for dt in (str, int,
+                datetime.date, datetime.time, datetime.datetime,
+                decimal.Decimal,
+                [int], {int: int}):
+            assert fromjson(dt, None) is None
+
+    def test_parse_arg(self):
+        assert self.root.protocols[0].parse_arg('a', '5') == 5
+
+    def test_nest_result(self):
+        self.root.protocols[0].nest_result = True
+        r = self.app.get('/returntypes/getint.json')
+        print r
+        assert json.loads(r.body) == {"result": 2}
+
+    def test_encode_sample_value(self):
+        class MyType(object):
+            aint = int
+            astr = str
+
+        register_type(MyType)
+
+        v = MyType()
+        v.aint = 4
+        v.astr = 's'
+
+        r = self.root.protocols[0].encode_sample_value(MyType, v, True)
+        print r
+        assert r == ('javascript', u"""{
+    "aint": 4, 
+    "astr": "s"
+}""")
