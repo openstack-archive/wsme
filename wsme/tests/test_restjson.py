@@ -1,6 +1,7 @@
-import decimal
 import base64
 import datetime
+import decimal
+import urllib
 
 import wsme.tests.protocol
 
@@ -115,6 +116,20 @@ class TestRestJson(wsme.tests.protocol.ProtocolTestCase):
         nestedarray = 'value[0].inner.aint=54&value[1].inner.aint=55'
         r = self.app.get('/argtypes/setnestedarray.json?' + nestedarray)
         print r
+        assert json.loads(r.body) == [
+            {'inner': {'aint': 54}},
+            {'inner': {'aint': 55}}]
+
+    def test_form_urlencoded_args(self):
+        params = {
+            'value[0].inner.aint': 54,
+            'value[1].inner.aint': 55
+        }
+        body = urllib.urlencode(params)
+        r = self.app.post('/argtypes/setnestedarray.json', body,
+            headers={'Content-Type': 'application/x-www-form-urlencoded'})
+        print r
+
         assert json.loads(r.body) == [
             {'inner': {'aint': 54}},
             {'inner': {'aint': 55}}]
