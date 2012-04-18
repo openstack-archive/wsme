@@ -216,7 +216,6 @@ class TestRestJson(wsme.tests.protocol.ProtocolTestCase):
 
         r = self.root.protocols[0].encode_sample_value(MyType, v, True)
         print r
-        assert r == ('javascript', u"""{
-    "aint": 4, 
-    "astr": "s"
-}""")
+        assert r[0] == ('javascript')
+        assert r[1] == json.dumps({'aint': 4, 'astr': 's'},
+            ensure_ascii=False, indent=4, sort_keys=True)
