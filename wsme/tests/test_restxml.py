@@ -4,7 +4,9 @@ import base64
 
 import wsme.tests.protocol
 from wsme.utils import parse_isodatetime, parse_isodate, parse_isotime
-from wsme.types import isusertype
+from wsme.types import isusertype, register_type
+
+from wsme.protocols.restxml import fromxml, toxml
 
 try:
     import xml.etree.ElementTree as et
@@ -115,3 +117,43 @@ class TestRestXML(wsme.tests.protocol.ProtocolTestCase):
 
         else:
             return loadxml(et.fromstring(res.body), _rt)
+
+    def test_encode_sample_value(self):
+        class MyType(object):
+            aint = int
+            aunicode = unicode
+
+        register_type(MyType)
+
+        value = MyType()
+        value.aint = 5
+        value.aunicode = u'test'
+
+        language, sample = self.root.protocols[0].encode_sample_value(
+            MyType, value, True)
+        print language, sample
+
+        assert language == 'xml'
+        assert sample == """<value>
+  <aint>5</aint>
+  <aunicode>test</aunicode>
+</value>"""
+
+    def test_nil_fromxml(self):
+        for dt in (
+                str, [int], {int: str}, bool,
+                datetime.date, datetime.time, datetime.datetime):
+            e = et.Element('value', nil='true')
+            assert fromxml(dt, e) is None
+
+    def test_nil_toxml(self):
+        for dt in (
+                [int], {int: str}, bool,
+                datetime.date, datetime.time, datetime.datetime):
+            x = et.tostring(toxml(dt, 'value', None))
+            assert x == '<value nil="true" />', x
+
+    def test_parse_arg(self):
+        e = self.root.protocols[0].parse_arg('value', '5')
+        assert e.text == '5'
+        assert e.tag == 'value'
