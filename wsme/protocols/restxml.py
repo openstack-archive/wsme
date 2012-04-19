@@ -180,11 +180,15 @@ def dict_fromxml(datatype, element):
 
 @fromxml.when_object(datetime.date)
 def date_fromxml(datatype, element):
+    if element.get('nil') == 'true':
+        return None
     return datetime.datetime.strptime(element.text, '%Y-%m-%d').date()
 
 
 @fromxml.when_object(datetime.time)
 def time_fromxml(datatype, element):
+    if element.get('nil') == 'true':
+        return None
     m = time_re.match(element.text)
     if m:
         return datetime.time(
@@ -195,6 +199,8 @@ def time_fromxml(datatype, element):
 
 @fromxml.when_object(datetime.datetime)
 def datetime_fromxml(datatype, element):
+    if element.get('nil') == 'true':
+        return None
     return datetime.datetime.strptime(element.text, '%Y-%m-%dT%H:%M:%S')
 
 
