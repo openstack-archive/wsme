@@ -9,6 +9,21 @@ def gen_class():
 
 
 class TestTypes(unittest.TestCase):
+    def test_default_usertype(self):
+        class MyType(types.UserType):
+            basetype = str
+
+        My = MyType()
+
+        assert My.validate('a') is None
+        assert My.tobasetype('a') == 'a'
+        assert My.frombasetype('a') == 'a'
+
+    def test_unset(self):
+        u = types.Unset
+
+        assert not u
+
     def test_flat_type(self):
         class Flat(object):
             aint = int
@@ -195,3 +210,59 @@ class TestTypes(unittest.TestCase):
         assert attrs[0].name == 'a.list', attrs[0].name
         assert attrs[1].key == 'astr', attrs[1].key
         assert attrs[1].name == 'astr', attrs[1].name
+
+    def test_wsattr_del(self):
+        class MyType(object):
+            a = types.wsattr(int)
+
+        types.register_type(MyType)
+
+        value = MyType()
+
+        value.a = 5
+        assert value.a == 5
+        del value.a
+        assert value.a is types.Unset
+
+    def test_validate_dict(self):
+        types.validate_value({int: str}, {1: '1', 5: '5'})
+
+        try:
+            types.validate_value({int: str}, [])
+            assert False, "No ValueError raised"
+        except ValueError:
+            pass
+
+        try:
+            types.validate_value({int: str}, {'1': '1', 5: '5'})
+            assert False, "No ValueError raised"
+        except ValueError:
+            pass
+
+        try:
+            types.validate_value({int: str}, {1: 1, 5: '5'})
+            assert False, "No ValueError raised"
+        except ValueError:
+            pass
+
+    def test_register_invalid_array(self):
+        self.assertRaises(ValueError, types.register_type, [])
+        self.assertRaises(ValueError, types.register_type, [int, str])
+        self.assertRaises(AttributeError, types.register_type, [1])
+
+    def test_register_invalid_dict(self):
+        self.assertRaises(ValueError, types.register_type, {})
+        self.assertRaises(ValueError, types.register_type,
+                {int: str, str: int})
+        self.assertRaises(ValueError, types.register_type,
+                {types.Unset: str})
+
+    def test_list_attribute_auto_register(self):
+        class MyType(object):
+            aint = int
+
+        assert not hasattr(MyType, '_wsme_attributes')
+
+        types.list_attributes(MyType)
+
+        assert hasattr(MyType, '_wsme_attributes')
