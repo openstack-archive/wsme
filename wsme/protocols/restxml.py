@@ -28,7 +28,6 @@ def xml_indent(elem, level=0):
         elem.tail = i
 
 
-
 @generic
 def toxml(datatype, key, value):
     """
@@ -243,6 +242,20 @@ class RestXmlProtocol(RestProtocol):
         if format:
             xml_indent(r)
         content = et.tostring(r)
-            #indent=4 if format else 0,
-            #sort_keys=format)
+        return ('xml', content)
+
+    def encode_sample_params(self, params, format=False):
+        node = et.Element('parameters')
+        for name, datatype, value in params:
+            node.append(toxml(datatype, name, value))
+        if format:
+            xml_indent(node)
+        content = et.tostring(node)
+        return ('xml', content)
+
+    def encode_sample_result(self, datatype, value, format=False):
+        r = toxml(datatype, 'result', value)
+        if format:
+            xml_indent(r)
+        content = et.tostring(r)
         return ('xml', content)

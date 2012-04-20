@@ -50,6 +50,12 @@ class Protocol(object):
     def encode_sample_value(self, datatype, value, format=False):
         return ('none', 'N/A')
 
+    def encode_sample_params(self, params, format=False):
+        return ('none', 'N/A')
+
+    def encode_sample_result(self, datatype, value, format=False):
+        return ('none', 'N/A')
+
 
 def register_protocol(protocol):
     registered_protocols[protocol.name] = protocol

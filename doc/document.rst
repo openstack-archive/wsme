@@ -151,7 +151,7 @@ Python source
 ~~~~~~~~~~~~~
 
 .. literalinclude:: ../wsme/sphinxext.py
-    :lines: 23-49
+    :lines: 35-60
     :language: python
 
 Documentation source

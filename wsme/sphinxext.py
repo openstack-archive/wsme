@@ -7,7 +7,7 @@ from sphinx.ext import autodoc
 from sphinx.domains.python import PyClasslike, PyClassmember
 from sphinx.domains import Domain, ObjType
 from sphinx.directives import ObjectDescription
-from sphinx.util.docfields import Field, GroupedField, TypedField
+from sphinx.util.docfields import Field
 from sphinx.util.nodes import make_refnode
 
 from sphinx.roles import XRefRole
@@ -19,6 +19,17 @@ from docutils.parsers.rst import directives
 import wsme
 
 field_re = re.compile(r':(?P<field>\w+)(\s+(?P<name>\w+))?:')
+
+
+def make_sample_object(datatype):
+    if datatype is str:
+        return 'samplestring'
+    if datatype is unicode:
+        return u'sample unicode'
+    if datatype is int:
+        return 5
+    sample_obj = getattr(datatype, 'sample', datatype)()
+    return sample_obj
 
 
 class SampleType(object):
@@ -158,7 +169,7 @@ class TypeDocumenter(autodoc.ClassDocumenter):
         protocols = [wsme.protocols.getprotocol(p) for p in protocols]
         content = []
         if protocols:
-            sample_obj = getattr(self.object, 'sample', self.object)()
+            sample_obj = make_sample_object(self.object)
             content.extend([
                 l_(u'Data samples:'),
                 u'',
@@ -315,6 +326,9 @@ class FunctionDocumenter(autodoc.MethodDocumenter):
         docstrings = super(FunctionDocumenter, self).get_doc(encoding)
         found_params = set()
 
+        protocols = self.options.protocols or self.env.app.config.wsme_protocols
+        protocols = [wsme.protocols.getprotocol(p) for p in protocols]
+
         for si, docstring in enumerate(docstrings):
             for i, line in enumerate(docstring):
                 m = field_re.match(line)
@@ -360,6 +374,49 @@ class FunctionDocumenter(autodoc.MethodDocumenter):
                 pos = next_param_pos
             docstring = docstrings[pos[0]]
             docstring[pos[1]:pos[1]] = content
+
+        codesamples = []
+
+        if protocols:
+            params = []
+            for arg in self.wsme_fd.arguments:
+                params.append((arg.name, arg.datatype,
+                    make_sample_object(arg.datatype)))
+            codesamples.extend([
+                u':%s:' % l_(u'Parameters samples'),
+                u'    .. cssclass:: toggle',
+                u''
+            ])
+            for protocol in protocols:
+                language, sample = protocol.encode_sample_params(
+                    params, format=True)
+                codesamples.extend([
+                    u' ' * 4 + (protocol.displayname or protocol.name),
+                    u'        .. code-block:: ' + language,
+                    u'',
+                ])
+                codesamples.extend((
+                    u' ' * 12 + line for line in sample.split('\n')))
+
+            if self.wsme_fd.return_type:
+                codesamples.extend([
+                    u':%s:' % l_(u'Return samples'),
+                    u'    .. cssclass:: toggle',
+                    u''
+                ])
+                sample_obj = make_sample_object(self.wsme_fd.return_type)
+                for protocol in protocols:
+                    language, sample = protocol.encode_sample_result(
+                        self.wsme_fd.return_type, sample_obj, format=True)
+                    codesamples.extend([
+                        u' ' * 4 + protocol.displayname or protocol.name,
+                        u'        .. code-block:: ' + language,
+                        u'',
+                    ])
+                    codesamples.extend((
+                        u' ' * 12 + line for line in sample.split('\n')))
+
+        docstrings[0:0] = [codesamples]
         return docstrings
 
     def add_content(self, more_content, no_docstring=False):
