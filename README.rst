@@ -64,6 +64,11 @@ Install
 
     easy_install WSME
 
+Changes
+~~~~~~~
+
+-   Read the `Changelog`_
+
 Getting Help
 ~~~~~~~~~~~~
 
@@ -77,6 +82,7 @@ Contribute
 :Source code: hg clone https://bitbucket.org/cdevienne/wsme/
 :Jenkins: https://jenkins.shiningpanda.com/wsme/job/wsme/
 
+.. _Changelog: http://packages.python.org/WSME/changes.html
 .. _python-wsme mailinglist: http://groups.google.com/group/python-wsme
 .. _WSME Documentation: http://packages.python.org/WSME/
 .. _WSME issue tracker: https://bitbucket.org/cdevienne/wsme/issues?status=new&status=open
