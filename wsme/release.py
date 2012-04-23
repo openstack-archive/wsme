@@ -1,7 +1,8 @@
 name = "WSME"
 version = "0.3"
 
-description = "Web Services Made Easy"
+description = """Web Services Made Easy makes it easy to \
+implement multi-protocol webservices."""
 
 author = "Christophe de Vienne"
 email = "python-wsme@googlegroups.com"
