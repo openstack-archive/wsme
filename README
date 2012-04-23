@@ -5,8 +5,45 @@ Introduction
 ------------
 
 Web Service Made Easy (WSME) is a very easy way to implement webservices
-in your python web application. It is originally a rewrite of TGWebServices
+in your python web application.
+It is originally a rewrite of TGWebServices
 with focus on extensibility, framework-independance and better type handling.
+
+How Easy ?
+~~~~~~~~~~
+
+.. highlight:: python
+
+::
+    
+    from wsme import WSRoot, expose, validate
+
+    class MyService(WSRoot):
+        @expose(unicode)
+        @validate(unicode)
+        def hello(self, who=u'World'):
+            return u"Hello {0} !".format(who)
+
+
+With this published at the ``/ws`` path of your application, you can access
+your hello function in various protocols:
+
+    .. highlight:: javascript
+
+    ``http://<server>/ws/hello.json?who=you``
+        ::
+
+            "Hello you !"
+
+    .. highlight:: xml
+
+    ``http://<server>/ws/hello.xml``
+        ::
+
+            <result>Hello World !</result>
+
+    ``http://<server>/ws/api.wsdl`` -> A WSDL description for any SOAP client.
+
 
 Main features
 ~~~~~~~~~~~~~
