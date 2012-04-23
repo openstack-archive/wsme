@@ -6,7 +6,7 @@ filename = os.path.join('wsme', 'release.py')
 release = {}
 exec(compile(open(filename).read(), filename, 'exec'), release)
 
-long_description = open("README", 'rt').read()
+long_description = open("README.rst", 'rt').read()
 
 setup(
     name=release['name'],
