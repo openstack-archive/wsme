@@ -73,7 +73,7 @@ Getting Help
 ~~~~~~~~~~~~
 
 -   Read the `WSME Documentation`_.
--   Questions about WSME should to the `python-wsme mailinglist`_.
+-   Questions about WSME should go to the `python-wsme mailinglist`_.
 
 Contribute
 ~~~~~~~~~~
