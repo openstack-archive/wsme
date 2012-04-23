@@ -62,7 +62,7 @@ Install
 
 ::
 
-easy_install WSME
+    easy_install WSME
 
 Getting Help
 ~~~~~~~~~~~~
