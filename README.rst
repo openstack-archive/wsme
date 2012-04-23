@@ -12,8 +12,6 @@ with focus on extensibility, framework-independance and better type handling.
 How Easy ?
 ~~~~~~~~~~
 
-.. highlight:: python
-
 ::
     
     from wsme import WSRoot, expose, validate
@@ -28,14 +26,10 @@ How Easy ?
 With this published at the ``/ws`` path of your application, you can access
 your hello function in various protocols:
 
-    .. highlight:: javascript
-
     ``http://<server>/ws/hello.json?who=you``
         ::
 
             "Hello you !"
-
-    .. highlight:: xml
 
     ``http://<server>/ws/hello.xml``
         ::
