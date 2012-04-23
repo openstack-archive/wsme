@@ -50,12 +50,12 @@ Main features
 -   Multi-protocol : REST+Json, REST+XML, SOAP, ExtDirect and more to come.
 -   Extensible : easy to add more protocols or more base types.
 -   Framework independance : adapters are provided to easily integrate
-your API in any web framework, for example a wsgi container,
-turbogears...
+    your API in any web framework, for example a wsgi container,
+    turbogears...
 -   Very few runtime dependencies: webob, simplegeneric
-(+ Genshi if you use SOAP).
+    (+ Genshi if you use SOAP).
 -   Integration in `Sphinx`_ for making clean documentation with
-wsme.sphinxext (work in progress).
+    wsme.sphinxext (work in progress).
 
 Install
 ~~~~~~~
