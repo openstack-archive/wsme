@@ -26,17 +26,20 @@ How Easy ?
 With this published at the ``/ws`` path of your application, you can access
 your hello function in various protocols:
 
-    ``http://<server>/ws/hello.json?who=you``
-        ::
+.. list-table::
+    :header-rows: 1
 
-            "Hello you !"
+    * - URL
+      - Returns
+    
+    * - ``http://<server>/ws/hello.json?who=you``
+      - ``"Hello you !"``
 
-    ``http://<server>/ws/hello.xml``
-        ::
+    * - ``http://<server>/ws/hello.xml``
+      - ``<result>Hello World !</result>``
 
-            <result>Hello World !</result>
-
-    ``http://<server>/ws/api.wsdl`` -> A WSDL description for any SOAP client.
+    * - ``http://<server>/ws/api.wsdl``
+      - A WSDL description for any SOAP client.
 
 
 Main features
@@ -47,19 +50,19 @@ Main features
 -   Multi-protocol : REST+Json, REST+XML, SOAP, ExtDirect and more to come.
 -   Extensible : easy to add more protocols or more base types.
 -   Framework independance : adapters are provided to easily integrate
-    your API in any web framework, for example a wsgi container,
-    turbogears...
+your API in any web framework, for example a wsgi container,
+turbogears...
 -   Very few runtime dependencies: webob, simplegeneric
-    (+ Genshi if you use SOAP).
+(+ Genshi if you use SOAP).
 -   Integration in `Sphinx`_ for making clean documentation with
-    wsme.sphinxext (work in progress).
+wsme.sphinxext (work in progress).
 
 Install
 ~~~~~~~
 
 ::
 
-    easy_install WSME
+easy_install WSME
 
 Getting Help
 ~~~~~~~~~~~~
