@@ -39,7 +39,7 @@ def test_getprotocol():
     try:
         getprotocol('invalid')
         assert False, "ValueError was not raised"
-    except ValueError, e:
+    except ValueError:
         pass
 
 
