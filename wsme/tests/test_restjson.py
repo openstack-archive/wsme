@@ -3,6 +3,8 @@ import datetime
 import decimal
 import urllib
 
+import six
+
 import wsme.tests.protocol
 
 try:
@@ -20,9 +22,10 @@ def prepare_value(value, datatype):
     if isinstance(datatype, list):
         return [prepare_value(item, datatype[0]) for item in value]
     if isinstance(datatype, dict):
+        key_type, value_type = list(datatype.items())[0]
         return dict((
-            (prepare_value(item[0], datatype.keys()[0]),
-                prepare_value(item[1], datatype.values()[0]))
+            (prepare_value(item[0], key_type),
+                prepare_value(item[1], value_type))
             for item in value.items()
         ))
     if datatype in (datetime.date, datetime.time, datetime.datetime):
@@ -31,18 +34,21 @@ def prepare_value(value, datatype):
         return str(value)
     if datatype == wsme.types.binary:
         return base64.encodestring(value)
+    if datatype == six.binary_type:
+        return value.decode('ascii')
     return value
 
 
 def prepare_result(value, datatype):
+    print(value, datatype)
     if isusertype(datatype):
         datatype = datatype.basetype
     if isinstance(datatype, list):
         return [prepare_result(item, datatype[0]) for item in value]
     if isinstance(datatype, dict):
         return dict((
-            (prepare_result(item[0], datatype.keys()[0]),
-                prepare_result(item[1], datatype.values()[0]))
+            (prepare_result(item[0], list(datatype.keys())[0]),
+                prepare_result(item[1], list(datatype.values())[0]))
             for item in value.items()
         ))
     if datatype == datetime.date:
@@ -59,6 +65,8 @@ def prepare_result(value, datatype):
         return value
     if datatype == wsme.types.binary:
         return base64.decodestring(value)
+    if datatype == six.binary_type:
+        return value.encode('utf8')
     if type(value) != datatype:
         return datatype(value)
     return value
@@ -87,12 +95,12 @@ class TestRestJson(wsme.tests.protocol.ProtocolTestCase):
             content,
             headers=headers,
             expect_errors=True)
-        print "Received:", res.body
+        print("Received:", res.body)
 
         if _no_result_decode:
             return res
 
-        r = json.loads(res.body)
+        r = json.loads(res.text)
         if res.status_int == 200:
             if _rt and r:
                 r = prepare_result(r, _rt)
@@ -103,20 +111,20 @@ class TestRestJson(wsme.tests.protocol.ProtocolTestCase):
                     r['faultstring'],
                     r.get('debuginfo'))
 
-        return json.loads(res.body)
+        return json.loads(res.text)
 
     def test_fromjson(self):
         assert fromjson(str, None) == None
 
     def test_keyargs(self):
         r = self.app.get('/argtypes/setint.json?value=2')
-        print r
-        assert json.loads(r.body) == 2
+        print(r)
+        assert json.loads(r.text) == 2
 
         nestedarray = 'value[0].inner.aint=54&value[1].inner.aint=55'
         r = self.app.get('/argtypes/setnestedarray.json?' + nestedarray)
-        print r
-        assert json.loads(r.body) == [
+        print(r)
+        assert json.loads(r.text) == [
             {'inner': {'aint': 54}},
             {'inner': {'aint': 55}}]
 
@@ -128,9 +136,9 @@ class TestRestJson(wsme.tests.protocol.ProtocolTestCase):
         body = urllib.urlencode(params)
         r = self.app.post('/argtypes/setnestedarray.json', body,
             headers={'Content-Type': 'application/x-www-form-urlencoded'})
-        print r
+        print(r)
 
-        assert json.loads(r.body) == [
+        assert json.loads(r.text) == [
             {'inner': {'aint': 54}},
             {'inner': {'aint': 55}}]
 
@@ -139,38 +147,38 @@ class TestRestJson(wsme.tests.protocol.ProtocolTestCase):
                 '{"value": 2}',
                 headers={"Content-Type": "application/json"},
                 expect_errors=True)
-        print r
+        print(r)
         assert r.status_int == 400
-        assert json.loads(r.body)['faultstring'] == \
+        assert json.loads(r.text)['faultstring'] == \
             "Cannot read parameters from both a body and GET/POST params"
 
     def test_inline_body(self):
         params = urllib.urlencode({'body': '{"value": 4}'})
         r = self.app.get('/argtypes/setint.json?' + params)
-        print r
-        assert json.loads(r.body) == 4
+        print(r)
+        assert json.loads(r.text) == 4
 
     def test_empty_body(self):
         params = urllib.urlencode({'body': ''})
         r = self.app.get('/returntypes/getint.json?' + params)
-        print r
-        assert json.loads(r.body) == 2
+        print(r)
+        assert json.loads(r.text) == 2
 
     def test_unknown_arg(self):
         r = self.app.post('/returntypes/getint.json',
             '{"a": 2}',
             headers={"Content-Type": "application/json"},
             expect_errors=True)
-        print r
+        print(r)
         assert r.status_int == 400
-        assert json.loads(r.body)['faultstring'].startswith(
+        assert json.loads(r.text)['faultstring'].startswith(
                 "Unknown argument:")
 
         r = self.app.get('/returntypes/getint.json?a=2',
             expect_errors=True)
-        print r
+        print(r)
         assert r.status_int == 400
-        assert json.loads(r.body)['faultstring'].startswith(
+        assert json.loads(r.text)['faultstring'].startswith(
                 "Unknown argument:")
 
     def test_array_tojson(self):
@@ -200,8 +208,8 @@ class TestRestJson(wsme.tests.protocol.ProtocolTestCase):
     def test_nest_result(self):
         self.root.protocols[0].nest_result = True
         r = self.app.get('/returntypes/getint.json')
-        print r
-        assert json.loads(r.body) == {"result": 2}
+        print(r)
+        assert json.loads(r.text) == {"result": 2}
 
     def test_encode_sample_value(self):
         class MyType(object):
@@ -215,7 +223,7 @@ class TestRestJson(wsme.tests.protocol.ProtocolTestCase):
         v.astr = 's'
 
         r = self.root.protocols[0].encode_sample_value(MyType, v, True)
-        print r
+        print(r)
         assert r[0] == ('javascript')
         assert r[1] == json.dumps({'aint': 4, 'astr': 's'},
             ensure_ascii=False, indent=4, sort_keys=True)

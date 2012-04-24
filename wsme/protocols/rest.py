@@ -1,4 +1,7 @@
 import logging
+import six
+
+from six import u
 
 from wsme.exc import ClientSideError, UnknownArgument
 from wsme.protocols import CallContext, Protocol
@@ -59,6 +62,8 @@ class RestProtocol(Protocol):
         else:
             if body is None:
                 body = request.body
+            if isinstance(body, six.binary_type):
+                body = body.decode('utf8')
             if body:
                 parsed_args = self.parse_args(body)
             else:
@@ -74,5 +79,5 @@ class RestProtocol(Protocol):
             kw[arg.name] = self.decode_arg(value, arg)
 
         if parsed_args:
-            raise UnknownArgument(parsed_args.keys()[0])
+            raise UnknownArgument(u(', ').join(parsed_args.keys()))
         return kw

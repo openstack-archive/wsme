@@ -5,6 +5,10 @@ import warnings
 import datetime
 import decimal
 import base64
+import sys
+import six
+
+from six import u, b
 
 from webtest import TestApp
 
@@ -19,7 +23,8 @@ binarysample = r'\x00\xff\x43'
 
 try:
     1 / 0
-except ZeroDivisionError, e:
+except ZeroDivisionError:
+    e = sys.exc_info()[1]
     zerodivisionerrormsg = str(e)
 
 
@@ -71,13 +76,13 @@ class NestedOuterApi(object):
 
 
 class ReturnTypes(object):
-    @expose(str)
+    @expose(six.binary_type)
     def getstr(self):
         return "astring"
 
-    @expose(unicode)
+    @expose(six.text_type)
     def getunicode(self):
-        return u"の"
+        return u('\xe3\x81\xae')
 
     @expose(int)
     def getint(self):
@@ -112,7 +117,7 @@ class ReturnTypes(object):
         n = NestedOuter()
         return n
 
-    @expose([str])
+    @expose([six.binary_type])
     def getstrarray(self):
         return ["A", "B", "C"]
 
@@ -120,7 +125,7 @@ class ReturnTypes(object):
     def getnestedarray(self):
         return [NestedOuter(), NestedOuter()]
 
-    @expose({str: NestedOuter})
+    @expose({six.binary_type: NestedOuter})
     def getnesteddict(self):
         return {'a': NestedOuter(), 'b': NestedOuter()}
 
@@ -134,88 +139,88 @@ class ReturnTypes(object):
 
 
 class ArgTypes(object):
-    @expose(str)
-    @validate(str)
+    @expose(six.binary_type)
+    @validate(six.binary_type)
     def setstr(self, value):
-        print repr(value)
-        assert type(value) == str
+        print(repr(value))
+        assert type(value) == six.binary_type
         return value
 
-    @expose(unicode)
-    @validate(unicode)
+    @expose(six.text_type)
+    @validate(six.text_type)
     def setunicode(self, value):
-        print repr(value)
-        assert type(value) == unicode
+        print(repr(value))
+        assert type(value) == six.text_type
         return value
 
     @expose(bool)
     @validate(bool)
     def setbool(self, value):
-        print repr(value)
+        print(repr(value))
         assert type(value) == bool
         return value
 
     @expose(int)
     @validate(int)
     def setint(self, value):
-        print repr(value)
+        print(repr(value))
         assert type(value) == int
         return value
 
     @expose(float)
     @validate(float)
     def setfloat(self, value):
-        print repr(value)
+        print(repr(value))
         assert type(value) == float
         return value
 
     @expose(decimal.Decimal)
     @validate(decimal.Decimal)
     def setdecimal(self, value):
-        print repr(value)
+        print(repr(value))
         assert type(value) == decimal.Decimal
         return value
 
     @expose(datetime.date)
     @validate(datetime.date)
     def setdate(self, value):
-        print repr(value)
+        print(repr(value))
         assert type(value) == datetime.date
         return value
 
     @expose(datetime.time)
     @validate(datetime.time)
     def settime(self, value):
-        print repr(value)
+        print(repr(value))
         assert type(value) == datetime.time
         return value
 
     @expose(datetime.datetime)
     @validate(datetime.datetime)
     def setdatetime(self, value):
-        print repr(value)
+        print(repr(value))
         assert type(value) == datetime.datetime
         return value
 
     @expose(wsme.types.binary)
     @validate(wsme.types.binary)
     def setbinary(self, value):
-        print repr(value)
-        assert type(value) == str
+        print(repr(value))
+        assert type(value) == six.binary_type
         return value
 
-    @expose([str])
-    @validate([str])
+    @expose([six.binary_type])
+    @validate([six.binary_type])
     def setstrarray(self, value):
-        print repr(value)
+        print(repr(value))
         assert type(value) == list
-        assert type(value[0]) == str
+        assert type(value[0]) == six.binary_type, type(value[0])
         return value
 
     @expose([datetime.datetime])
     @validate([datetime.datetime])
     def setdatetimearray(self, value):
-        print repr(value)
+        print(repr(value))
         assert type(value) == list
         assert type(value[0]) == datetime.datetime
         return value
@@ -223,38 +228,38 @@ class ArgTypes(object):
     @expose(NestedOuter)
     @validate(NestedOuter)
     def setnested(self, value):
-        print repr(value)
+        print(repr(value))
         assert type(value) == NestedOuter
         return value
 
     @expose([NestedOuter])
     @validate([NestedOuter])
     def setnestedarray(self, value):
-        print repr(value)
+        print(repr(value))
         assert type(value) == list
         assert type(value[0]) == NestedOuter
         return value
 
-    @expose({str: NestedOuter})
-    @validate({str: NestedOuter})
+    @expose({six.binary_type: NestedOuter})
+    @validate({six.binary_type: NestedOuter})
     def setnesteddict(self, value):
-        print repr(value)
+        print(repr(value))
         assert type(value) == dict
-        assert type(value.keys()[0]) == str
-        assert type(value.values()[0]) == NestedOuter
+        assert type(list(value.keys())[0]) == six.binary_type
+        assert type(list(value.values())[0]) == NestedOuter
         return value
 
     @expose(myenumtype)
     @validate(myenumtype)
     def setenum(self, value):
-        print value
-        assert type(value) == str
+        print(value)
+        assert type(value) == six.binary_type
         return value
 
     @expose(NamedAttrsObject)
     @validate(NamedAttrsObject)
     def setnamedattrsobj(self, value):
-        print value
+        print(value)
         assert type(value) == NamedAttrsObject
         assert value.attr_1 == 10, value.attr_1
         assert value.attr_2 == 20, value.attr_2
@@ -302,20 +307,22 @@ class ProtocolTestCase(unittest.TestCase):
     def test_invalid_path(self):
         try:
             res = self.call('invalid_function')
-            print res
+            print(res)
             assert "No error raised"
-        except CallException, e:
+        except CallException:
+            e = sys.exc_info()[1]
             assert e.faultcode == 'Client'
             assert e.faultstring.lower() == \
-                    u'unknown function name: invalid_function'
+                    u('unknown function name: invalid_function')
 
     def test_serverside_error(self):
         try:
             res = self.call('witherrors/divide_by_zero')
-            print res
+            print(res)
             assert "No error raised"
-        except CallException, e:
-            print e
+        except CallException:
+            e = sys.exc_info()[1]
+            print(e)
             assert e.faultcode == 'Server'
             assert e.faultstring == zerodivisionerrormsg
             assert e.debuginfo is not None
@@ -324,10 +331,11 @@ class ProtocolTestCase(unittest.TestCase):
         self.root._debug = False
         try:
             res = self.call('witherrors/divide_by_zero')
-            print res
+            print(res)
             assert "No error raised"
-        except CallException, e:
-            print e
+        except CallException:
+            e = sys.exc_info()[1]
+            print(e)
             assert e.faultcode == 'Server'
             assert e.faultstring == zerodivisionerrormsg
             assert e.debuginfo is None
@@ -342,7 +350,7 @@ class ProtocolTestCase(unittest.TestCase):
 
     def test_return_unicode(self):
         r = self.call('returntypes/getunicode')
-        assert r == u'の', r
+        assert r == u('\xe3\x81\xae'), r
 
     def test_return_int(self):
         r = self.call('returntypes/getint')
@@ -378,7 +386,7 @@ class ProtocolTestCase(unittest.TestCase):
         assert r == {'inner': {'aint': 0}}, r
 
     def test_return_strarray(self):
-        r = self.call('returntypes/getstrarray', _rt=[str])
+        r = self.call('returntypes/getstrarray', _rt=[six.binary_type])
         assert r == ['A', 'B', 'C'], r
 
     def test_return_nestedarray(self):
@@ -386,7 +394,7 @@ class ProtocolTestCase(unittest.TestCase):
         assert r == [{'inner': {'aint': 0}}, {'inner': {'aint': 0}}], r
 
     def test_return_nesteddict(self):
-        r = self.call('returntypes/getnesteddict', _rt={str:NestedOuter})
+        r = self.call('returntypes/getnesteddict', _rt={six.binary_type: NestedOuter})
         assert r == {'a': {'inner': {'aint': 0}}, 'b': {'inner': {'aint': 0}}}
 
     def test_return_enum(self):
@@ -398,11 +406,12 @@ class ProtocolTestCase(unittest.TestCase):
         assert r == {'attr.1': 5, 'attr.2': 6}
 
     def test_setstr(self):
-        assert self.call('argtypes/setstr', value='astring') == 'astring'
+        assert self.call('argtypes/setstr', value=b('astring'),
+            _rt=six.binary_type) == b('astring')
 
     def test_setunicode(self):
-        assert self.call('argtypes/setunicode', value=u'の',
-                        _rt=unicode) == u'の'
+        assert self.call('argtypes/setunicode', value=u('\xe3\x81\xae'),
+                        _rt=six.text_type) == u('\xe3\x81\xae')
 
     def test_setint(self):
         r = self.call('argtypes/setint', value=3, _rt=int)
@@ -439,7 +448,7 @@ class ProtocolTestCase(unittest.TestCase):
         value = binarysample
         r = self.call('argtypes/setbinary', value=(value, wsme.types.binary),
                     _rt=wsme.types.binary) == value
-        print r
+        print(r)
 
     def test_setnested(self):
         value = {'inner': {'aint': 54}}
@@ -449,10 +458,10 @@ class ProtocolTestCase(unittest.TestCase):
         assert r == value
 
     def test_setstrarray(self):
-        value = ["1", "2", "three"]
+        value = [b("1"), b("2"), b("three")]
         r = self.call('argtypes/setstrarray',
-                         value=(value, [str]),
-                         _rt=[str])
+                         value=(value, [six.binary_type]),
+                         _rt=[six.binary_type])
         assert r == value, r
 
     def test_setdatetimearray(self):
@@ -477,13 +486,13 @@ class ProtocolTestCase(unittest.TestCase):
 
     def test_setnesteddict(self):
         value = {
-            'o1': {'inner': {'aint': 54}},
-            'o2': {'inner': {'aint': 55}},
+            b('o1'): {'inner': {'aint': 54}},
+            b('o2'): {'inner': {'aint': 55}},
         }
         r = self.call('argtypes/setnesteddict',
-                        value=(value, {str: NestedOuter}),
-                        _rt={str: NestedOuter})
-        print r
+                        value=(value, {six.binary_type: NestedOuter}),
+                        _rt={six.binary_type: NestedOuter})
+        print(r)
         assert r == value
 
     def test_setenum(self):
@@ -506,12 +515,13 @@ class ProtocolTestCase(unittest.TestCase):
     def test_missing_argument(self):
         try:
             r = self.call('argtypes/setdatetime')
-            print r
+            print(r)
             assert "No error raised"
-        except CallException, e:
-            print e
+        except CallException:
+            e = sys.exc_info()[1]
+            print(e)
             assert e.faultcode == 'Client'
-            assert e.faultstring == u'Missing argument: "value"'
+            assert e.faultstring == u('Missing argument: "value"')
 
     def test_misc_multiply(self):
         assert self.call('misc/multiply', a=5, b=2, _rt=int) == 10

@@ -2,7 +2,7 @@ import logging
 import sys
 import traceback
 import weakref
-import six
+
 from six import u, b
 
 import webob
@@ -166,7 +166,7 @@ class WSRoot(object):
 
     def _handle_request(self, request):
         def default_prepare_response_body(request, results):
-            return '\n'.join(results)
+            return u('\n').join(results)
 
         res = webob.Response()
         res_content_type = None
@@ -207,10 +207,7 @@ class WSRoot(object):
             body = prepare_response_body(request, (
                 self._do_call(protocol, context)
                 for context in protocol.iter_calls(request)))
-            if isinstance(body, six.text_type):
-                res.unicode_body = body
-            else:
-                res.body = body
+            res.unicode_body = body
 
             if len(request.calls) == 1:
                 if hasattr(protocol, 'get_response_status'):

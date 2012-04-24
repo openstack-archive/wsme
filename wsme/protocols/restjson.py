@@ -4,6 +4,8 @@ REST+Json protocol implementation.
 import datetime
 import decimal
 
+import six
+
 from simplegeneric import generic
 
 from wsme.protocols.rest import RestProtocol
@@ -44,6 +46,13 @@ def tojson(datatype, value):
     return value
 
 
+@tojson.when_object(six.binary_type)
+def bytes_tojson(datatype, value):
+    if value is None:
+        return None
+    return value.decode('ascii')
+
+
 @tojson.when_type(list)
 def array_tojson(datatype, value):
     if value is None:
@@ -55,8 +64,7 @@ def array_tojson(datatype, value):
 def dict_tojson(datatype, value):
     if value is None:
         return None
-    key_type = datatype.keys()[0]
-    value_type = datatype.values()[0]
+    key_type, value_type = list(datatype.items())[0]
     return dict((
         (tojson(key_type, item[0]), tojson(value_type, item[1]))
         for item in value.items()
@@ -134,18 +142,17 @@ def array_fromjson(datatype, value):
 def dict_fromjson(datatype, value):
     if value is None:
         return None
-    key_type = datatype.keys()[0]
-    value_type = datatype.values()[0]
+    key_type, value_type = list(datatype.items())[0]
     return dict((
         (fromjson(key_type, item[0]), fromjson(value_type, item[1]))
         for item in value.items()))
 
 
-@fromjson.when_object(str)
+@fromjson.when_object(six.binary_type)
 def str_fromjson(datatype, value):
     if value is None:
         return None
-    return str(value)
+    return value.encode('utf8')
 
 
 @fromjson.when_object(decimal.Decimal)
@@ -206,16 +213,17 @@ class RestJsonProtocol(RestProtocol):
 
     def parse_args(self, body):
         raw_args = json.loads(body)
+        print(raw_args)
         return raw_args
 
     def encode_result(self, context, result):
         r = tojson(context.funcdef.return_type, result)
         if self.nest_result:
             r = {'result': r}
-        return json.dumps(r, ensure_ascii=False).encode('utf8')
+        return json.dumps(r)
 
     def encode_error(self, context, errordetail):
-        return json.dumps(errordetail, encoding='utf-8')
+        return json.dumps(errordetail)
 
     def encode_sample_value(self, datatype, value, format=False):
         r = tojson(datatype, value)
