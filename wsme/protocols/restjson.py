@@ -213,7 +213,6 @@ class RestJsonProtocol(RestProtocol):
 
     def parse_args(self, body):
         raw_args = json.loads(body)
-        print(raw_args)
         return raw_args
 
     def encode_result(self, context, result):
