@@ -15,7 +15,7 @@ class MyUserType(UserType):
 class TestProtocolsCommons(unittest.TestCase):
     def test_from_param_date(self):
         assert from_param(datetime.date, '2008-02-28') == \
-            datetime.date(2008, 02, 28)
+            datetime.date(2008, 2, 28)
 
     def test_from_param_time(self):
         assert from_param(datetime.time, '12:14:56') == \

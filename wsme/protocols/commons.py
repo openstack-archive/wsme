@@ -88,17 +88,18 @@ def array_from_params(datatype, params, path, hit_paths):
 def dict_from_params(datatype, params, path, hit_paths):
 
     keys = set()
+    key_datatype, value_datatype = list(datatype.items())[0]
     r = re.compile('^%s\[(?P<key>[a-zA-Z0-9_\.]+)\]' % re.escape(path))
 
     for p in params.keys():
         m = r.match(p)
         if m:
-            keys.add(from_param(datatype.keys()[0], m.group('key')))
+            keys.add(from_param(key_datatype, m.group('key')))
 
     if not keys:
         return Unset
 
     return dict((
-        (key, from_params(datatype.values()[0],
+        (key, from_params(value_datatype,
                           params, '%s[%s]' % (path, key), hit_paths))
         for key in keys))
