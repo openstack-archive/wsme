@@ -8,7 +8,7 @@ class TestUtils(unittest.TestCase):
     def test_parse_isodate(self):
         good_dates = [
             ('2008-02-01', datetime.date(2008, 2, 1)),
-            ('2009-01-04', datetime.date(2009, 01, 04)),
+            ('2009-01-04', datetime.date(2009, 1, 4)),
         ]
         ill_formatted_dates = [
             '24-12-2004'

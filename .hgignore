@@ -9,6 +9,7 @@ syntax: glob
 .coverage
 coverage.xml
 .noseids
+.tox
 nosetests.xml
 
 syntax: regexp

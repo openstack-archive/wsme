@@ -3,6 +3,8 @@ import datetime
 import decimal
 import inspect
 import weakref
+import six
+import sys
 
 
 class UserType(object):
@@ -68,9 +70,10 @@ class Enum(UserType):
     def frombasetype(self, value):
         return value
 
-pod_types = [str, unicode, int, float, bool]
-dt_types = [datetime.date, datetime.time, datetime.datetime]
-extra_types = [binary, decimal.Decimal]
+pod_types = six.integer_types + (
+    six.binary_type, six.text_type, float, bool)
+dt_types = (datetime.date, datetime.time, datetime.datetime)
+extra_types = (binary, decimal.Decimal)
 native_types = pod_types + dt_types + extra_types
 
 complex_types = []
@@ -79,8 +82,12 @@ dict_types = []
 
 
 class UnsetType(object):
-    def __nonzero__(self):
-        return False
+    if sys.version < '3':
+        def __nonzero__(self):
+            return False
+    else:
+        def __bool__(self):
+            return False
 
 Unset = UnsetType()
 
@@ -117,13 +124,12 @@ def validate_value(datatype, value):
                     raise ValueError("Wrong type. Expected '%s', got '%s'" % (
                             datatype, type(value)
                         ))
-                key_type = datatype.keys()[0]
-                value_type = datatype.values()[0]
+                key_type, value_type = list(datatype.items())[0]
                 for key, v in value.items():
                     validate_value(key_type, key)
                     validate_value(value_type, v)
-            elif datatype in (int, long):
-                if not isinstance(value, int) and not isinstance(value, long):
+            elif datatype in six.integer_types:
+                if not isinstance(value, six.integer_types):
                     raise ValueError(
                         "Wrong type. Expected an integer, got '%s'" % (
                             type(value)
@@ -206,7 +212,8 @@ class wsattr(object):
     def __set__(self, instance, value):
         try:
             validate_value(self.datatype, value)
-        except ValueError, e:
+        except ValueError:
+            e = sys.exc_info()[1]
             raise ValueError("%s: %s" % (self.name, e))
         if value is Unset:
             if hasattr(instance, '_' + self.key):
@@ -326,7 +333,7 @@ def register_type(class_):
     if isinstance(class_, dict):
         if len(class_) != 1:
             raise ValueError("Cannot register type %s" % repr(class_))
-        key_type, value_type = class_.items()[0]
+        key_type, value_type = list(class_.items())[0]
         if key_type not in pod_types:
             raise ValueError("Dictionnaries key can only be a pod type")
         register_type(value_type)

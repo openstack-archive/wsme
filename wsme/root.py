@@ -2,6 +2,7 @@ import logging
 import sys
 import traceback
 import weakref
+import six
 
 import webob
 
@@ -127,9 +128,9 @@ class WSRoot(object):
                 context.path = protocol.extract_path(context)
 
             if context.path is None:
-                raise exc.ClientSideError(
-                    u'The %s protocol was unable to extract a function '
-                    u'path from the request' % protocol.name)
+                raise exc.ClientSideError(six.u(
+                    'The %s protocol was unable to extract a function '
+                    'path from the request') % protocol.name)
 
             context.func, context.funcdef = self._lookup_function(context.path)
             kw = protocol.read_arguments(context)
@@ -153,7 +154,8 @@ class WSRoot(object):
                 # TODO make sure result type == a._wsme_definition.return_type
                 return protocol.encode_result(context, result)
 
-        except Exception, e:
+        except Exception:
+            e = sys.exc_info()[1]
             infos = self._format_exception(sys.exc_info())
             if isinstance(e, exc.ClientSideError):
                 request.client_errorcount += 1
@@ -171,7 +173,8 @@ class WSRoot(object):
         try:
             msg = None
             protocol = self._select_protocol(request)
-        except Exception, e:
+        except Exception:
+            e = sys.exc_info()[1]
             msg = ("Error while selecting protocol: %s" % str(e))
             log.exception(msg)
             protocol = None
@@ -312,7 +315,8 @@ class WSRoot(object):
             return html_body % dict(
                 css=formatter.get_style_defs(),
                 content=highlight(content, lexer, formatter).encode('utf8'))
-        except Exception, e:
+        except Exception:
+            e = sys.exc_info()[1]
             log.warning(
                 "Could not pygment the content because of the following "
                 "error :\n%s" % e)

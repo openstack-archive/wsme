@@ -1,7 +1,8 @@
-import __builtin__
+import six
+from six.moves import builtins
 
-if '_' not in __builtin__.__dict__:
-    __builtin__._ = lambda s: s
+if '_' not in builtins.__dict__:
+    builtins._ = lambda s: s
 
 
 class ClientSideError(RuntimeError):
@@ -18,7 +19,8 @@ class InvalidInput(ClientSideError):
 
     @property
     def faultstring(self):
-        return _(u"Invalid input for field/attribute %s. Value: '%s'. %s") % (
+        return _(six.u(
+            "Invalid input for field/attribute %s. Value: '%s'. %s")) % (
                  self.fieldname, self.value, self.msg)
 
 
@@ -29,7 +31,7 @@ class MissingArgument(ClientSideError):
 
     @property
     def faultstring(self):
-        return _(u'Missing argument: "%s"%s') % (
+        return _(six.u('Missing argument: "%s"%s')) % (
             self.argname, self.msg and ": " + self.msg or "")
 
 
@@ -40,7 +42,7 @@ class UnknownArgument(ClientSideError):
 
     @property
     def faultstring(self):
-        return _(u'Unknown argument: "%s"%s') % (
+        return _(six.u('Unknown argument: "%s"%s')) % (
             self.argname, self.msg and ": " + self.msg or "")
 
 
@@ -50,4 +52,4 @@ class UnknownFunction(ClientSideError):
 
     @property
     def faultstring(self):
-        return _(u"Unknown function name: %s") % (self.name)
+        return _(six.u("Unknown function name: %s")) % (self.name)

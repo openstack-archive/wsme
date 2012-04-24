@@ -1,11 +1,12 @@
 # encoding=utf8
 
+import six
+import sys
+
 import unittest
-import webob
-from webob.dec import wsgify
 import webtest
 
-from wsme import *
+from wsme import WSRoot, expose, validate
 from wsme.api import scan_api, pexpose
 from wsme.api import FunctionArgument, FunctionDefinition
 from wsme.types import iscomplex
@@ -28,7 +29,7 @@ def test_pexpose():
 
         @pexpose(None, "text/xml")
         def ufunc(self):
-            return u"<p>é</p>"
+            return six.u("<p>\xc3\xa9</p>")
 
     func, fd = FunctionDefinition.get(Proto.func)
     assert fd.return_type is None
@@ -44,7 +45,7 @@ def test_pexpose():
     assert res.status_int == 200
     assert res.body == "<p></p>", res.body
     res = app.get('/ufunc')
-    assert res.unicode_body == u"<p>é</p>", res.body
+    assert res.unicode_body == six.u("<p>\xc3\xa9</p>"), res.body
 
 
 class TestController(unittest.TestCase):
@@ -131,7 +132,8 @@ class TestController(unittest.TestCase):
         try:
             list(scan_api(r))
             assert False, "ValueError not raised"
-        except ValueError, e:
+        except ValueError:
+            e = sys.exc_info()[1]
             assert str(e).startswith("Path is too long")
 
     def test_handle_request(self):
@@ -165,7 +167,7 @@ class TestController(unittest.TestCase):
         app = webtest.TestApp(wsme.wsgi.adapt(r))
 
         res = app.get('/', expect_errors=True)
-        print res.status, res.body
+        print(res.status, res.body)
         assert res.status_int == 400
 
     def test_no_available_protocol(self):
@@ -175,7 +177,7 @@ class TestController(unittest.TestCase):
 
         res = app.get('/', expect_errors=True)
         assert res.status_int == 500
-        print res.body
+        print(res.body)
         assert res.body.find(
             "None of the following protocols can handle this request") != -1
 

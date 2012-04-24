@@ -1,4 +1,5 @@
 import os
+import sys
 
 from setuptools import setup
 
@@ -21,8 +22,9 @@ setup(
         'wsme.protocols': ['templates/*.html'],
     },
     install_requires=[
+        'six',
         'simplegeneric',
-        'webob',
+        'webob' + ('<=1.1.1' if sys.version_info[:2] <= (2, 5) else ''),
     ],
     classifiers=[
         'Development Status :: 3 - Alpha',

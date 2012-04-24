@@ -1,4 +1,7 @@
 import unittest
+import sys
+import six
+
 from wsme import types
 
 
@@ -27,25 +30,25 @@ class TestTypes(unittest.TestCase):
     def test_flat_type(self):
         class Flat(object):
             aint = int
-            astr = str
-            auni = unicode
+            abytes = six.binary_type
+            atext = six.text_type
             afloat = float
 
         types.register_type(Flat)
 
         assert len(Flat._wsme_attributes) == 4
         attrs = Flat._wsme_attributes
-        print attrs
+        print(attrs)
 
         assert attrs[0].key == 'aint'
         assert attrs[0].name == 'aint'
         assert isinstance(attrs[0], types.wsattr)
         assert attrs[0].datatype == int
         assert attrs[0].mandatory == False
-        assert attrs[1].key == 'astr'
-        assert attrs[1].name == 'astr'
-        assert attrs[2].key == 'auni'
-        assert attrs[2].name == 'auni'
+        assert attrs[1].key == 'abytes'
+        assert attrs[1].name == 'abytes'
+        assert attrs[2].key == 'atext'
+        assert attrs[2].name == 'atext'
         assert attrs[3].key == 'afloat'
         assert attrs[3].name == 'afloat'
 
@@ -66,13 +69,13 @@ class TestTypes(unittest.TestCase):
 
         types.register_type(ForcedOrder)
 
-        print ForcedOrder._wsme_attributes
+        print(ForcedOrder._wsme_attributes)
         assert ForcedOrder._wsme_attributes[0].key == 'a2'
         assert ForcedOrder._wsme_attributes[1].key == 'a1'
         assert ForcedOrder._wsme_attributes[2].key == 'a3'
 
         c = gen_class()
-        print c
+        print(c)
         types.register_type(c)
         del c._wsme_attributes
 
@@ -101,7 +104,7 @@ class TestTypes(unittest.TestCase):
 
         types.register_type(WithWSProp)
 
-        print WithWSProp._wsme_attributes
+        print(WithWSProp._wsme_attributes)
         assert len(WithWSProp._wsme_attributes) == 1
         a = WithWSProp._wsme_attributes[0]
         assert a.key == 'aint'
@@ -174,7 +177,8 @@ class TestTypes(unittest.TestCase):
         try:
             obj.a = 'v3'
             assert False, 'ValueError was not raised'
-        except ValueError, e:
+        except ValueError:
+            e = sys.exc_info()[1]
             assert str(e) == \
                 "a: Value 'v3' is invalid (should be one of: v1, v2)", e
 
@@ -204,7 +208,7 @@ class TestTypes(unittest.TestCase):
 
         assert len(AType._wsme_attributes) == 2
         attrs = AType._wsme_attributes
-        print attrs
+        print(attrs)
 
         assert attrs[0].key == 'a_list', attrs[0].key
         assert attrs[0].name == 'a.list', attrs[0].name
