@@ -1,6 +1,6 @@
 # encoding=utf8
 
-import six
+from six import u, b
 import sys
 
 import unittest
@@ -29,7 +29,7 @@ def test_pexpose():
 
         @pexpose(None, "text/xml")
         def ufunc(self):
-            return six.u("<p>\xc3\xa9</p>")
+            return u("<p>\xc3\xa9</p>")
 
     func, fd = FunctionDefinition.get(Proto.func)
     assert fd.return_type is None
@@ -41,11 +41,13 @@ def test_pexpose():
     r.addprotocol(p)
 
     app = webtest.TestApp(wsme.wsgi.adapt(r))
+
     res = app.get('/func')
+
     assert res.status_int == 200
-    assert res.body == "<p></p>", res.body
+    assert res.body == b("<p></p>"), res.body
     res = app.get('/ufunc')
-    assert res.unicode_body == six.u("<p>\xc3\xa9</p>"), res.body
+    assert res.unicode_body == u("<p>\xc3\xa9</p>"), res.body
 
 
 class TestController(unittest.TestCase):
@@ -179,7 +181,7 @@ class TestController(unittest.TestCase):
         assert res.status_int == 500
         print(res.body)
         assert res.body.find(
-            "None of the following protocols can handle this request") != -1
+            b("None of the following protocols can handle this request")) != -1
 
     def test_return_content_type_guess(self):
         class DummierProto(DummyProtocol):

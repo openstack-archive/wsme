@@ -3,6 +3,7 @@ import sys
 import traceback
 import weakref
 import six
+from six import u, b
 
 import webob
 
@@ -12,7 +13,7 @@ from wsme.api import scan_api
 
 log = logging.getLogger(__name__)
 
-html_body = """
+html_body = u("""
 <html>
 <head>
   <style type='text/css'>
@@ -23,7 +24,7 @@ html_body = """
 %(content)s
 </body>
 </html>
-"""
+""")
 
 
 class DummyTransaction:
@@ -128,7 +129,7 @@ class WSRoot(object):
                 context.path = protocol.extract_path(context)
 
             if context.path is None:
-                raise exc.ClientSideError(six.u(
+                raise exc.ClientSideError(u(
                     'The %s protocol was unable to extract a function '
                     'path from the request') % protocol.name)
 
@@ -186,7 +187,7 @@ class WSRoot(object):
                             (p.name for p in self.protocols)))
             res.status = 500
             res.content_type = 'text/plain'
-            res.body = msg
+            res.text = u(msg)
             log.error(msg)
             return res
 
@@ -206,7 +207,7 @@ class WSRoot(object):
             body = prepare_response_body(request, (
                 self._do_call(protocol, context)
                 for context in protocol.iter_calls(request)))
-            if isinstance(body, unicode):
+            if isinstance(body, six.text_type):
                 res.unicode_body = body
             else:
                 res.body = body
@@ -229,7 +230,7 @@ class WSRoot(object):
         except Exception:
             infos = self._format_exception(sys.exc_info())
             request.server_errorcount += 1
-            res.body = protocol.encode_error(context, infos)
+            res.text = protocol.encode_error(context, infos)
             res.status = 500
 
         if res_content_type is None:
@@ -242,7 +243,7 @@ class WSRoot(object):
         # output format.
         if res_content_type is None:
             if "text/html" in request.accept:
-                res.body = self._html_format(res.body, protocol.content_types)
+                res.text = self._html_format(res.body, protocol.content_types)
                 res_content_type = "text/html"
 
         # TODO should we consider the encoding asked by
@@ -322,5 +323,6 @@ class WSRoot(object):
                 "error :\n%s" % e)
             return html_body % dict(
                 css='',
-                content='<pre>%s</pre>' %
-                    content.replace('>', '&gt;').replace('<', '&lt;'))
+                content=u('<pre>%s</pre>') %
+                    content.replace(b('>'), b('&gt;'))
+                           .replace(b('<'), b('&lt;')))
