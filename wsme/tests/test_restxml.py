@@ -73,9 +73,7 @@ def loadxml(el, datatype):
         print (d)
         return d
     else:
-        print datatype, el.text
         if datatype == wsme.types.binary:
-            print "here"
             return base64.decodestring(el.text)
         if isusertype(datatype):
             datatype = datatype.basetype
