@@ -4,6 +4,7 @@ import traceback
 import weakref
 
 from six import u, b
+import six
 
 import webob
 
@@ -166,7 +167,20 @@ class WSRoot(object):
 
     def _handle_request(self, request):
         def default_prepare_response_body(request, results):
-            return u('\n').join(results)
+            r = None
+            sep = None
+            for value in results:
+                if sep is None:
+                    if isinstance(value, six.text_type):
+                        sep = u('\n')
+                        r = u('')
+                    else:
+                        sep = b('\n')
+                        r = b('')
+                else:
+                    r += sep
+                r += value
+            return r
 
         res = webob.Response()
         res_content_type = None
@@ -207,7 +221,11 @@ class WSRoot(object):
             body = prepare_response_body(request, (
                 self._do_call(protocol, context)
                 for context in protocol.iter_calls(request)))
-            res.unicode_body = body
+
+            if isinstance(body, six.text_type):
+                res.text = body
+            else:
+                res.body = body
 
             if len(request.calls) == 1:
                 if hasattr(protocol, 'get_response_status'):

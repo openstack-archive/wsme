@@ -2,7 +2,7 @@ import decimal
 import datetime
 import base64
 
-from six import u
+from six import u, b
 import six
 
 import wsme.tests.protocol
@@ -25,16 +25,17 @@ def dumpxml(key, obj, datatype=None):
         for item in obj:
             el.append(dumpxml('item', item, datatype[0]))
     elif isinstance(datatype, dict):
+        key_type, value_type = list(datatype.items())[0]
         for item in obj.items():
             node = et.SubElement(el, 'item')
-            node.append(dumpxml('key', item[0], datatype.keys()[0]))
-            node.append(dumpxml('value', item[1], datatype.values()[0]))
+            node.append(dumpxml('key', item[0], key_type))
+            node.append(dumpxml('value', item[1], value_type))
     elif datatype == wsme.types.binary:
         el.text = base64.encodestring(obj)
     elif isinstance(obj, six.string_types):
         el.text = obj
     elif type(obj) in (int, float, decimal.Decimal):
-        el.text = str(obj)
+        el.text = six.text_type(obj)
     elif type(obj) in (datetime.date, datetime.time, datetime.datetime):
         el.text = obj.isoformat()
     elif hasattr(datatype, '_wsme_attributes'):
@@ -154,7 +155,7 @@ class TestRestXML(wsme.tests.protocol.ProtocolTestCase):
                 [int], {int: str}, bool,
                 datetime.date, datetime.time, datetime.datetime):
             x = et.tostring(toxml(dt, 'value', None))
-            assert x == '<value nil="true" />', x
+            assert x == b('<value nil="true" />'), x
 
     def test_parse_arg(self):
         e = self.root.protocols[0].parse_arg('value', '5')

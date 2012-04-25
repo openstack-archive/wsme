@@ -1,6 +1,7 @@
 import datetime
 
 from six import u
+import six
 
 try:
     import xml.etree.ElementTree as et
@@ -63,7 +64,7 @@ def toxml(datatype, key, value):
                 el.append(toxml(attrdef.datatype, attrdef.name,
                                 getattr(value, attrdef.key)))
         else:
-            el.text = unicode(value)
+            el.text = six.text_type(value)
     return el
 
 
