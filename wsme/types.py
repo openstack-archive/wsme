@@ -7,6 +7,17 @@ import six
 import sys
 
 
+#: The 'str' (python 2) or 'bytes' (python 3) type.
+#: Its use should be restricted to
+#: pure ascii strings as the protocols will generally not be
+#: be able to send non-unicode strings.
+#: To transmit binary strings, use the :class:`binary` type
+bytes = six.binary_type
+
+#: Unicode string.
+text = six.text_type
+
+
 class UserType(object):
     basetype = None
 
@@ -28,7 +39,7 @@ class BinaryType(UserType):
     """
     A user type that use base64 strings to carry binary data.
     """
-    basetype = str
+    basetype = bytes
 
     def tobasetype(self, value):
         return base64.encodestring(value)
@@ -71,7 +82,7 @@ class Enum(UserType):
         return value
 
 pod_types = six.integer_types + (
-    six.binary_type, six.text_type, float, bool)
+    bytes, text, float, bool)
 dt_types = (datetime.date, datetime.time, datetime.datetime)
 extra_types = (binary, decimal.Decimal)
 native_types = pod_types + dt_types + extra_types

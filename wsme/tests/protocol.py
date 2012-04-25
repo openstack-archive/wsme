@@ -19,7 +19,7 @@ import wsme.types
 
 warnings.filterwarnings('ignore', module='webob.dec')
 
-binarysample = r'\x00\xff\x43'
+binarysample = b('\x00\xff\x43')
 
 try:
     1 / 0
@@ -39,7 +39,7 @@ class CallException(RuntimeError):
                 self.faultcode, self.faultstring, self.debuginfo)
 
 
-myenumtype = wsme.types.Enum(str, 'v1', 'v2')
+myenumtype = wsme.types.Enum(wsme.types.bytes, 'v1', 'v2')
 
 
 class NestedInner(object):
@@ -76,12 +76,12 @@ class NestedOuterApi(object):
 
 
 class ReturnTypes(object):
-    @expose(six.binary_type)
-    def getstr(self):
-        return "astring"
+    @expose(wsme.types.bytes)
+    def getbytes(self):
+        return b("astring")
 
-    @expose(six.text_type)
-    def getunicode(self):
+    @expose(wsme.types.text)
+    def gettext(self):
         return u('\xe3\x81\xae')
 
     @expose(int)
@@ -117,21 +117,21 @@ class ReturnTypes(object):
         n = NestedOuter()
         return n
 
-    @expose([six.binary_type])
-    def getstrarray(self):
-        return ["A", "B", "C"]
+    @expose([wsme.types.bytes])
+    def getbytesarray(self):
+        return [b("A"), b("B"), b("C")]
 
     @expose([NestedOuter])
     def getnestedarray(self):
         return [NestedOuter(), NestedOuter()]
 
-    @expose({six.binary_type: NestedOuter})
+    @expose({wsme.types.bytes: NestedOuter})
     def getnesteddict(self):
-        return {'a': NestedOuter(), 'b': NestedOuter()}
+        return {b('a'): NestedOuter(), b('b'): NestedOuter()}
 
     @expose(myenumtype)
     def getenum(self):
-        return 'v2'
+        return b('v2')
 
     @expose(NamedAttrsObject)
     def getnamedattrsobj(self):
@@ -139,18 +139,18 @@ class ReturnTypes(object):
 
 
 class ArgTypes(object):
-    @expose(six.binary_type)
-    @validate(six.binary_type)
-    def setstr(self, value):
+    @expose(wsme.types.bytes)
+    @validate(wsme.types.bytes)
+    def setbytes(self, value):
         print(repr(value))
-        assert type(value) == six.binary_type
+        assert type(value) == wsme.types.bytes
         return value
 
-    @expose(six.text_type)
-    @validate(six.text_type)
-    def setunicode(self, value):
+    @expose(wsme.types.text)
+    @validate(wsme.types.text)
+    def settext(self, value):
         print(repr(value))
-        assert type(value) == six.text_type
+        assert type(value) == wsme.types.text
         return value
 
     @expose(bool)
@@ -209,12 +209,12 @@ class ArgTypes(object):
         assert type(value) == six.binary_type
         return value
 
-    @expose([six.binary_type])
-    @validate([six.binary_type])
-    def setstrarray(self, value):
+    @expose([wsme.types.bytes])
+    @validate([wsme.types.bytes])
+    def setbytesarray(self, value):
         print(repr(value))
         assert type(value) == list
-        assert type(value[0]) == six.binary_type, type(value[0])
+        assert type(value[0]) == wsme.types.bytes, type(value[0])
         return value
 
     @expose([datetime.datetime])
@@ -240,12 +240,12 @@ class ArgTypes(object):
         assert type(value[0]) == NestedOuter
         return value
 
-    @expose({six.binary_type: NestedOuter})
-    @validate({six.binary_type: NestedOuter})
+    @expose({wsme.types.bytes: NestedOuter})
+    @validate({wsme.types.bytes: NestedOuter})
     def setnesteddict(self, value):
         print(repr(value))
         assert type(value) == dict
-        assert type(list(value.keys())[0]) == six.binary_type
+        assert type(list(value.keys())[0]) == wsme.types.bytes
         assert type(list(value.values())[0]) == NestedOuter
         return value
 
@@ -253,7 +253,7 @@ class ArgTypes(object):
     @validate(myenumtype)
     def setenum(self, value):
         print(value)
-        assert type(value) == six.binary_type
+        assert type(value) == wsme.types.bytes
         return value
 
     @expose(NamedAttrsObject)
@@ -344,12 +344,12 @@ class ProtocolTestCase(unittest.TestCase):
         r = self.call('touch')
         assert r is None, r
 
-    def test_return_str(self):
-        r = self.call('returntypes/getstr')
-        assert r == 'astring', r
+    def test_return_bytes(self):
+        r = self.call('returntypes/getbytes', _rt=wsme.types.bytes)
+        assert r == b('astring'), r
 
-    def test_return_unicode(self):
-        r = self.call('returntypes/getunicode')
+    def test_return_text(self):
+        r = self.call('returntypes/gettext', _rt=wsme.types.text)
         assert r == u('\xe3\x81\xae'), r
 
     def test_return_int(self):
@@ -378,40 +378,43 @@ class ProtocolTestCase(unittest.TestCase):
             or r == '1994-01-26T12:00:00', r
 
     def test_return_binary(self):
-        r = self.call('returntypes/getbinary')
-        assert r == binarysample or r == base64.encodestring(binarysample), r
+        r = self.call('returntypes/getbinary', _rt=wsme.types.binary)
+        assert r == binarysample, r
 
     def test_return_nested(self):
         r = self.call('returntypes/getnested', _rt=NestedOuter)
         assert r == {'inner': {'aint': 0}}, r
 
-    def test_return_strarray(self):
-        r = self.call('returntypes/getstrarray', _rt=[six.binary_type])
-        assert r == ['A', 'B', 'C'], r
+    def test_return_bytesarray(self):
+        r = self.call('returntypes/getbytesarray', _rt=[six.binary_type])
+        assert r == [b('A'), b('B'), b('C')], r
 
     def test_return_nestedarray(self):
         r = self.call('returntypes/getnestedarray', _rt=[NestedOuter])
         assert r == [{'inner': {'aint': 0}}, {'inner': {'aint': 0}}], r
 
     def test_return_nesteddict(self):
-        r = self.call('returntypes/getnesteddict', _rt={six.binary_type: NestedOuter})
-        assert r == {'a': {'inner': {'aint': 0}}, 'b': {'inner': {'aint': 0}}}
+        r = self.call('returntypes/getnesteddict',
+            _rt={wsme.types.bytes: NestedOuter})
+        assert r == {
+            b('a'): {'inner': {'aint': 0}},
+            b('b'): {'inner': {'aint': 0}}}, r
 
     def test_return_enum(self):
         r = self.call('returntypes/getenum', _rt=myenumtype)
-        assert r == 'v2', r
+        assert r == b('v2'), r
 
     def test_return_namedattrsobj(self):
         r = self.call('returntypes/getnamedattrsobj', _rt=NamedAttrsObject)
         assert r == {'attr.1': 5, 'attr.2': 6}
 
-    def test_setstr(self):
-        assert self.call('argtypes/setstr', value=b('astring'),
-            _rt=six.binary_type) == b('astring')
+    def test_setbytes(self):
+        assert self.call('argtypes/setbytes', value=b('astring'),
+            _rt=wsme.types.bytes) == b('astring')
 
-    def test_setunicode(self):
-        assert self.call('argtypes/setunicode', value=u('\xe3\x81\xae'),
-                        _rt=six.text_type) == u('\xe3\x81\xae')
+    def test_settext(self):
+        assert self.call('argtypes/settext', value=u('\xe3\x81\xae'),
+                        _rt=wsme.types.text) == u('\xe3\x81\xae')
 
     def test_setint(self):
         r = self.call('argtypes/setint', value=3, _rt=int)
@@ -457,11 +460,11 @@ class ProtocolTestCase(unittest.TestCase):
                          _rt=NestedOuter)
         assert r == value
 
-    def test_setstrarray(self):
+    def test_setbytesarray(self):
         value = [b("1"), b("2"), b("three")]
-        r = self.call('argtypes/setstrarray',
-                         value=(value, [six.binary_type]),
-                         _rt=[six.binary_type])
+        r = self.call('argtypes/setbytesarray',
+                         value=(value, [wsme.types.bytes]),
+                         _rt=[wsme.types.bytes])
         assert r == value, r
 
     def test_setdatetimearray(self):
@@ -496,7 +499,7 @@ class ProtocolTestCase(unittest.TestCase):
         assert r == value
 
     def test_setenum(self):
-        value = 'v1'
+        value = b('v1')
         r = self.call('argtypes/setenum', value=value,
                       _rt=myenumtype)
         assert r == value

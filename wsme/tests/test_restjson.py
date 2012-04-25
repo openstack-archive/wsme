@@ -3,8 +3,6 @@ import datetime
 import decimal
 import urllib
 
-import six
-
 import wsme.tests.protocol
 
 try:
@@ -16,6 +14,14 @@ import wsme.protocols.restjson
 from wsme.protocols.restjson import fromjson, tojson
 from wsme.utils import parse_isodatetime, parse_isotime, parse_isodate
 from wsme.types import isusertype, register_type
+
+
+import six
+
+if six.PY3:
+    from urllib.parse import urlencode
+else:
+    from urllib import urlencode
 
 
 def prepare_value(value, datatype):
@@ -33,14 +39,16 @@ def prepare_value(value, datatype):
     if datatype == decimal.Decimal:
         return str(value)
     if datatype == wsme.types.binary:
-        return base64.encodestring(value)
-    if datatype == six.binary_type:
+        return base64.encodestring(value).decode('ascii')
+    if datatype == wsme.types.bytes:
         return value.decode('ascii')
     return value
 
 
 def prepare_result(value, datatype):
     print(value, datatype)
+    if datatype == wsme.types.binary:
+        return base64.decodestring(value.encode('ascii'))
     if isusertype(datatype):
         datatype = datatype.basetype
     if isinstance(datatype, list):
@@ -63,10 +71,8 @@ def prepare_result(value, datatype):
                 continue
             value[attr.key] = prepare_result(value[attr.key], attr.datatype)
         return value
-    if datatype == wsme.types.binary:
-        return base64.decodestring(value)
-    if datatype == six.binary_type:
-        return value.encode('utf8')
+    if datatype == wsme.types.bytes:
+        return value.encode('ascii')
     if type(value) != datatype:
         return datatype(value)
     return value
@@ -133,7 +139,7 @@ class TestRestJson(wsme.tests.protocol.ProtocolTestCase):
             'value[0].inner.aint': 54,
             'value[1].inner.aint': 55
         }
-        body = urllib.urlencode(params)
+        body = urlencode(params)
         r = self.app.post('/argtypes/setnestedarray.json', body,
             headers={'Content-Type': 'application/x-www-form-urlencoded'})
         print(r)
@@ -153,13 +159,13 @@ class TestRestJson(wsme.tests.protocol.ProtocolTestCase):
             "Cannot read parameters from both a body and GET/POST params"
 
     def test_inline_body(self):
-        params = urllib.urlencode({'body': '{"value": 4}'})
+        params = urlencode({'body': '{"value": 4}'})
         r = self.app.get('/argtypes/setint.json?' + params)
         print(r)
         assert json.loads(r.text) == 4
 
     def test_empty_body(self):
-        params = urllib.urlencode({'body': ''})
+        params = urlencode({'body': ''})
         r = self.app.get('/returntypes/getint.json?' + params)
         print(r)
         assert json.loads(r.text) == 2

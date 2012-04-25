@@ -46,7 +46,7 @@ def tojson(datatype, value):
     return value
 
 
-@tojson.when_object(six.binary_type)
+@tojson.when_object(wsme.types.bytes)
 def bytes_tojson(datatype, value):
     if value is None:
         return None
