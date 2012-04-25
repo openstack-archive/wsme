@@ -24,7 +24,7 @@ setup(
     install_requires=[
         'six',
         'simplegeneric',
-        'webob' + ('<=1.1.1' if sys.version_info[:2] <= (2, 5) else '>=1.2b4'),
+        'webob' + ('<=1.1.1' if sys.version_info[:2] <= (2, 5) else '>=1.2b3'),
     ],
     classifiers=[
         'Development Status :: 3 - Alpha',
