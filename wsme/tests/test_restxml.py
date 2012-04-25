@@ -31,8 +31,10 @@ def dumpxml(key, obj, datatype=None):
             node.append(dumpxml('key', item[0], key_type))
             node.append(dumpxml('value', item[1], value_type))
     elif datatype == wsme.types.binary:
-        el.text = base64.encodestring(obj)
-    elif isinstance(obj, six.string_types):
+        el.text = base64.encodestring(obj).decode('ascii')
+    elif isinstance(obj, wsme.types.bytes):
+        el.text = obj.decode('ascii')
+    elif isinstance(obj, wsme.types.text):
         el.text = obj
     elif type(obj) in (int, float, decimal.Decimal):
         el.text = six.text_type(obj)
@@ -48,6 +50,7 @@ def dumpxml(key, obj, datatype=None):
     elif type(obj) == dict:
         for name, value in obj.items():
             el.append(dumpxml(name, value))
+    print(obj, datatype, et.tostring(el))
     return el
 
 
@@ -58,9 +61,10 @@ def loadxml(el, datatype):
     if isinstance(datatype, list):
         return [loadxml(item, datatype[0]) for item in el.findall('item')]
     elif isinstance(datatype, dict):
+        key_type, value_type = list(datatype.items())[0]
         return dict((
-            (loadxml(item.find('key'), datatype.keys()[0]),
-                loadxml(item.find('value'), datatype.values()[0]))
+            (loadxml(item.find('key'), key_type),
+                loadxml(item.find('value'), value_type))
             for item in el.findall('item')
         ))
     elif len(el):
@@ -75,7 +79,7 @@ def loadxml(el, datatype):
         return d
     else:
         if datatype == wsme.types.binary:
-            return base64.decodestring(el.text)
+            return base64.decodestring(el.text.encode('ascii'))
         if isusertype(datatype):
             datatype = datatype.basetype
         if datatype == datetime.date:
@@ -86,6 +90,8 @@ def loadxml(el, datatype):
             return parse_isodatetime(el.text)
         if datatype is None:
             return el.text
+        if datatype is wsme.types.bytes:
+            return el.text.encode('ascii')
         return datatype(el.text)
 
 
@@ -125,23 +131,23 @@ class TestRestXML(wsme.tests.protocol.ProtocolTestCase):
     def test_encode_sample_value(self):
         class MyType(object):
             aint = int
-            aunicode = unicode
+            atext = wsme.types.text
 
         register_type(MyType)
 
         value = MyType()
         value.aint = 5
-        value.aunicode = u('test')
+        value.atext = u('test')
 
         language, sample = self.root.protocols[0].encode_sample_value(
             MyType, value, True)
         print (language, sample)
 
         assert language == 'xml'
-        assert sample == """<value>
+        assert sample == b("""<value>
   <aint>5</aint>
-  <aunicode>test</aunicode>
-</value>"""
+  <atext>test</atext>
+</value>""")
 
     def test_nil_fromxml(self):
         for dt in (

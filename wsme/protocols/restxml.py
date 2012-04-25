@@ -99,6 +99,8 @@ def fromxml(datatype, element):
             if sub is not None:
                 setattr(obj, attrdef.key, fromxml(attrdef.datatype, sub))
         return obj
+    if datatype is wsme.types.bytes:
+        return element.text.encode('ascii')
     return datatype(element.text)
 
 
@@ -119,8 +121,7 @@ def dict_toxml(datatype, key, value):
     if value is None:
         el.set('nil', 'true')
     else:
-        key_type = datatype.keys()[0]
-        value_type = datatype.values()[0]
+        key_type, value_type = list(datatype.items())[0]
         for item in value.items():
             key = toxml(key_type, 'key', item[0])
             value = toxml(value_type, 'value', item[1])
@@ -128,6 +129,16 @@ def dict_toxml(datatype, key, value):
             node.append(key)
             node.append(value)
             el.append(node)
+    return el
+
+
+@toxml.when_object(wsme.types.bytes)
+def bytes_toxml(datatype, key, value):
+    el = et.Element(key)
+    if value is None:
+        el.set('nil', 'true')
+    else:
+        el.text = value.decode('ascii')
     return el
 
 
@@ -172,8 +183,7 @@ def array_fromxml(datatype, element):
 def dict_fromxml(datatype, element):
     if element.get('nil') == 'true':
         return None
-    key_type = datatype.keys()[0]
-    value_type = datatype.values()[0]
+    key_type, value_type = list(datatype.items())[0]
     return dict((
         (fromxml(key_type, item.find('key')),
             fromxml(value_type, item.find('value')))
