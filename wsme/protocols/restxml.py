@@ -1,5 +1,7 @@
 import datetime
 
+from six import u
+
 try:
     import xml.etree.ElementTree as et
 except ImportError:
@@ -220,7 +222,7 @@ class RestXmlProtocol(RestProtocol):
         return fromxml(arg.datatype, value)
 
     def parse_arg(self, name, value):
-        return et.fromstring(u"<%s>%s</%s>" % (name, value, name))
+        return et.fromstring(u("<%s>%s</%s>") % (name, value, name))
 
     def parse_args(self, body):
         return dict((sub.tag, sub) for sub in et.fromstring(body))

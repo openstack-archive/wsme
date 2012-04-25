@@ -2,6 +2,9 @@ import decimal
 import datetime
 import base64
 
+from six import u
+import six
+
 import wsme.tests.protocol
 from wsme.utils import parse_isodatetime, parse_isodate, parse_isotime
 from wsme.types import isusertype, register_type
@@ -28,7 +31,7 @@ def dumpxml(key, obj, datatype=None):
             node.append(dumpxml('value', item[1], datatype.values()[0]))
     elif datatype == wsme.types.binary:
         el.text = base64.encodestring(obj)
-    elif isinstance(obj, basestring):
+    elif isinstance(obj, six.string_types):
         el.text = obj
     elif type(obj) in (int, float, decimal.Decimal):
         el.text = str(obj)
@@ -48,7 +51,7 @@ def dumpxml(key, obj, datatype=None):
 
 
 def loadxml(el, datatype):
-    print el, datatype, len(el)
+    print (el, datatype, len(el))
     if el.get('nil') == 'true':
         return None
     if isinstance(datatype, list):
@@ -64,10 +67,10 @@ def loadxml(el, datatype):
         for attr in datatype._wsme_attributes:
             name = attr.name
             child = el.find(name)
-            print name, attr, child
+            print (name, attr, child)
             if child is not None:
                 d[name] = loadxml(child, attr.datatype)
-        print d
+        print (d)
         return d
     else:
         if isusertype(datatype):
@@ -102,7 +105,7 @@ class TestRestXML(wsme.tests.protocol.ProtocolTestCase):
             content,
             headers=headers,
             expect_errors=True)
-        print "Received:", res.body
+        print ("Received:", res.body)
 
         if _no_result_decode:
             return res
@@ -127,11 +130,11 @@ class TestRestXML(wsme.tests.protocol.ProtocolTestCase):
 
         value = MyType()
         value.aint = 5
-        value.aunicode = u'test'
+        value.aunicode = u('test')
 
         language, sample = self.root.protocols[0].encode_sample_value(
             MyType, value, True)
-        print language, sample
+        print (language, sample)
 
         assert language == 'xml'
         assert sample == """<value>
