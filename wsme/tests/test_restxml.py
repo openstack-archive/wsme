@@ -73,6 +73,10 @@ def loadxml(el, datatype):
         print (d)
         return d
     else:
+        print datatype, el.text
+        if datatype == wsme.types.binary:
+            print "here"
+            return base64.decodestring(el.text)
         if isusertype(datatype):
             datatype = datatype.basetype
         if datatype == datetime.date:
@@ -81,8 +85,6 @@ def loadxml(el, datatype):
             return parse_isotime(el.text)
         if datatype == datetime.datetime:
             return parse_isodatetime(el.text)
-        if datatype == wsme.types.binary:
-            return base64.decodestring(el.text)
         if datatype is None:
             return el.text
         return datatype(el.text)
