@@ -1,5 +1,5 @@
 name = "WSME"
-version = "0.4"
+version = "0.4b1"
 
 description = """Web Services Made Easy makes it easy to \
 implement multi-protocol webservices."""
