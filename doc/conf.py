@@ -230,7 +230,10 @@ wsme_protocols = [
     'restjson', 'restxml', 'soap', 'extdirect'
 ]
 
-intersphinx_mapping = {'python': ('http://docs.python.org/', None)}
+intersphinx_mapping = {
+    'python': ('http://docs.python.org/', None),
+    'six': ('http://packages.python.org/six/', None),
+}
 
 
 def setup(app):
