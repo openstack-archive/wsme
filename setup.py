@@ -24,7 +24,7 @@ setup(
     author=release['author'],
     author_email=release['email'],
     url=release['url'],
-    packages=['wsme', 'wsme.protocols'],
+    packages=['wsme', 'wsme.protocols', 'wsme.tests'],
     package_data={
         'wsme.protocols': ['templates/*.html'],
     },
