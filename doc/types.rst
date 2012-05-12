@@ -11,13 +11,16 @@ the different protocols will map to theirs own basic types.
 
 The native types are :
 
-    -   .. wsme:type:: str
+    -   .. wsme:type:: bytes
     
-            A non unicode string (:py:class:`str`)
+            A pure-ascii string (:py:class:`wsme.types.bytes` which is
+            :py:class:`str` in Python 2 and :py:class:`bytes` in Python 3).
+            
 
-    -   .. wsme:type:: unicode
+    -   .. wsme:type:: text
 
-            A unicode string (:py:class:`unicode`)
+            A unicode string (:py:class:`wsme.types.text` which is
+            :py:class:`unicode` in Python 2 and :py:class:`str` in Python 3).
 
     -   .. wsme:type:: int
     

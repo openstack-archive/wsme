@@ -1,6 +1,13 @@
 Changes
 =======
 
+0.4 (next)
+----------
+
+*   Now supports Python 3.2
+
+*   String types handling is clearer.
+
 0.3 (2012-04-20)
 ----------------
 

@@ -9,6 +9,13 @@ exec(compile(open(filename).read(), filename, 'exec'), release)
 
 long_description = open("README.rst", 'rt').read()
 
+if sys.version_info[:2] <= (2, 5):
+    webob_version = '<=1.1.1'
+elif sys.version_info[:2] >= (3, 0):
+    webob_version = '>=1.2b3'
+else:
+    webob_version = ''
+
 setup(
     name=release['name'],
     version=release['version'],
@@ -24,7 +31,7 @@ setup(
     install_requires=[
         'six',
         'simplegeneric',
-        'webob' + ('<=1.1.1' if sys.version_info[:2] <= (2, 5) else '>=1.2b3'),
+        'webob' + webob_version
     ],
     classifiers=[
         'Development Status :: 3 - Alpha',
@@ -33,6 +40,7 @@ setup(
         'Programming Language :: Python :: 2.5',
         'Programming Language :: Python :: 2.6',
         'Programming Language :: Python :: 2.7',
+        'Programming Language :: Python :: 3.2',
         'Programming Language :: Python :: Implementation :: CPython',
         'Programming Language :: Python :: Implementation :: PyPy',
         'License :: OSI Approved :: MIT License',
