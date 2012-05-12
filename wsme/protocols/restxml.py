@@ -3,10 +3,7 @@ import datetime
 from six import u
 import six
 
-try:
-    import xml.etree.ElementTree as et
-except ImportError:
-    import cElementTree as et
+import xml.etree.ElementTree as et
 
 from simplegeneric import generic
 

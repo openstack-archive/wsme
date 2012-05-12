@@ -28,6 +28,23 @@ html_body = u("""
 """)
 
 
+def default_prepare_response_body(request, results):
+    r = None
+    sep = None
+    for value in results:
+        if sep is None:
+            if isinstance(value, six.text_type):
+                sep = u('\n')
+                r = u('')
+            else:
+                sep = b('\n')
+                r = b('')
+        else:
+            r += sep
+        r += value
+    return r
+
+
 class DummyTransaction:
     def commit(self):
         pass
@@ -166,22 +183,6 @@ class WSRoot(object):
             return protocol.encode_error(context, infos)
 
     def _handle_request(self, request):
-        def default_prepare_response_body(request, results):
-            r = None
-            sep = None
-            for value in results:
-                if sep is None:
-                    if isinstance(value, six.text_type):
-                        sep = u('\n')
-                        r = u('')
-                    else:
-                        sep = b('\n')
-                        r = b('')
-                else:
-                    r += sep
-                r += value
-            return r
-
         res = webob.Response()
         res_content_type = None
 

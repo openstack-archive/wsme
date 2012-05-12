@@ -149,6 +149,17 @@ class TestRestXML(wsme.tests.protocol.ProtocolTestCase):
   <atext>test</atext>
 </value>""")
 
+    def test_encode_sample_params(self):
+        lang, content = self.root.protocols[0].encode_sample_params(
+            [('a', int, 2)], True)
+        assert lang == 'xml', lang
+        assert content == b('<parameters>\n  <a>2</a>\n</parameters>'), content
+
+    def test_encode_sample_result(self):
+        lang, content = self.root.protocols[0].encode_sample_result(int, 2, True)
+        assert lang == 'xml', lang
+        assert content == b('<result>2</result>'), content
+
     def test_nil_fromxml(self):
         for dt in (
                 str, [int], {int: str}, bool,
@@ -158,6 +169,7 @@ class TestRestXML(wsme.tests.protocol.ProtocolTestCase):
 
     def test_nil_toxml(self):
         for dt in (
+                wsme.types.bytes,
                 [int], {int: str}, bool,
                 datetime.date, datetime.time, datetime.datetime):
             x = et.tostring(toxml(dt, 'value', None))
