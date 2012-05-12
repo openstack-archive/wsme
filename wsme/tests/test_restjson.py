@@ -17,6 +17,7 @@ from wsme.types import isusertype, register_type
 
 
 import six
+from six import b, u
 
 if six.PY3:
     from urllib.parse import urlencode
@@ -233,3 +234,38 @@ class TestRestJson(wsme.tests.protocol.ProtocolTestCase):
         assert r[0] == ('javascript')
         assert r[1] == json.dumps({'aint': 4, 'astr': 's'},
             ensure_ascii=False, indent=4, sort_keys=True)
+
+    def test_bytes_tojson(self):
+        assert tojson(wsme.types.bytes, None) is None
+        assert tojson(wsme.types.bytes, b('ascii')) == u('ascii')
+
+    def test_encode_sample_params(self):
+        r = self.root.protocols[0].encode_sample_params(
+            [('a', int, 2)], True
+        )
+        assert r[0] == 'javascript', r[0]
+        assert r[1] == '''{
+    "a": 2
+}''', r[1]
+        
+    def test_encode_sample_result(self):
+        r = self.root.protocols[0].encode_sample_result(
+            int, 2, True
+        )
+        assert r[0] == 'javascript', r[0]
+        assert r[1] == '''2'''
+
+    def test_encode_sample_result(self):
+        r = self.root.protocols[0].encode_sample_result(
+            int, 2, True
+        )
+        assert r[0] == 'javascript', r[0]
+        assert r[1] == '''2'''
+        self.root.protocols[0].nest_result = True
+        r = self.root.protocols[0].encode_sample_result(
+            int, 2, True
+        )
+        assert r[0] == 'javascript', r[0]
+        assert r[1] == '''{
+    "result": 2
+}'''
