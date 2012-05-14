@@ -45,5 +45,5 @@ def adapt(wsroot):
             controller._wsroot._webpath[len(filter_.webpath):]
 
     call_on_startup.append(install_filter)
-    call_on_shutdown.append(uninstall_filter)
+    call_on_shutdown.insert(0, uninstall_filter)
     return controller
