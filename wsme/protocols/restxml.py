@@ -58,8 +58,10 @@ def toxml(datatype, key, value):
                             key, datatype.tobasetype(value))
         elif wsme.types.iscomplex(datatype):
             for attrdef in datatype._wsme_attributes:
-                el.append(toxml(attrdef.datatype, attrdef.name,
-                                getattr(value, attrdef.key)))
+                attrvalue = getattr(value, attrdef.key)
+                if attrvalue is not wsme.types.Unset:
+                    el.append(toxml(attrdef.datatype, attrdef.name,
+                                    attrvalue))
         else:
             el.text = six.text_type(value)
     return el
