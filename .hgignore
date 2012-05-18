@@ -10,6 +10,7 @@ syntax: glob
 coverage.xml
 .noseids
 .tox
+.test_sphinxext
 nosetests.xml
 
 syntax: regexp

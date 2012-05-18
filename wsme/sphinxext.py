@@ -17,14 +17,15 @@ from docutils.parsers.rst import Directive
 from docutils.parsers.rst import directives
 
 import wsme
+import wsme.types
 
 field_re = re.compile(r':(?P<field>\w+)(\s+(?P<name>\w+))?:')
 
 
 def make_sample_object(datatype):
-    if datatype is str:
+    if datatype is wsme.types.bytes:
         return 'samplestring'
-    if datatype is unicode:
+    if datatype is wsme.types.text:
         return u'sample unicode'
     if datatype is int:
         return 5
