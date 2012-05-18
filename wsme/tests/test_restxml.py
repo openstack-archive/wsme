@@ -175,6 +175,15 @@ class TestRestXML(wsme.tests.protocol.ProtocolTestCase):
             x = et.tostring(toxml(dt, 'value', None))
             assert x == b('<value nil="true" />'), x
 
+    def test_unset_attrs(self):
+        class AType(object):
+            someattr = wsme.types.bytes
+
+        wsme.types.register_type(AType)
+
+        x = et.tostring(toxml(AType, 'value', AType()))
+        assert x == b('<value />'), x
+
     def test_parse_arg(self):
         e = self.root.protocols[0].parse_arg('value', '5')
         assert e.text == '5'
