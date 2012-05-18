@@ -8,6 +8,10 @@ Changes
 
 *   String types handling is clearer.
 
+*   Various bugfixes.
+
+*   Tests code coverage is now over 95%.
+
 0.3 (2012-04-20)
 ----------------
 
