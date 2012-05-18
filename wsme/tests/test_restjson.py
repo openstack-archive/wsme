@@ -188,6 +188,15 @@ class TestRestJson(wsme.tests.protocol.ProtocolTestCase):
         assert json.loads(r.text)['faultstring'].startswith(
                 "Unknown argument:")
 
+    def test_unset_attrs(self):
+        class AType(object):
+            attr = int
+
+        wsme.types.register_type(AType)
+
+        j = tojson(AType, AType())
+        assert j == {}
+
     def test_array_tojson(self):
         assert tojson([int], None) is None
         assert tojson([int], []) == []
