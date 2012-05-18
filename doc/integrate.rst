@@ -75,6 +75,19 @@ Turbogears 1.x
 
     Returns a :class:`Controller` that publish a :class:`wsme.WSRoot`.
 
+:mod:`wsme.tg15` -- TG 1.5 adapter
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. module:: wsme.tg15
+
+.. class:: Controller(wsroot)
+
+    A TG1 Controller that publish a :class:`wsme.WSRoot`.
+
+.. function:: adapt
+
+    Returns a :class:`Controller` that publish a :class:`wsme.WSRoot`.
+
 Example
 ~~~~~~~
 
