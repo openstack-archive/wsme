@@ -9,3 +9,6 @@ print client
 print client.service.Multiply(4, 5)
 print client.service.Helloworld()
 print client.service.Getperson()
+p = client.service.Listpersons()
+p = client.service.Setpersons(p)
+print p

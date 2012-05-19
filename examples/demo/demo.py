@@ -14,6 +14,8 @@ Then::
 from wsme import WSRoot, expose, validate
 from wsme.wsgi import adapt
 
+from six import u
+
 import logging
 
 
@@ -41,10 +43,29 @@ class DemoRoot(WSRoot):
         p.lastname = u'Geler'
         return p
 
+    @expose([Person])
+    def listpersons(self):
+        p = Person()
+        p.id = 12
+        p.firstname = u('Ross')
+        p.lastname = u('Geler')
+        r = [p]
+        p = Person()
+        p.id = 13
+        p.firstname = u('Rachel')
+        p.lastname = u('Green')
+        r.append(p)
+        return r
+
     @expose(Person)
     @validate(Person)
     def setperson(self, person):
         return person
+
+    @expose([Person])
+    @validate([Person])
+    def setpersons(self, persons):
+        return persons
 
 
 def app_factory(global_config, **local_conf):
