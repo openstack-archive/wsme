@@ -81,16 +81,6 @@ class Enum(UserType):
     def frombasetype(self, value):
         return value
 
-pod_types = six.integer_types + (
-    bytes, text, float, bool)
-dt_types = (datetime.date, datetime.time, datetime.datetime)
-extra_types = (binary, decimal.Decimal)
-native_types = pod_types + dt_types + extra_types
-
-complex_types = []
-array_types = []
-dict_types = []
-
 
 class UnsetType(object):
     if sys.version < '3':
@@ -102,6 +92,12 @@ class UnsetType(object):
 
 Unset = UnsetType()
 
+
+pod_types = six.integer_types + (
+    bytes, text, float, bool)
+dt_types = (datetime.date, datetime.time, datetime.datetime)
+extra_types = (binary, decimal.Decimal)
+native_types = pod_types + dt_types + extra_types
 
 def iscomplex(datatype):
     return inspect.isclass(datatype) \
@@ -207,8 +203,7 @@ class wsattr(object):
         #: The attribute name on the public of the api.
         #: Defaults to :attr:`key`
         self.name = name
-        #: attribute data type
-        self.datatype = datatype
+        self._datatype = datatype
         #: True if the attribute is mandatory
         self.mandatory = mandatory
         #: Default value. The attribute will return this instead
@@ -234,6 +229,19 @@ class wsattr(object):
 
     def __delete__(self, instance):
         self.__set__(instance, Unset)
+
+    def _get_datatype(self):
+        if isinstance(self._datatype, weakref.ref):
+            return self._datatype()
+        return self._datatype
+
+    def _set_datatype(self, datatype):
+        self._datatype = datatype
+
+    #: attribute data type. Can be either an actual type,
+    #: or a type name, in which case the actual type will be
+    #: determined when needed (generaly just before scaning the api).
+    datatype = property(_get_datatype, _set_datatype)
 
 
 def iswsattr(attr):
@@ -319,49 +327,90 @@ def inspect_class(class_):
     return attributes
 
 
-def register_type(class_):
-    """
-    Make sure a type is registered.
-
-    It is automatically called by :class:`expose() <wsme.expose>`
-    and :class:`validate() <wsme.validate>`.
-    Unless you want to control when the class inspection is done there
-    is no need to call it.
-    """
-    if class_ is None or \
-            class_ in native_types or \
-            isusertype(class_) or iscomplex(class_):
-        return
-
-    if isinstance(class_, list):
-        if len(class_) != 1:
-            raise ValueError("Cannot register type %s" % repr(class_))
-        register_type(class_[0])
-        if class_[0] not in array_types:
-            array_types.append(class_[0])
-        return
-
-    if isinstance(class_, dict):
-        if len(class_) != 1:
-            raise ValueError("Cannot register type %s" % repr(class_))
-        key_type, value_type = list(class_.items())[0]
-        if key_type not in pod_types:
-            raise ValueError("Dictionnaries key can only be a pod type")
-        register_type(value_type)
-        if (key_type, value_type) not in dict_types:
-            dict_types.append((key_type, value_type))
-        return
-
-    class_._wsme_attributes = None
-    class_._wsme_attributes = inspect_class(class_)
-
-    complex_types.append(weakref.ref(class_))
-
-
 def list_attributes(class_):
     """
     Returns a list of a complex type attributes.
     """
-    if not hasattr(class_, '_wsme_attributes'):
-        register_type(class_)
+    if not iscomplex(class_):
+        raise TypeError("%s is not a registered type")
     return class_._wsme_attributes
+
+
+class Registry(object):
+    def __init__(self):
+        self.complex_types = []
+        self.array_types = []
+        self.dict_types = []
+
+    def register(self, class_):
+        """
+        Make sure a type is registered.
+
+        It is automatically called by :class:`expose() <wsme.expose>`
+        and :class:`validate() <wsme.validate>`.
+        Unless you want to control when the class inspection is done there
+        is no need to call it.
+        """
+        if class_ is None or \
+                class_ in native_types or \
+                isusertype(class_) or iscomplex(class_):
+            return
+
+        if isinstance(class_, list):
+            if len(class_) != 1:
+                raise ValueError("Cannot register type %s" % repr(class_))
+            register_type(class_[0])
+            if class_[0] not in self.array_types:
+                self.array_types.append(class_[0])
+            return
+
+        if isinstance(class_, dict):
+            if len(class_) != 1:
+                raise ValueError("Cannot register type %s" % repr(class_))
+            key_type, value_type = list(class_.items())[0]
+            if key_type not in pod_types:
+                raise ValueError("Dictionnaries key can only be a pod type")
+            register_type(value_type)
+            if (key_type, value_type) not in self.dict_types:
+                self.dict_types.append((key_type, value_type))
+            return
+
+        class_._wsme_attributes = None
+        class_._wsme_attributes = inspect_class(class_)
+
+        self.complex_types.append(weakref.ref(class_))
+
+    def lookup(self, typename):
+        modname = None
+        if '.' in typename:
+            modname, typename = typename.rsplit('.', 1)
+        for ct in self.complex_types:
+            ct = ct()
+            if typename == ct.__name__ and (
+                    modname is None or modname == ct.__module__):
+                return weakref.ref(ct)
+
+    def resolve_type(self, type_):
+        if isinstance(type_, six.string_types):
+            return self.lookup(type_)
+        if isinstance(type_, list):
+            return [self.resolve_type(type_[0])]
+        if isinstance(type_, dict):
+            key_type, value_type = list(type_.items())[0]
+            return {
+                key_type: self.resolve_type(value_type)
+            }
+        return type_
+
+    def resolve_references(self):
+        for ct in self.complex_types:
+            ct = ct()
+            for attr in list_attributes(ct):
+                attr.datatype = self.resolve_type(attr.datatype)
+
+# Default type registry
+registry = Registry()
+
+
+def register_type(class_):
+    return registry.register(class_)

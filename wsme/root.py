@@ -11,6 +11,7 @@ import webob
 from wsme import exc
 from wsme.protocols import getprotocol
 from wsme.api import scan_api
+import wsme.types
 
 log = logging.getLogger(__name__)
 
@@ -74,6 +75,8 @@ class WSRoot(object):
                         module will be imported and used.
 
     """
+    __registry__ = wsme.types.registry
+
     def __init__(self, protocols=[], webpath='', transaction=None):
         self._debug = True
         self._webpath = webpath
@@ -114,6 +117,7 @@ class WSRoot(object):
         :rtype: list of (path, :class:`FunctionDefinition`)
         """
         if self._api is None:
+            self.__registry__.resolve_references()
             self._api = [i for i in scan_api(self)]
         return self._api
 

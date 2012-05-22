@@ -8,6 +8,8 @@ Changes
 
 *   String types handling is clearer.
 
+*   Supports cross-referenced types.
+
 *   Various bugfixes.
 
 *   Tests code coverage is now over 95%.

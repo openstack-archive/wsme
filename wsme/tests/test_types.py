@@ -12,6 +12,9 @@ def gen_class():
 
 
 class TestTypes(unittest.TestCase):
+    def setUp(self):
+        types.registry = types.Registry()
+
     def test_default_usertype(self):
         class MyType(types.UserType):
             basetype = str
@@ -261,12 +264,29 @@ class TestTypes(unittest.TestCase):
         self.assertRaises(ValueError, types.register_type,
                 {types.Unset: str})
 
-    def test_list_attribute_auto_register(self):
+    def test_list_attribute_no_auto_register(self):
         class MyType(object):
             aint = int
 
         assert not hasattr(MyType, '_wsme_attributes')
 
-        types.list_attributes(MyType)
+        try:
+            types.list_attributes(MyType)
+            assert False, "TypeError was not raised"
+        except TypeError:
+            pass
 
-        assert hasattr(MyType, '_wsme_attributes')
+        assert not hasattr(MyType, '_wsme_attributes')
+
+    def test_cross_referenced_types(self):
+        class A(object):
+            b = types.wsattr('B')
+
+        class B(object):
+            a = A
+
+        types.register_type(A)
+        types.register_type(B)
+        types.registry.resolve_references()
+
+        assert A.b.datatype is B

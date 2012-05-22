@@ -220,3 +220,14 @@ A few things you should know about complex types:
 
         For input values, it allows the code to know if the values were, or not,
         sent by the caller.
+
+    -   When 2 complex types refers to each other, their names can be
+        used as datatypes to avoid adding attributes afterwards:
+
+        ::
+
+            class A(object):
+                b = wsattr('B')
+
+            class B(object):
+                a = wsattr(A)
