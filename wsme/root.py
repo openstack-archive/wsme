@@ -117,7 +117,6 @@ class WSRoot(object):
         :rtype: list of (path, :class:`FunctionDefinition`)
         """
         if self._api is None:
-            self.__registry__.resolve_references()
             self._api = [i for i in scan_api(self)]
         return self._api
 

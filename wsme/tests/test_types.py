@@ -287,6 +287,15 @@ class TestTypes(unittest.TestCase):
 
         types.register_type(A)
         types.register_type(B)
-        types.registry.resolve_references()
 
         assert A.b.datatype is B
+
+    def test_base(self):
+        class B1(types.Base):
+            b2 = types.wsattr('B2')
+
+        class B2(types.Base):
+            b2 = types.wsattr('B2')
+
+        assert B1.b2.datatype is B2, repr(B1.b2.datatype)
+        assert B2.b2.datatype is B2

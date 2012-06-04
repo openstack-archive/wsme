@@ -203,12 +203,14 @@ class wsattr(object):
         #: The attribute name on the public of the api.
         #: Defaults to :attr:`key`
         self.name = name
-        self._datatype = datatype
+        self._datatype = (datatype,)
         #: True if the attribute is mandatory
         self.mandatory = mandatory
         #: Default value. The attribute will return this instead
         #: of :data:`Unset` if no value has been set.
         self.default = default
+
+        self.complextype = None
 
     def __get__(self, instance, owner):
         if instance is None:
@@ -231,6 +233,9 @@ class wsattr(object):
         self.__set__(instance, Unset)
 
     def _get_datatype(self):
+        if isinstance(self._datatype, tuple):
+            self._datatype = \
+                self.complextype().__registry__.resolve_type(self._datatype[0])
         if isinstance(self._datatype, weakref.ref):
             return self._datatype()
         return self._datatype
@@ -320,6 +325,7 @@ def inspect_class(class_):
         attrdef.key = name
         if attrdef.name is None:
             attrdef.name = name
+        attrdef.complextype = weakref.ref(class_)
         attributes.append(attrdef)
         setattr(class_, name, attrdef)
 
@@ -378,6 +384,7 @@ class Registry(object):
         class_._wsme_attributes = None
         class_._wsme_attributes = inspect_class(class_)
 
+        class_.__registry__ = self
         self.complex_types.append(weakref.ref(class_))
 
     def lookup(self, typename):
@@ -402,15 +409,25 @@ class Registry(object):
             }
         return type_
 
-    def resolve_references(self):
-        for ct in self.complex_types:
-            ct = ct()
-            for attr in list_attributes(ct):
-                attr.datatype = self.resolve_type(attr.datatype)
-
 # Default type registry
 registry = Registry()
 
 
 def register_type(class_):
     return registry.register(class_)
+
+
+class BaseMeta(type):
+    def __new__(cls, name, bases, dct):
+        r = type.__new__(cls, name, bases, dct)
+        if bases[0] is object:
+            return r
+        if getattr(r, '__registry__', None) is None:
+            registry.register(r)
+        else:
+            r.__registry__.register(r)
+        return r
+
+
+class Base(object):
+    __metaclass__ = BaseMeta
