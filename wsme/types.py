@@ -429,5 +429,4 @@ class BaseMeta(type):
         return r
 
 
-class Base(object):
-    __metaclass__ = BaseMeta
+Base = BaseMeta('Base', (object, ), {})
