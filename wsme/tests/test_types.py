@@ -278,6 +278,18 @@ class TestTypes(unittest.TestCase):
 
         assert not hasattr(MyType, '_wsme_attributes')
 
+    def test_list_of_complextypes(self):
+        class A(object):
+            bs = types.wsattr(['B'])
+
+        class B(object):
+            i = int
+
+        types.register_type(A)
+        types.register_type(B)
+
+        assert A.bs.datatype[0] is B
+
     def test_cross_referenced_types(self):
         class A(object):
             b = types.wsattr('B')
