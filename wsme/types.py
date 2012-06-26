@@ -418,11 +418,12 @@ def register_type(class_):
 
 
 class BaseMeta(type):
-    def __init__(cls, name, bases, dct):
-        super(BaseMeta, cls).__init__(name, bases, dct)
-        if bases[0] is object:
-            return
-        reg = getattr(cls, '__registry__', registry)
-        reg.register(cls)
+    def __new__(cls, name, bases, dct):
+        if bases[0] is not object and '__registry__' not in dct:
+            dct['__registry__'] = registry
+        r = super(BaseMeta, cls).__new__(cls, name, bases, dct)
+        if bases[0] is not object:
+            r.__registry__.register(r)
+        return r
 
 Base = BaseMeta('Base', (object, ), {})
