@@ -99,6 +99,7 @@ dt_types = (datetime.date, datetime.time, datetime.datetime)
 extra_types = (binary, decimal.Decimal)
 native_types = pod_types + dt_types + extra_types
 
+
 def iscomplex(datatype):
     return inspect.isclass(datatype) \
             and '_wsme_attributes' in datatype.__dict__
@@ -421,9 +422,10 @@ class BaseMeta(type):
     def __new__(cls, name, bases, dct):
         if bases[0] is not object and '__registry__' not in dct:
             dct['__registry__'] = registry
-        r = super(BaseMeta, cls).__new__(cls, name, bases, dct)
+        return type.__new__(cls, name, bases, dct)
+
+    def __init__(cls, name, bases, dct):
         if bases[0] is not object:
-            r.__registry__.register(r)
-        return r
+            cls.__registry__.register(cls)
 
 Base = BaseMeta('Base', (object, ), {})
