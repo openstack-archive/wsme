@@ -239,6 +239,11 @@ class wsattr(object):
                 self.complextype().__registry__.resolve_type(self._datatype[0])
         if isinstance(self._datatype, weakref.ref):
             return self._datatype()
+        if isinstance(self._datatype, list):
+            return [
+                item() if isinstance(item, weakref.ref) else item
+                for item in self._datatype
+            ]
         return self._datatype
 
     def _set_datatype(self, datatype):
