@@ -2,10 +2,12 @@ import base64
 import datetime
 import decimal
 import inspect
-import weakref
+import logging
 import six
 import sys
+import weakref
 
+log = logging.getLogger(__name__)
 
 #: The 'str' (python 2) or 'bytes' (python 3) type.
 #: Its use should be restricted to
@@ -443,18 +445,19 @@ class Registry(object):
         return class_
 
     def lookup(self, typename):
+        log.debug('Lookup %s' % typename)
         modname = None
         if '.' in typename:
             modname, typename = typename.rsplit('.', 1)
         for ct in self.complex_types:
             ct = ct()
-            if typename == ct.__name__ and (
+            if ct is not None and typename == ct.__name__ and (
                     modname is None or modname == ct.__module__):
-                return weakref.ref(ct)
+                return ct
 
     def resolve_type(self, type_):
         if isinstance(type_, six.string_types):
-            return self.lookup(type_)
+            return weakref.ref(self.lookup(type_))
         if isinstance(type_, list):
             type_ = ArrayType(type_[0])
         if isinstance(type_, dict):
