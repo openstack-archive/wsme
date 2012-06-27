@@ -288,7 +288,7 @@ class TestTypes(unittest.TestCase):
         types.register_type(A)
         types.register_type(B)
 
-        assert A.bs.datatype[0] is B
+        assert A.bs.datatype.item_type is B
 
     def test_cross_referenced_types(self):
         class A(object):

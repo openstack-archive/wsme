@@ -18,6 +18,62 @@ bytes = six.binary_type
 text = six.text_type
 
 
+class ArrayType(object):
+    def __init__(self, item_type):
+        if iscomplex(item_type):
+            self._item_type = weakref.ref(item_type)
+        else:
+            self._item_type = item_type
+
+    def __hash__(self):
+        return hash(self.item_type)
+
+    @property
+    def item_type(self):
+        if isinstance(self._item_type, weakref.ref):
+            return self._item_type()
+        else:
+            return self._item_type
+
+    def validate(self, value):
+        if not isinstance(value, list):
+            raise ValueError("Wrong type. Expected '[%s]', got '%s'" % (
+                    self.item_type, type(value)
+            ))
+        for item in value:
+            validate_value(self.item_type, item)
+
+
+class DictType(object):
+    def __init__(self, key_type, value_type):
+        if key_type not in pod_types:
+            raise ValueError("Dictionnaries key can only be a pod type")
+        self.key_type = key_type
+        if iscomplex(value_type):
+            self._value_type = weakref.ref(value_type)
+        else:
+            self._value_type = value_type
+
+    def __hash__(self):
+        return hash((self.key_type, self.value_type))
+
+    @property
+    def value_type(self):
+        if isinstance(self._value_type, weakref.ref):
+            return self._value_type()
+        else:
+            return self._value_type
+
+    def validate(self, value):
+        if not isinstance(value, dict):
+            raise ValueError("Wrong type. Expected '{%s: %s}', got '%s'" % (
+                    self.key_type, self.value_type, type(value)
+                ))
+        for key, v in value.items():
+            validate_value(self.key_type, key)
+            validate_value(self.value_type, v)
+
+
 class UserType(object):
     basetype = None
 
@@ -106,11 +162,11 @@ def iscomplex(datatype):
 
 
 def isarray(datatype):
-    return isinstance(datatype, list)
+    return isinstance(datatype, ArrayType)
 
 
 def isdict(datatype):
-    return isinstance(datatype, dict)
+    return isinstance(datatype, DictType)
 
 
 def validate_value(datatype, value):
@@ -120,22 +176,14 @@ def validate_value(datatype, value):
         if value is Unset:
             return True
         if value is not None:
+            if isinstance(datatype, list):
+                datatype = ArrayType(datatype[0])
+            if isinstance(datatype, dict):
+                datatype = DictType(*list(datatype.items())[0])
             if isarray(datatype):
-                if not isinstance(value, list):
-                    raise ValueError("Wrong type. Expected '%s', got '%s'" % (
-                            datatype, type(value)
-                        ))
-                for item in value:
-                    validate_value(datatype[0], item)
+                datatype.validate(value)
             elif isdict(datatype):
-                if not isinstance(value, dict):
-                    raise ValueError("Wrong type. Expected '%s', got '%s'" % (
-                            datatype, type(value)
-                        ))
-                key_type, value_type = list(datatype.items())[0]
-                for key, v in value.items():
-                    validate_value(key_type, key)
-                    validate_value(value_type, v)
+                datatype.validate(value)
             elif datatype in six.integer_types:
                 if not isinstance(value, six.integer_types):
                     raise ValueError(
@@ -371,20 +419,19 @@ class Registry(object):
         if isinstance(class_, list):
             if len(class_) != 1:
                 raise ValueError("Cannot register type %s" % repr(class_))
-            register_type(class_[0])
-            if class_[0] not in self.array_types:
-                self.array_types.append(class_[0])
+            dt = ArrayType(class_[0])
+            self.register(dt.item_type)
+            if dt not in self.array_types:
+                self.array_types.append(dt)
             return
 
         if isinstance(class_, dict):
             if len(class_) != 1:
                 raise ValueError("Cannot register type %s" % repr(class_))
-            key_type, value_type = list(class_.items())[0]
-            if key_type not in pod_types:
-                raise ValueError("Dictionnaries key can only be a pod type")
-            register_type(value_type)
-            if (key_type, value_type) not in self.dict_types:
-                self.dict_types.append((key_type, value_type))
+            dt = DictType(*list(class_.items())[0])
+            self.register(dt.value_type)
+            if dt not in self.dict_types:
+                self.dict_types.append(dt)
             return
 
         class_._wsme_attributes = None
@@ -407,12 +454,14 @@ class Registry(object):
         if isinstance(type_, six.string_types):
             return self.lookup(type_)
         if isinstance(type_, list):
-            return [self.resolve_type(type_[0])]
+            return ArrayType(self.resolve_type(type_[0]))
+        if isinstance(type_, ArrayType):
+            return ArrayType(self.resolve_type(type_.item_type))
         if isinstance(type_, dict):
             key_type, value_type = list(type_.items())[0]
-            return {
-                key_type: self.resolve_type(value_type)
-            }
+            return DictType(key_type, self.resolve_type(value_type))
+        if isinstance(type_, DictType):
+            return DictType(key_type, self.resolve_type(type_.value_type))
         return type_
 
 # Default type registry
