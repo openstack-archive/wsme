@@ -118,6 +118,8 @@ class WSRoot(object):
         """
         if self._api is None:
             self._api = [i for i in scan_api(self)]
+            for path, fdef in self._api:
+                fdef.resolve_types(self.__registry__)
         return self._api
 
     def _get_protocol(self, name):

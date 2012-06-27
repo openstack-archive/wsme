@@ -413,8 +413,9 @@ class Registry(object):
         """
         if class_ is None or \
                 class_ in native_types or \
-                isusertype(class_) or iscomplex(class_):
-            return
+                isusertype(class_) or iscomplex(class_) or \
+                isarray(class_) or isdict(class_):
+            return class_
 
         if isinstance(class_, list):
             if len(class_) != 1:
@@ -423,7 +424,7 @@ class Registry(object):
             self.register(dt.item_type)
             if dt not in self.array_types:
                 self.array_types.append(dt)
-            return
+            return dt
 
         if isinstance(class_, dict):
             if len(class_) != 1:
@@ -432,13 +433,14 @@ class Registry(object):
             self.register(dt.value_type)
             if dt not in self.dict_types:
                 self.dict_types.append(dt)
-            return
+            return dt
 
         class_._wsme_attributes = None
         class_._wsme_attributes = inspect_class(class_)
 
         class_.__registry__ = self
         self.complex_types.append(weakref.ref(class_))
+        return class_
 
     def lookup(self, typename):
         modname = None
@@ -453,15 +455,13 @@ class Registry(object):
     def resolve_type(self, type_):
         if isinstance(type_, six.string_types):
             return self.lookup(type_)
-        if isinstance(type_, list):
-            return ArrayType(self.resolve_type(type_[0]))
+        type_ = self.register(type_)
         if isinstance(type_, ArrayType):
-            return ArrayType(self.resolve_type(type_.item_type))
-        if isinstance(type_, dict):
-            key_type, value_type = list(type_.items())[0]
-            return DictType(key_type, self.resolve_type(value_type))
+            type_ = ArrayType(self.resolve_type(type_.item_type))
         if isinstance(type_, DictType):
-            return DictType(key_type, self.resolve_type(type_.value_type))
+            type_ = DictType(
+                    type_.key_type,
+                    self.resolve_type(type_.value_type))
         return type_
 
 # Default type registry

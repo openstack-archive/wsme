@@ -1,7 +1,5 @@
 import inspect
 
-from wsme.types import register_type
-
 __all__ = ['expose', 'validate']
 
 APIPATH_MAXLEN = 20
@@ -44,6 +42,9 @@ class FunctionArgument(object):
 
         #: Default value if argument is omitted
         self.default = default
+
+    def resolve_type(self, registry):
+        self.datatype = registry.resolve_type(self.datatype)
 
 
 def funcproxy(func):
@@ -122,6 +123,11 @@ class FunctionDefinition(object):
                 return arg
         return None
 
+    def resolve_types(self, registry):
+        self.return_type = registry.resolve_type(self.return_type)
+        for arg in self.arguments:
+            arg.resolve_type(registry)
+
 
 class expose(object):
     """
@@ -139,7 +145,6 @@ class expose(object):
     def __init__(self, return_type=None, **options):
         self.return_type = return_type
         self.options = options
-        register_type(return_type)
 
     def __call__(self, func):
         func, fd = FunctionDefinition.get(func)
@@ -154,7 +159,6 @@ class pexpose(object):
     def __init__(self, return_type=None, contenttype=None):
         self.return_type = return_type
         self.contenttype = contenttype
-        register_type(return_type)
 
     def __call__(self, func):
         func, fd = FunctionDefinition.get(func)
@@ -188,7 +192,6 @@ class validate(object):
             args = args[1:]
         for i, argname in enumerate(args):
             datatype = self.param_types[i]
-            register_type(datatype)
             mandatory = defaults is None or i < (len(args) - len(defaults))
             default = None
             if not mandatory:
