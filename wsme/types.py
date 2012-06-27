@@ -458,7 +458,7 @@ class Registry(object):
         if isinstance(type_, list):
             type_ = ArrayType(type_[0])
         if isinstance(type_, dict):
-            type_ = DictType(type_.keys()[0], type_.values()[0])
+            type_ = DictType(list(type_.keys())[0], list(type_.values())[0])
         if isinstance(type_, ArrayType):
             type_ = ArrayType(self.resolve_type(type_.item_type))
         elif isinstance(type_, DictType):
