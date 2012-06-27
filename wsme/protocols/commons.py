@@ -3,7 +3,8 @@ import re
 
 from simplegeneric import generic
 
-from wsme.types import iscomplex, list_attributes, Unset, UserType
+from wsme.types import iscomplex, list_attributes, Unset
+from wsme.types import UserType, ArrayType, DictType
 from wsme.utils import parse_isodate, parse_isotime, parse_isodatetime
 
 
@@ -59,11 +60,12 @@ def from_params(datatype, params, path, hit_paths):
     return Unset
 
 
-@from_params.when_type(list)
+@from_params.when_type(ArrayType)
 def array_from_params(datatype, params, path, hit_paths):
     if path in params:
         return [
-            from_param(datatype[0], value) for value in params.getall(path)]
+            from_param(datatype.item_type, value)
+            for value in params.getall(path)]
     else:
         indexes = set()
         r = re.compile('^%s\[(?P<index>\d+)\]' % re.escape(path))
@@ -79,27 +81,26 @@ def array_from_params(datatype, params, path, hit_paths):
         indexes = list(indexes)
         indexes.sort()
 
-        return [from_params(datatype[0], params,
+        return [from_params(datatype.item_type, params,
                             '%s[%s]' % (path, index), hit_paths)
                 for index in indexes]
 
 
-@from_params.when_type(dict)
+@from_params.when_type(DictType)
 def dict_from_params(datatype, params, path, hit_paths):
 
     keys = set()
-    key_datatype, value_datatype = list(datatype.items())[0]
     r = re.compile('^%s\[(?P<key>[a-zA-Z0-9_\.]+)\]' % re.escape(path))
 
     for p in params.keys():
         m = r.match(p)
         if m:
-            keys.add(from_param(key_datatype, m.group('key')))
+            keys.add(from_param(datatype.key_type, m.group('key')))
 
     if not keys:
         return Unset
 
     return dict((
-        (key, from_params(value_datatype,
+        (key, from_params(datatype.value_type,
                           params, '%s[%s]' % (path, key), hit_paths))
         for key in keys))

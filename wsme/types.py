@@ -455,13 +455,18 @@ class Registry(object):
     def resolve_type(self, type_):
         if isinstance(type_, six.string_types):
             return self.lookup(type_)
-        type_ = self.register(type_)
+        if isinstance(type_, list):
+            type_ = ArrayType(type_[0])
+        if isinstance(type_, dict):
+            type_ = DictType(type_.keys()[0], type_.values()[0])
         if isinstance(type_, ArrayType):
             type_ = ArrayType(self.resolve_type(type_.item_type))
-        if isinstance(type_, DictType):
+        elif isinstance(type_, DictType):
             type_ = DictType(
                     type_.key_type,
                     self.resolve_type(type_.value_type))
+        else:
+            type_ = self.register(type_)
         return type_
 
 # Default type registry

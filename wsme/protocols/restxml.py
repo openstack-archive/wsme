@@ -103,27 +103,26 @@ def fromxml(datatype, element):
     return datatype(element.text)
 
 
-@toxml.when_type(list)
+@toxml.when_type(wsme.types.ArrayType)
 def array_toxml(datatype, key, value):
     el = et.Element(key)
     if value is None:
         el.set('nil', 'true')
     else:
         for item in value:
-            el.append(toxml(datatype[0], 'item', item))
+            el.append(toxml(datatype.item_type, 'item', item))
     return el
 
 
-@toxml.when_type(dict)
+@toxml.when_type(wsme.types.DictType)
 def dict_toxml(datatype, key, value):
     el = et.Element(key)
     if value is None:
         el.set('nil', 'true')
     else:
-        key_type, value_type = list(datatype.items())[0]
         for item in value.items():
-            key = toxml(key_type, 'key', item[0])
-            value = toxml(value_type, 'value', item[1])
+            key = toxml(datatype.key_type, 'key', item[0])
+            value = toxml(datatype.value_type, 'value', item[1])
             node = et.Element('item')
             node.append(key)
             node.append(value)
@@ -171,21 +170,23 @@ def datetime_toxml(datatype, key, value):
     return el
 
 
-@fromxml.when_type(list)
+@fromxml.when_type(wsme.types.ArrayType)
 def array_fromxml(datatype, element):
     if element.get('nil') == 'true':
         return None
-    return [fromxml(datatype[0], item) for item in element.findall('item')]
+    return [
+        fromxml(datatype.item_type, item)
+        for item in element.findall('item')
+    ]
 
 
-@fromxml.when_type(dict)
+@fromxml.when_type(wsme.types.DictType)
 def dict_fromxml(datatype, element):
     if element.get('nil') == 'true':
         return None
-    key_type, value_type = list(datatype.items())[0]
     return dict((
-        (fromxml(key_type, item.find('key')),
-            fromxml(value_type, item.find('value')))
+        (fromxml(datatype.key_type, item.find('key')),
+            fromxml(datatype.value_type, item.find('value')))
         for item in element.findall('item')))
 
 

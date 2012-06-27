@@ -300,6 +300,7 @@ class ProtocolTestCase(unittest.TestCase):
     def setUp(self):
         if self.__class__.__name__ != 'ProtocolTestCase':
             self.root = WSTestRoot()
+            self.root.getapi()
             self.root.addprotocol(self.protocol, **self.protocol_options)
 
             self.app = TestApp(wsme.wsgi.adapt(self.root))

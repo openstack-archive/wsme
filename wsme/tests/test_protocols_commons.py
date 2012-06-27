@@ -5,7 +5,7 @@ import unittest
 
 from wsme.protocols.commons import from_param, from_params
 
-from wsme.types import UserType, Unset
+from wsme.types import UserType, Unset, ArrayType, DictType
 
 
 class MyUserType(UserType):
@@ -36,15 +36,15 @@ class TestProtocolsCommons(unittest.TestCase):
             def getall(self, path):
                 return ['1', '2']
         p = params({'a': []})
-        assert from_params([int], p, 'a', set()) == [1, 2]
+        assert from_params(ArrayType(int), p, 'a', set()) == [1, 2]
 
     def test_from_params_empty_array(self):
-        assert from_params([int], {}, 'a', set()) is Unset
+        assert from_params(ArrayType(int), {}, 'a', set()) is Unset
 
     def test_from_params_dict(self):
-        assert from_params({int: str}, {
-                'a[2]': 'a2', 'a[3]': 'a3'}, 'a', set()) == \
-            {2: 'a2', 3: 'a3'}
+        value = from_params(DictType(int, str), {
+                'a[2]': 'a2', 'a[3]': 'a3'}, 'a', set())
+        assert value == {2: 'a2', 3: 'a3'}, value
 
     def test_from_params_dict_unset(self):
-        assert from_params({int: str}, {}, 'a', set()) is Unset
+        assert from_params(DictType(int, str), {}, 'a', set()) is Unset

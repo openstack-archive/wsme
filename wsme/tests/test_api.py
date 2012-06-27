@@ -74,6 +74,8 @@ class TestController(unittest.TestCase):
             def setcplx(self, obj):
                 pass
 
+        MyWS.add._wsme_definition.resolve_types(wsme.types.registry)
+        MyWS.setcplx._wsme_definition.resolve_types(wsme.types.registry)
         args = MyWS.add._wsme_definition.arguments
 
         assert args[0].name == 'a'

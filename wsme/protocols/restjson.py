@@ -53,20 +53,20 @@ def bytes_tojson(datatype, value):
     return value.decode('ascii')
 
 
-@tojson.when_type(list)
+@tojson.when_type(wsme.types.ArrayType)
 def array_tojson(datatype, value):
     if value is None:
         return None
-    return [tojson(datatype[0], item) for item in value]
+    return [tojson(datatype.item_type, item) for item in value]
 
 
-@tojson.when_type(dict)
+@tojson.when_type(wsme.types.DictType)
 def dict_tojson(datatype, value):
     if value is None:
         return None
-    key_type, value_type = list(datatype.items())[0]
     return dict((
-        (tojson(key_type, item[0]), tojson(value_type, item[1]))
+        (tojson(datatype.key_type, item[0]),
+            tojson(datatype.value_type, item[1]))
         for item in value.items()
     ))
 
@@ -131,20 +131,20 @@ def fromjson(datatype, value):
     return value
 
 
-@fromjson.when_type(list)
+@fromjson.when_type(wsme.types.ArrayType)
 def array_fromjson(datatype, value):
     if value is None:
         return None
-    return [fromjson(datatype[0], item) for item in value]
+    return [fromjson(datatype.item_type, item) for item in value]
 
 
-@fromjson.when_type(dict)
+@fromjson.when_type(wsme.types.DictType)
 def dict_fromjson(datatype, value):
     if value is None:
         return None
-    key_type, value_type = list(datatype.items())[0]
     return dict((
-        (fromjson(key_type, item[0]), fromjson(value_type, item[1]))
+        (fromjson(datatype.key_type, item[0]),
+            fromjson(datatype.value_type, item[1]))
         for item in value.items()))
 
 
