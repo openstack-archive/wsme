@@ -46,7 +46,7 @@ Main features
 ~~~~~~~~~~~~~
 
 -   Very simple API.
--   Supports user defined simple and complex types.
+-   Supports user-defined simple and complex types.
 -   Multi-protocol : REST+Json, REST+XML, SOAP, ExtDirect and more to come.
 -   Extensible : easy to add more protocols or more base types.
 -   Framework independance : adapters are provided to easily integrate
