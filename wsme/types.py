@@ -457,7 +457,7 @@ class Registry(object):
 
     def resolve_type(self, type_):
         if isinstance(type_, six.string_types):
-            return weakref.ref(self.lookup(type_))
+            return self.lookup(type_)
         if isinstance(type_, list):
             type_ = ArrayType(type_[0])
         if isinstance(type_, dict):
