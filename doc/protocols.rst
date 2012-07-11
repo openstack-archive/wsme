@@ -23,11 +23,14 @@ following paths :
 -   ``/ws/persons/update``
 -   ``/ws/persons/destroy``
 
-In a near future, an additional expose option `restverb` will allow
-to use the HTTP verb to select the function, in which case the path
-will not containt the function name.
+In addition to this trivial function mapping, a `method` option can
+be given to the `expose` decorator. In such a case, the function
+name can be omitted by the caller, and the dispatch will look at the
+http method used in the request to select the correct function.
 
-The function parameters can be transmitted in two ways :
+The function parameters can be transmitted in two ways (is using
+the http method to select the function, one way or the other
+may be usable) :
 
 #.  As a GET query string or POST form parameters.
 

@@ -14,6 +14,8 @@ Changes
 
 *   Tests code coverage is now over 95%.
 
+*   RESTful protocol can now use the http method.
+
 0.3 (2012-04-20)
 ----------------
 

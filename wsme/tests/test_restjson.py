@@ -14,6 +14,7 @@ import wsme.protocols.restjson
 from wsme.protocols.restjson import fromjson, tojson
 from wsme.utils import parse_isodatetime, parse_isotime, parse_isodate
 from wsme.types import isusertype, register_type
+from wsme.api import expose, validate
 
 
 import six
@@ -77,6 +78,52 @@ def prepare_result(value, datatype):
     if type(value) != datatype:
         return datatype(value)
     return value
+
+
+class Obj(wsme.types.Base):
+    id = int
+    name = wsme.types.text
+
+
+class CRUDResult(object):
+    data = Obj
+    message = wsme.types.text
+
+    def __init__(self, data=wsme.types.Unset, message=wsme.types.Unset):
+        self.data = data
+        self.message = message
+
+
+class MiniCrud(object):
+    @expose(CRUDResult, method='PUT')
+    @validate(Obj)
+    def create(self, data):
+        print(repr(data))
+        return CRUDResult(data, u('create'))
+
+    @expose(CRUDResult, method='GET')
+    @validate(Obj)
+    def read(self, ref):
+        print(repr(ref))
+        if ref.id == 1:
+            ref.name = u('test')
+        return CRUDResult(ref, u('read'))
+
+    @expose(CRUDResult, method='POST')
+    @validate(Obj)
+    def update(self, data):
+        print(repr(data))
+        return CRUDResult(data, u('update'))
+
+    @expose(CRUDResult, method='DELETE')
+    @validate(Obj)
+    def delete(self, ref):
+        print(repr(ref))
+        if ref.id == 1:
+            ref.name = u('test')
+        return CRUDResult(ref, u('delete'))
+
+wsme.tests.protocol.WSTestRoot.crud = MiniCrud()
 
 
 class TestRestJson(wsme.tests.protocol.ProtocolTestCase):
@@ -256,13 +303,6 @@ class TestRestJson(wsme.tests.protocol.ProtocolTestCase):
         assert r[1] == '''{
     "a": 2
 }''', r[1]
-        
-    def test_encode_sample_result(self):
-        r = self.root.protocols[0].encode_sample_result(
-            int, 2, True
-        )
-        assert r[0] == 'javascript', r[0]
-        assert r[1] == '''2'''
 
     def test_encode_sample_result(self):
         r = self.root.protocols[0].encode_sample_result(
@@ -278,3 +318,63 @@ class TestRestJson(wsme.tests.protocol.ProtocolTestCase):
         assert r[1] == '''{
     "result": 2
 }'''
+
+    def test_PUT(self):
+        data = {"id": 1, "name": u("test")}
+        content = json.dumps(dict(data=data))
+        headers = {
+            'Content-Type': 'application/json',
+        }
+        res = self.app.put(
+            '/crud',
+            content,
+            headers=headers,
+            expect_errors=False)
+        print("Received:", res.body)
+        result = json.loads(res.text)
+        print(result)
+        assert result['data']['id'] == 1
+        assert result['data']['name'] == u("test")
+        assert result['message'] == "create"
+
+    def test_GET(self):
+        headers = {
+            'Content-Type': 'application/json',
+        }
+        res = self.app.get(
+            '/crud?ref.id=1',
+            headers=headers,
+            expect_errors=False)
+        print("Received:", res.body)
+        result = json.loads(res.text)
+        print(result)
+        assert result['data']['id'] == 1
+        assert result['data']['name'] == u("test")
+        assert result['message'] == "read"
+
+    def test_POST(self):
+        headers = {
+            'Content-Type': 'application/json',
+        }
+        res = self.app.post(
+            '/crud',
+            json.dumps(dict(data=dict(id=1, name=u('test')))),
+            headers=headers,
+            expect_errors=False)
+        print("Received:", res.body)
+        result = json.loads(res.text)
+        print(result)
+        assert result['data']['id'] == 1
+        assert result['data']['name'] == u("test")
+        assert result['message'] == "update"
+
+    def test_DELETE(self):
+        res = self.app.delete(
+            '/crud.json?ref.id=1',
+            expect_errors=False)
+        print("Received:", res.body)
+        result = json.loads(res.text)
+        print(result)
+        assert result['data']['id'] == 1
+        assert result['data']['name'] == u("test")
+        assert result['message'] == "delete"

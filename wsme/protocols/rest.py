@@ -24,6 +24,22 @@ class RestProtocol(Protocol):
         if path[-1].endswith('.' + self.dataformat):
             path[-1] = path[-1][:-len(self.dataformat) - 1]
 
+        # Check if the path is actually a function, and if not
+        # see if the http method make a difference
+        # TODO Re-think the function lookup phases. Here we are
+        # doing the job that will be done in a later phase, which
+        # is sub-optimal
+        for p, fdef in self.root.getapi():
+            if p == path:
+                return path
+
+        # No function at this path. Now check for function that have
+        # this path as a prefix, and declared an http method
+        for p, fdef in self.root.getapi():
+            if len(p) == len(path) + 1 and p[:len(path)] == path and \
+                    fdef.extra_options.get('method') == context.request.method:
+                return p
+
         return path
 
     def read_arguments(self, context):
@@ -35,7 +51,7 @@ class RestProtocol(Protocol):
                     request.headers['Content-Type']:
             # The params were read from the body, ignoring the body then
             pass
-        elif len(request.params) and request.body:
+        elif len(request.params) and request.content_length:
             log.warning("The request has both a body and params.")
             log.debug("Params: %s" % request.params)
             log.debug("Body: %s" % request.body)
