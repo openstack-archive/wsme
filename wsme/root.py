@@ -136,8 +136,13 @@ class WSRoot(object):
                       or request.body)
                   or '')
         protocol = None
+        path = str(request.path)
+        assert path.startswith(self._webpath)
+        path = path[len(self._webpath) + 1:]
         if 'wsmeproto' in request.params:
             return self._get_protocol(request.params['wsmeproto'])
+        elif path.startswith('_protocol'):
+            return self._get_protocol(path.split('/')[1])
         else:
 
             for p in self.protocols:
