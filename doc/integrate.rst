@@ -4,31 +4,43 @@ Integrating with a Framework
 WSGI Application
 ----------------
 
-:mod:`wsme.wsgi` -- WSGI adapter
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-.. module:: wsme.wsgi
-
-.. function:: adapt
-
-    Returns a wsgi application that serve a :class:`wsme.controller.WSRoot`.
+The :func:`wsme.WSRoot.wsgiapp` function of WSRoot returns a wsgi
+application.
 
 Example
 ~~~~~~~
 
 .. code-block:: python
 
-    from wsme import *
-    import wsme.wsgi
+    from wsme import WSRoot, expose
+
 
     class MyRoot(WSRoot):
         @expose(unicode)
         def helloworld(self):
             return u"Hello World !"
 
-    application = wsme.wsgi.adapt(
-            MyRoot(protocols=['restjson']))
+    root = MyRoot(protocols=['restjson'])
+    application = root.wsgiapp()
 
+
+Bottle
+------
+
+.. code-block:: python
+
+    import bottle
+    import wsme
+
+    class MyRoot(wsme.WSRoot):
+        @wsme.expose(unicode)
+        def helloworld(self):
+            return u"Hello World !"
+
+    root = MyRoot(webpath='/ws', protocols=['restjson'])
+
+    bottle.mount('/ws', root.wsgiapp())
+    bottle.run()
 
 Pyramid
 -------
