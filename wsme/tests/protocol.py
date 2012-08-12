@@ -4,7 +4,6 @@ import unittest
 import warnings
 import datetime
 import decimal
-import base64
 import sys
 import six
 
@@ -14,7 +13,6 @@ from webtest import TestApp
 
 from wsme import WSRoot, Unset
 from wsme import expose, validate
-import wsme.wsgi
 import wsme.types
 
 warnings.filterwarnings('ignore', module='webob.dec')
@@ -303,7 +301,7 @@ class ProtocolTestCase(unittest.TestCase):
             self.root.getapi()
             self.root.addprotocol(self.protocol, **self.protocol_options)
 
-            self.app = TestApp(wsme.wsgi.adapt(self.root))
+            self.app = TestApp(self.root.wsgiapp())
 
     def test_invalid_path(self):
         try:

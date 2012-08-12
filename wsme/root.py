@@ -92,6 +92,11 @@ class WSRoot(object):
 
         self._api = None
 
+    def wsgiapp(self):
+        """Returns a wsgi"""
+        from webob.dec import wsgify
+        return wsgify(self._handle_request)
+
     def begin(self):
         if self._transaction:
             return self._transaction.begin()
