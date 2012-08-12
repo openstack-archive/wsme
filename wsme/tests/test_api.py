@@ -10,7 +10,7 @@ from wsme import WSRoot, expose, validate
 from wsme.api import scan_api, pexpose
 from wsme.api import FunctionArgument, FunctionDefinition
 from wsme.types import iscomplex
-import wsme.wsgi
+import wsme.types
 
 from wsme.tests.test_protocols import DummyProtocol
 
@@ -40,7 +40,7 @@ def test_pexpose():
     r = WSRoot()
     r.addprotocol(p)
 
-    app = webtest.TestApp(wsme.wsgi.adapt(r))
+    app = webtest.TestApp(r.wsgiapp())
 
     res = app.get('/func')
 
@@ -149,7 +149,7 @@ class TestController(unittest.TestCase):
         p = DummyProtocol()
         r = MyRoot(protocols=[p])
 
-        app = webtest.TestApp(wsme.wsgi.adapt(r))
+        app = webtest.TestApp(r.wsgiapp())
 
         res = app.get('/')
 
@@ -168,7 +168,7 @@ class TestController(unittest.TestCase):
         p = NoPathProto()
         r = MyRoot(protocols=[p])
 
-        app = webtest.TestApp(wsme.wsgi.adapt(r))
+        app = webtest.TestApp(r.wsgiapp())
 
         res = app.get('/', expect_errors=True)
         print(res.status, res.body)
@@ -177,7 +177,7 @@ class TestController(unittest.TestCase):
     def test_no_available_protocol(self):
         r = WSRoot()
 
-        app = webtest.TestApp(wsme.wsgi.adapt(r))
+        app = webtest.TestApp(r.wsgiapp())
 
         res = app.get('/', expect_errors=True)
         assert res.status_int == 500
@@ -191,7 +191,7 @@ class TestController(unittest.TestCase):
 
         r = WSRoot([DummierProto()])
 
-        app = webtest.TestApp(wsme.wsgi.adapt(r))
+        app = webtest.TestApp(r.wsgiapp())
 
         res = app.get('/', expect_errors=True, headers={
             'Accept': 'text/xml,q=0.8'})
