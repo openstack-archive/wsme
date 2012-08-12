@@ -93,7 +93,7 @@ class WSRoot(object):
         self._api = None
 
     def wsgiapp(self):
-        """Returns a wsgi"""
+        """Returns a wsgi application"""
         from webob.dec import wsgify
         return wsgify(self._handle_request)
 
