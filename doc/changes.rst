@@ -1,8 +1,8 @@
 Changes
 =======
 
-0.4 (next)
-----------
+0.4b1 (next)
+------------
 
 *   Now supports Python 3.2
 

@@ -129,6 +129,9 @@ Complex types
 Complex types are structured types. They are defined as simple python classes
 and will be mapped to adequate structured types in the various protocols.
 
+A base class for structured types is proposed, :class:`wsme.types.Base`,
+but is not mandatory. The only thing it add is a default constructor.
+
 The attributes that are set at the class level will be used by WSME to discover
 the structure. These attributes can be:
 
@@ -148,12 +151,12 @@ Example
 
 ::
 
-    Gender = Enum(str, 'male', 'female')
-    Title = Enum(str, 'M', 'Mrs')
+    Gender = wsme.types.Enum(str, 'male', 'female')
+    Title = Ewsme.types.num(str, 'M', 'Mrs')
 
-    class Person(object):
-        lastname = wsattr(unicode, mandatory=True)
-        firstname = wsattr(unicode, mandatory=True)
+    class Person(wsme.types.Base):
+        lastname = wsme.types.wsattr(unicode, mandatory=True)
+        firstname = wsme.types.wsattr(unicode, mandatory=True)
 
         age = int
         gender = Gender
