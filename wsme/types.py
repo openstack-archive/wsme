@@ -490,4 +490,10 @@ class BaseMeta(type):
         if bases[0] is not object:
             cls.__registry__.register(cls)
 
-Base = BaseMeta('Base', (object, ), {})
+
+def Base__init__(self, **kw):
+    for key, value in kw.items():
+        if hasattr(self, key):
+            setattr(self, key, value)
+
+Base = BaseMeta('Base', (object, ), {'__init__': Base__init__})

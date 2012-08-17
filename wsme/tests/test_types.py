@@ -311,3 +311,10 @@ class TestTypes(unittest.TestCase):
 
         assert B1.b2.datatype is B2, repr(B1.b2.datatype)
         assert B2.b2.datatype is B2
+
+    def test_base_init(self):
+        class C1(types.Base):
+            s = six.text_type
+
+        c = C1(s=six.u('test'))
+        assert c.s == six.u('test')
