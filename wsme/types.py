@@ -140,6 +140,32 @@ class Enum(UserType):
         return value
 
 
+class FileType(object):
+    def __init__(self, filename=None, file=None, content=None,
+            contenttype=None, fieldstorage=None):
+        self.filename = filename
+        self._file = file
+        self._content = content
+        self.contenttype = contenttype
+        if fieldstorage is not None:
+            if fieldstorage.file:
+                self._file = fieldstorage.file
+                self.filename = fieldstorage.filename
+                self.contenttype = fieldstorage.type
+            else:
+                self._content = fieldstorage.value
+
+    @property
+    def file(self):
+        return self._file
+
+    @property
+    def value(self):
+        if self._content is None and self._file:
+            self._content = self._file.read()
+        return self._content
+
+
 class UnsetType(object):
     if sys.version < '3':
         def __nonzero__(self):
@@ -154,7 +180,7 @@ Unset = UnsetType()
 pod_types = six.integer_types + (
     bytes, text, float, bool)
 dt_types = (datetime.date, datetime.time, datetime.datetime)
-extra_types = (binary, decimal.Decimal)
+extra_types = (binary, decimal.Decimal, FileType)
 native_types = pod_types + dt_types + extra_types
 
 

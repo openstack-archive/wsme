@@ -8,11 +8,13 @@ To run it::
 
 Then::
 
-    paster serve demo.cfg
+    python demo.py
 """
 
 from wsme import WSRoot, expose, validate
-from wsme.wsgi import adapt
+from wsme.types import FileType
+
+import bottle
 
 from six import u
 
@@ -30,6 +32,11 @@ class DemoRoot(WSRoot):
     @validate(int, int)
     def multiply(self, a, b):
         return a * b
+
+    @expose(unicode)
+    @validate(FileType)
+    def echofile(self, afile):
+        return unicode(afile.value)
 
     @expose(unicode)
     def helloworld(self):
@@ -68,17 +75,17 @@ class DemoRoot(WSRoot):
         return persons
 
 
-def app_factory(global_config, **local_conf):
-    root = DemoRoot()
+root = DemoRoot(webpath='/ws')
 
-    root.addprotocol('soap',
-            tns='http://example.com/demo',
-            typenamespace='http://example.com/demo/types',
-            baseURL='http://127.0.0.1:8989/',
-    )
+root.addprotocol('soap',
+        tns='http://example.com/demo',
+        typenamespace='http://example.com/demo/types',
+        baseURL='http://127.0.0.1:8989/ws/',
+)
 
-    root.addprotocol('restjson')
+root.addprotocol('restjson')
 
-    return adapt(root)
+bottle.mount('/ws/', root.wsgiapp())
 
 logging.basicConfig(level=logging.DEBUG)
+bottle.run()

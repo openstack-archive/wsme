@@ -4,9 +4,7 @@ setup(name='demo',
     install_requires=[
         'WSME',
         'WSME-Soap',
-        'PasteScript',
-        'PasteDeploy',
-        'WSGIUtils',
+        'Bottle',
         'Pygments',
     ],
     package=['demo'])

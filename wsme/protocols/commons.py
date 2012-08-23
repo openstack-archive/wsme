@@ -1,10 +1,11 @@
+import cgi
 import datetime
 import re
 
 from simplegeneric import generic
 
 from wsme.types import iscomplex, list_attributes, Unset
-from wsme.types import UserType, ArrayType, DictType
+from wsme.types import UserType, ArrayType, DictType, FileType
 from wsme.utils import parse_isodate, parse_isotime, parse_isodatetime
 
 
@@ -29,6 +30,13 @@ def time_from_param(datatype, value):
 @from_param.when_object(datetime.datetime)
 def datetime_from_param(datatype, value):
     return parse_isodatetime(value) if value else None
+
+
+@from_param.when_object(FileType)
+def filetype_from_param(datatype, value):
+    if isinstance(value, cgi.FieldStorage):
+        return FileType(fieldstorage=value)
+    return FileType(content=value)
 
 
 @from_param.when_type(UserType)

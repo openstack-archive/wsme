@@ -50,6 +50,11 @@ The native types are :
     
             A time (:py:class:`datetime.time`)
 
+    -   .. wsme:type:: Filetype
+
+            A file (:py:class:`wsme.types.Filetype`). Currently FileType is
+            supported only as input type on protocols that accept form inputs.
+
     -   Arrays -- This is a special case. When stating a list
         datatype, always state its content type as the unique element
         of a list. Example::

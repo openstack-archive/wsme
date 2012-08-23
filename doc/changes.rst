@@ -8,6 +8,8 @@ Changes
 
 *   String types handling is clearer.
 
+*   New FileType type.
+
 *   Supports cross-referenced types.
 
 *   Various bugfixes.
