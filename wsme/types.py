@@ -1,4 +1,5 @@
 import base64
+import cStringIO as StringIO
 import datetime
 import decimal
 import inspect
@@ -140,32 +141,6 @@ class Enum(UserType):
         return value
 
 
-class FileType(object):
-    def __init__(self, filename=None, file=None, content=None,
-            contenttype=None, fieldstorage=None):
-        self.filename = filename
-        self._file = file
-        self._content = content
-        self.contenttype = contenttype
-        if fieldstorage is not None:
-            if fieldstorage.file:
-                self._file = fieldstorage.file
-                self.filename = fieldstorage.filename
-                self.contenttype = fieldstorage.type
-            else:
-                self._content = fieldstorage.value
-
-    @property
-    def file(self):
-        return self._file
-
-    @property
-    def value(self):
-        if self._content is None and self._file:
-            self._content = self._file.read()
-        return self._content
-
-
 class UnsetType(object):
     if sys.version < '3':
         def __nonzero__(self):
@@ -180,7 +155,7 @@ Unset = UnsetType()
 pod_types = six.integer_types + (
     bytes, text, float, bool)
 dt_types = (datetime.date, datetime.time, datetime.datetime)
-extra_types = (binary, decimal.Decimal, FileType)
+extra_types = (binary, decimal.Decimal)
 native_types = pod_types + dt_types + extra_types
 
 
@@ -523,3 +498,45 @@ def Base__init__(self, **kw):
             setattr(self, key, value)
 
 Base = BaseMeta('Base', (object, ), {'__init__': Base__init__})
+
+
+class File(Base):
+    """A complex type that represents a file.
+
+    In the particular case of protocol accepting form encoded data as
+    input, File can be loaded from a form file field.
+    """
+    filename = wsattr(text)
+    contenttype = wsattr(text)
+
+    def _get_content(self):
+        if self._content is None and self._file:
+            self._content = self._file.read()
+        return self._content
+
+    def _set_content(self, value):
+        self._content = value
+        self._file = None
+
+    content = wsproperty(binary, _get_content, _set_content)
+
+    def __init__(self, filename=None, file=None, content=None,
+            contenttype=None, fieldstorage=None):
+        self.filename = filename
+        self.contenttype = contenttype
+        self._file = file
+        self._content = content
+
+        if fieldstorage is not None:
+            if fieldstorage.file:
+                self._file = fieldstorage.file
+                self.filename = fieldstorage.filename
+                self.contenttype = unicode(fieldstorage.type)
+            else:
+                self._content = fieldstorage.value
+
+    @property
+    def file(self):
+        if self._file is None and self._content:
+            self._file = StringIO.StringIO(self._content)
+        return self._file

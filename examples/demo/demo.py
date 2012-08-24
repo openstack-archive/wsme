@@ -12,7 +12,7 @@ Then::
 """
 
 from wsme import WSRoot, expose, validate
-from wsme.types import FileType
+from wsme.types import File
 
 import bottle
 
@@ -33,10 +33,10 @@ class DemoRoot(WSRoot):
     def multiply(self, a, b):
         return a * b
 
-    @expose(unicode)
-    @validate(FileType)
+    @expose(File)
+    @validate(File)
     def echofile(self, afile):
-        return unicode(afile.value)
+        return afile
 
     @expose(unicode)
     def helloworld(self):

@@ -5,7 +5,7 @@ import re
 from simplegeneric import generic
 
 from wsme.types import iscomplex, list_attributes, Unset
-from wsme.types import UserType, ArrayType, DictType, FileType
+from wsme.types import UserType, ArrayType, DictType, File
 from wsme.utils import parse_isodate, parse_isotime, parse_isodatetime
 
 
@@ -32,11 +32,11 @@ def datetime_from_param(datatype, value):
     return parse_isodatetime(value) if value else None
 
 
-@from_param.when_object(FileType)
+@from_param.when_object(File)
 def filetype_from_param(datatype, value):
     if isinstance(value, cgi.FieldStorage):
-        return FileType(fieldstorage=value)
-    return FileType(content=value)
+        return File(fieldstorage=value)
+    return File(content=value)
 
 
 @from_param.when_type(UserType)
@@ -47,7 +47,7 @@ def usertype_from_param(datatype, value):
 
 @generic
 def from_params(datatype, params, path, hit_paths):
-    if iscomplex(datatype):
+    if iscomplex(datatype) and datatype is not File:
         objfound = False
         for key in params:
             if key.startswith(path + '.'):
