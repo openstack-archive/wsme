@@ -18,6 +18,9 @@ Changes
 
 *   RESTful protocol can now use the http method.
 
+*   UserTypes can now be given a name that will be used in the
+    documentation.
+
 0.3 (2012-04-20)
 ----------------
 

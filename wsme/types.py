@@ -134,7 +134,7 @@ class Enum(UserType):
     def __init__(self, basetype, *values, **kw):
         self.basetype = basetype
         self.values = set(values)
-        name = kw.pop('name')
+        name = kw.pop('name', None)
         if name is None:
             name = "Enum(%s)" % ', '.join((str(v) for v in values))
         self.name = name
