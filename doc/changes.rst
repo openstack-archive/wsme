@@ -21,6 +21,9 @@ Changes
 *   UserTypes can now be given a name that will be used in the
     documentation.
 
+*   Removed the wsme.wsgi.adapt function if favor of
+    :meth:`wsme.WSRoot.wsgiapp`
+
 0.3 (2012-04-20)
 ----------------
 
