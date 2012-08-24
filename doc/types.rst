@@ -50,11 +50,6 @@ The native types are :
     
             A time (:py:class:`datetime.time`)
 
-    -   .. wsme:type:: Filetype
-
-            A file (:py:class:`wsme.types.Filetype`). Currently FileType is
-            supported only as input type on protocols that accept form inputs.
-
     -   Arrays -- This is a special case. When stating a list
         datatype, always state its content type as the unique element
         of a list. Example::
@@ -239,3 +234,13 @@ A few things you should know about complex types:
 
             class B(object):
                 a = wsattr(A)
+
+
+Predefined Types
+~~~~~~~~~~~~~~~~
+
+.. default-domain:: wsme
+
+-   .. autotype:: wsme.types.File
+        :members:
+

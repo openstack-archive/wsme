@@ -22,6 +22,12 @@ import wsme.types
 field_re = re.compile(r':(?P<field>\w+)(\s+(?P<name>\w+))?:')
 
 
+def datatypename(datatype):
+    if isinstance(datatype, wsme.types.UserType):
+        return datatype.name
+    return datatype.__name__
+
+
 def make_sample_object(datatype):
     if datatype is wsme.types.bytes:
         return 'samplestring'
@@ -210,7 +216,10 @@ class AttributeDocumenter(autodoc.AttributeDocumenter):
         return success
 
     def add_content(self, more_content, no_docstring=False):
-        self.add_line(u':type: %s' % self.datatype.__name__, '<wsme.sphinxext>')
+        self.add_line(
+            u':type: %s' % datatypename(self.datatype),
+            '<wsme.sphinxext>'
+        )
         self.add_line(u'', '<wsme.sphinxext>')
         super(AttributeDocumenter, self).add_content(
             more_content, no_docstring)
@@ -341,7 +350,7 @@ class FunctionDocumenter(autodoc.MethodDocumenter):
         for arg in self.wsme_fd.arguments:
             content = [
                 u':type  %s: :wsme:type:`%s`' % (
-                    arg.name, arg.datatype.__name__)
+                    arg.name, datatypename(arg.datatype))
             ]
             if arg.name not in found_params:
                 content.insert(0, u':param %s: ' % (arg.name))

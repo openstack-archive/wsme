@@ -8,7 +8,7 @@ Changes
 
 *   String types handling is clearer.
 
-*   New FileType type.
+*   New File type.
 
 *   Supports cross-referenced types.
 

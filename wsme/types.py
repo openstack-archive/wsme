@@ -79,6 +79,7 @@ class DictType(object):
 
 class UserType(object):
     basetype = None
+    name = None
 
     def validate(self, value):
         return
@@ -99,11 +100,16 @@ class BinaryType(UserType):
     A user type that use base64 strings to carry binary data.
     """
     basetype = bytes
+    name = 'binary'
 
     def tobasetype(self, value):
+        if value is None:
+            return None
         return base64.encodestring(value)
 
     def frombasetype(self, value):
+        if value is None:
+            return None
         return base64.decodestring(value)
 
 #: The binary almost-native type
@@ -125,9 +131,13 @@ class Enum(UserType):
         Specie = Enum(str, 'cat', 'dog')
 
     """
-    def __init__(self, basetype, *values):
+    def __init__(self, basetype, *values, **kw):
         self.basetype = basetype
         self.values = set(values)
+        name = kw.pop('name')
+        if name is None:
+            name = "Enum(%s)" % ', '.join((str(v) for v in values))
+        self.name = name
 
     def validate(self, value):
         if value not in self.values:
@@ -506,7 +516,10 @@ class File(Base):
     In the particular case of protocol accepting form encoded data as
     input, File can be loaded from a form file field.
     """
+    #: The file name
     filename = wsattr(text)
+
+    #: Mime type of the content
     contenttype = wsattr(text)
 
     def _get_content(self):
@@ -518,6 +531,7 @@ class File(Base):
         self._content = value
         self._file = None
 
+    #: File content
     content = wsproperty(binary, _get_content, _set_content)
 
     def __init__(self, filename=None, file=None, content=None,
