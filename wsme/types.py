@@ -1,5 +1,4 @@
 import base64
-import cStringIO as StringIO
 import datetime
 import decimal
 import inspect
@@ -552,5 +551,5 @@ class File(Base):
     @property
     def file(self):
         if self._file is None and self._content:
-            self._file = StringIO.StringIO(self._content)
+            self._file = six.BytesIO(self._content)
         return self._file
