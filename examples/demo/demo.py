@@ -80,7 +80,7 @@ root = DemoRoot(webpath='/ws')
 root.addprotocol('soap',
         tns='http://example.com/demo',
         typenamespace='http://example.com/demo/types',
-        baseURL='http://127.0.0.1:8989/ws/',
+        baseURL='http://127.0.0.1:8080/ws/',
 )
 
 root.addprotocol('restjson')
