@@ -474,10 +474,12 @@ class Registry(object):
             type_ = DictType(list(type_.keys())[0], list(type_.values())[0])
         if isinstance(type_, ArrayType):
             type_ = ArrayType(self.resolve_type(type_.item_type))
+            self.array_types.append(type_)
         elif isinstance(type_, DictType):
             type_ = DictType(
                     type_.key_type,
                     self.resolve_type(type_.value_type))
+            self.dict_types.append(type_)
         else:
             type_ = self.register(type_)
         return type_
