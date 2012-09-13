@@ -21,6 +21,9 @@ Changes
 *   UserTypes can now be given a name that will be used in the
     documentation.
 
+*   Complex types can inherit :class:`wsme.types.Base`. They will
+    have a default constructor and be registered automatically.
+
 *   Removed the wsme.wsgi.adapt function if favor of
     :meth:`wsme.WSRoot.wsgiapp`
 
