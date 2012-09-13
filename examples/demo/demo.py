@@ -26,6 +26,15 @@ class Person(object):
     firstname = unicode
     lastname = unicode
 
+    hobbies = [unicode]
+
+    def __repr__(self):
+        return "Person(%s, %s %s, %s)" % (
+            self.id,
+            self.firstname, self.lastname,
+            self.hobbies
+        )
+
 
 class DemoRoot(WSRoot):
     @expose(int)
@@ -48,6 +57,8 @@ class DemoRoot(WSRoot):
         p.id = 12
         p.firstname = u'Ross'
         p.lastname = u'Geler'
+        p.hobbies = []
+        print p
         return p
 
     @expose([Person])
@@ -62,6 +73,7 @@ class DemoRoot(WSRoot):
         p.firstname = u('Rachel')
         p.lastname = u('Green')
         r.append(p)
+        print r
         return r
 
     @expose(Person)
@@ -72,6 +84,7 @@ class DemoRoot(WSRoot):
     @expose([Person])
     @validate([Person])
     def setpersons(self, persons):
+        print persons
         return persons
 
 
