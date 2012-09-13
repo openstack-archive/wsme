@@ -38,6 +38,8 @@ class ArrayType(object):
             return self._item_type
 
     def validate(self, value):
+        if value is None:
+            return
         if not isinstance(value, list):
             raise ValueError("Wrong type. Expected '[%s]', got '%s'" % (
                     self.item_type, type(value)
