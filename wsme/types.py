@@ -416,8 +416,8 @@ def list_attributes(class_):
 class Registry(object):
     def __init__(self):
         self.complex_types = []
-        self.array_types = []
-        self.dict_types = []
+        self.array_types = set()
+        self.dict_types = set()
 
     def register(self, class_):
         """
@@ -439,8 +439,7 @@ class Registry(object):
                 raise ValueError("Cannot register type %s" % repr(class_))
             dt = ArrayType(class_[0])
             self.register(dt.item_type)
-            if dt not in self.array_types:
-                self.array_types.append(dt)
+            self.array_types.add(dt)
             return dt
 
         if isinstance(class_, dict):
@@ -448,8 +447,7 @@ class Registry(object):
                 raise ValueError("Cannot register type %s" % repr(class_))
             dt = DictType(*list(class_.items())[0])
             self.register(dt.value_type)
-            if dt not in self.dict_types:
-                self.dict_types.append(dt)
+            self.dict_types.add(dt)
             return dt
 
         class_._wsme_attributes = None
@@ -479,12 +477,12 @@ class Registry(object):
             type_ = DictType(list(type_.keys())[0], list(type_.values())[0])
         if isinstance(type_, ArrayType):
             type_ = ArrayType(self.resolve_type(type_.item_type))
-            self.array_types.append(type_)
+            self.array_types.add(type_)
         elif isinstance(type_, DictType):
             type_ = DictType(
                     type_.key_type,
                     self.resolve_type(type_.value_type))
-            self.dict_types.append(type_)
+            self.dict_types.add(type_)
         else:
             type_ = self.register(type_)
         return type_
