@@ -1,14 +1,14 @@
 Changes
 =======
 
-0.4b1 (next)
-------------
+0.4b1 (2012-09-14)
+------------------
 
 *   Now supports Python 3.2
 
 *   String types handling is clearer.
 
-*   New File type.
+*   New :class:`wsme.types.File` type.
 
 *   Supports cross-referenced types.
 
@@ -26,6 +26,30 @@ Changes
 
 *   Removed the wsme.wsgi.adapt function if favor of
     :meth:`wsme.WSRoot.wsgiapp`
+
+Extensions
+~~~~~~~~~~
+
+wsme-soap
+    *   Function names now starts with a lowercase letter.
+
+    *   Fixed issues with arrays (issue #3).
+
+    *   Fixed empty array handling.
+
+
+wsme-sqlalchemy
+    This new extension makes it easy to create webservices on top
+    of a SQLAlchemy set of mapped classes.
+
+wsme-extdirect
+    *   Implements server-side DataStore
+        (:class:`wsmeext.extdirect.datastore.DataStoreController`).
+
+    *   Add Store and Model javascript definition auto-generation
+
+    *   Add Store server-side based on SQLAlchemy mapped classes
+        (:class:`wsmeext.extdirect.sadatastore.SADataStoreController`).
 
 0.3 (2012-04-20)
 ----------------
