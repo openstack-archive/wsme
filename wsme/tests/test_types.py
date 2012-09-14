@@ -318,3 +318,7 @@ class TestTypes(unittest.TestCase):
 
         c = C1(s=six.u('test'))
         assert c.s == six.u('test')
+
+    def test_array_eq(self):
+        l = [types.ArrayType(str)]
+        assert types.ArrayType(str) in l

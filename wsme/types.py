@@ -30,6 +30,9 @@ class ArrayType(object):
     def __hash__(self):
         return hash(self.item_type)
 
+    def __eq__(self, other):
+        return self.item_type == other.item_type
+
     @property
     def item_type(self):
         if isinstance(self._item_type, weakref.ref):
