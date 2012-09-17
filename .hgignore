@@ -19,4 +19,4 @@ syntax: regexp
 ^dist
 
 ^doc/_build
-
+^d2to1-.*\.egg
