@@ -215,6 +215,10 @@ class TestTypes(unittest.TestCase):
         assert obj.atext == six.u('somebytes')
         assert isinstance(obj.atext, types.text)
 
+        obj.abytes = six.u('sometext')
+        assert obj.abytes == six.b('sometext')
+        assert isinstance(obj.abytes, types.bytes)
+
     def test_named_attribute(self):
         class AType(object):
             a_list = types.wsattr([int], name='a.list')
