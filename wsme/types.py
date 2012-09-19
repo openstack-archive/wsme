@@ -47,8 +47,10 @@ class ArrayType(object):
             raise ValueError("Wrong type. Expected '[%s]', got '%s'" % (
                     self.item_type, type(value)
             ))
-        for item in value:
+        return [
             validate_value(self.item_type, item)
+            for item in value
+        ]
 
 
 class DictType(object):
@@ -76,9 +78,12 @@ class DictType(object):
             raise ValueError("Wrong type. Expected '{%s: %s}', got '%s'" % (
                     self.key_type, self.value_type, type(value)
                 ))
-        for key, v in value.items():
-            validate_value(self.key_type, key)
-            validate_value(self.value_type, v)
+        return dict((
+            (
+                validate_value(self.key_type, key),
+                validate_value(self.value_type, v)
+            ) for key, v in value.items()
+        ))
 
 
 class UserType(object):
@@ -86,7 +91,7 @@ class UserType(object):
     name = None
 
     def validate(self, value):
-        return
+        return value
 
     def tobasetype(self, value):
         return value
@@ -147,6 +152,7 @@ class Enum(UserType):
         if value not in self.values:
             raise ValueError("Value '%s' is invalid (should be one of: %s)" % (
                 value, ', '.join(self.values)))
+        return value
 
     def tobasetype(self, value):
         return value
@@ -190,28 +196,33 @@ def validate_value(datatype, value):
     if hasattr(datatype, 'validate'):
         return datatype.validate(value)
     else:
-        if value is Unset:
-            return True
-        if value is not None:
-            if isinstance(datatype, list):
-                datatype = ArrayType(datatype[0])
-            if isinstance(datatype, dict):
-                datatype = DictType(*list(datatype.items())[0])
-            if isarray(datatype):
-                datatype.validate(value)
-            elif isdict(datatype):
-                datatype.validate(value)
-            elif datatype in six.integer_types:
-                if not isinstance(value, six.integer_types):
-                    raise ValueError(
-                        "Wrong type. Expected an integer, got '%s'" % (
-                            type(value)
-                        ))
-            elif not isinstance(value, datatype):
+        if value in (Unset, None):
+            return value
+
+        if isinstance(datatype, list):
+            datatype = ArrayType(datatype[0])
+        if isinstance(datatype, dict):
+            datatype = DictType(*list(datatype.items())[0])
+        if isarray(datatype):
+            datatype.validate(value)
+        elif isdict(datatype):
+            datatype.validate(value)
+        elif datatype in six.integer_types:
+            if not isinstance(value, six.integer_types):
                 raise ValueError(
-                    "Wrong type. Expected '%s', got '%s'" % (
-                        datatype, type(value)
+                    "Wrong type. Expected an integer, got '%s'" % (
+                        type(value)
                     ))
+        elif datatype is text and isinstance(value, bytes):
+            value = value.decode()
+        elif datatype is bytes and isinstance(value, text):
+            value = value.encode()
+        elif not isinstance(value, datatype):
+            raise ValueError(
+                "Wrong type. Expected '%s', got '%s'" % (
+                    datatype, type(value)
+                ))
+        return value
 
 
 class wsproperty(property):
@@ -285,7 +296,7 @@ class wsattr(object):
 
     def __set__(self, instance, value):
         try:
-            validate_value(self.datatype, value)
+            value = validate_value(self.datatype, value)
         except ValueError:
             e = sys.exc_info()[1]
             raise ValueError("%s: %s" % (self.name, e))

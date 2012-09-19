@@ -175,7 +175,7 @@ class TestTypes(unittest.TestCase):
 
         obj = AType()
         obj.a = 'v1'
-        assert obj.a == 'v1'
+        assert obj.a == 'v1', repr(obj.a)
 
         try:
             obj.a = 'v3'
@@ -201,6 +201,19 @@ class TestTypes(unittest.TestCase):
 
         self.assertRaises(ValueError, setattr, obj, 'alist', 12)
         self.assertRaises(ValueError, setattr, obj, 'alist', [2, 'a'])
+
+    def test_text_attribute_conversion(self):
+        class SType(object):
+            atext = types.text
+            abytes = types.bytes
+
+        types.register_type(SType)
+
+        obj = SType()
+
+        obj.atext = six.b('somebytes')
+        assert obj.atext == six.u('somebytes')
+        assert isinstance(obj.atext, types.text)
 
     def test_named_attribute(self):
         class AType(object):
