@@ -21,7 +21,7 @@ class TestTypes(unittest.TestCase):
 
         My = MyType()
 
-        assert My.validate('a') is None
+        assert My.validate('a') == 'a'
         assert My.tobasetype('a') == 'a'
         assert My.frombasetype('a') == 'a'
 
