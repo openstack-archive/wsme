@@ -29,3 +29,23 @@ class TestSpore(unittest.TestCase):
         assert m['path'] == '/argtypes/setdecimal'
         assert m['required_params'] == ['value']
         assert m['method'] == 'GET'
+
+        m = spore['methods']['crud_create']
+        assert m['path'] == '/crud'
+        assert m['method'] == 'PUT'
+        assert m['optional_params'] == ['data']
+
+        m = spore['methods']['crud_read']
+        assert m['path'] == '/crud'
+        assert m['method'] == 'GET'
+        assert m['required_params'] == ['ref']
+
+        m = spore['methods']['crud_update']
+        assert m['path'] == '/crud'
+        assert m['method'] == 'POST'
+        assert m['optional_params'] == ['data']
+
+        m = spore['methods']['crud_delete']
+        assert m['path'] == '/crud'
+        assert m['method'] == 'DELETE'
+        assert m['optional_params'] == ['ref']
