@@ -14,7 +14,7 @@ class TestSpore(unittest.TestCase):
     def test_spore(self):
         spore = wsme.spore.getdesc(WSTestRoot())
 
-        print spore
+        print(spore)
 
         spore = json.loads(spore)
 
