@@ -6,6 +6,7 @@ except ImportError:
     import json
 
 from wsme.tests.protocol import WSTestRoot
+import wsme.tests.test_restjson
 import wsme.spore
 
 
@@ -17,7 +18,7 @@ class TestSpore(unittest.TestCase):
 
         spore = json.loads(spore)
 
-        assert len(spore['methods']) == 36, len(spore['methods'])
+        assert len(spore['methods']) == 40, str(len(spore['methods']))
 
         m = spore['methods']['argtypes_setbytesarray']
         assert m['path'] == '/argtypes/setbytesarray'
