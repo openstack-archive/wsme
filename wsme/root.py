@@ -11,6 +11,7 @@ import webob
 from wsme import exc
 from wsme.protocols import getprotocol
 from wsme.api import scan_api
+from wsme import spore
 import wsme.types
 
 log = logging.getLogger(__name__)
@@ -202,6 +203,11 @@ class WSRoot(object):
     def _handle_request(self, request):
         res = webob.Response()
         res_content_type = None
+
+        if request.path == self._webpath + '/api.spore':
+            res.body = spore.getdesc(self)
+            res.content_type = 'application/json'
+            return res
 
         try:
             msg = None
