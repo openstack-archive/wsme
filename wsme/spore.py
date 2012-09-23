@@ -6,7 +6,7 @@ except ImportError:
     import json
 
 
-def getdesc(root):
+def getdesc(root, request):
     methods = {}
 
     for path, funcdef in root.getapi():
@@ -33,7 +33,7 @@ def getdesc(root):
 
         methods[name] = {
             'method': method,
-            'path': '/'.join([root._webpath] + path)
+            'path': '/'.join(path)
         }
         if required_params:
             methods[name]['required_params'] = required_params
@@ -50,7 +50,7 @@ def getdesc(root):
             formats.append('json')
 
     api = {
-        'base_url': root._webpath,
+        'base_url': request.host_url + root._webpath,
         'version': '0.1',
         'name': getattr(root, 'name', 'name'),
         'authority': '',

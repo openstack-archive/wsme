@@ -205,7 +205,7 @@ class WSRoot(object):
         res_content_type = None
 
         if request.path == self._webpath + '/api.spore':
-            res.body = spore.getdesc(self)
+            res.body = spore.getdesc(self, request)
             res.content_type = 'application/json'
             return res
 
