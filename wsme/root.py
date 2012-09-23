@@ -135,7 +135,7 @@ class WSRoot(object):
 
     def _select_protocol(self, request):
         log.debug("Selecting a protocol for the following request :\n"
-                  "headers: %s\nbody: %s", request.headers,
+                  "headers: %s\nbody: %s", request.headers.items(),
                   request.content_length and (
                       request.content_length > 512
                       and request.body[:512]
