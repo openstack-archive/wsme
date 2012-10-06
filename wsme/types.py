@@ -517,12 +517,11 @@ class BaseMeta(type):
             cls.__registry__.register(cls)
 
 
-def Base__init__(self, **kw):
-    for key, value in kw.items():
-        if hasattr(self, key):
-            setattr(self, key, value)
-
-Base = BaseMeta('Base', (object, ), {'__init__': Base__init__})
+class Base(six.with_metaclass(BaseMeta)):
+    def __init__(self, **kw):
+        for key, value in kw.items():
+            if hasattr(self, key):
+                setattr(self, key, value)
 
 
 class File(Base):
