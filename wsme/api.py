@@ -156,6 +156,17 @@ class expose(object):
         return func
 
 
+class sig(object):
+    def __init__(self, return_type, *param_types, **options):
+        self.expose = expose(return_type, **options)
+        self.validate = validate(*param_types)
+
+    def __call__(self, func):
+        func = self.expose(func)
+        func = self.validate(func)
+        return func
+
+
 class pexpose(object):
     def __init__(self, return_type=None, contenttype=None):
         self.return_type = return_type
