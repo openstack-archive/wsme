@@ -112,3 +112,13 @@ def dict_from_params(datatype, params, path, hit_paths):
         (key, from_params(datatype.value_type,
                           params, '%s[%s]' % (path, key), hit_paths))
         for key in keys))
+
+
+def get_args(funcdef, args, kwargs):
+    newargs = []
+    for argdef, arg in zip(funcdef.arguments[:len(args)], args):
+        newargs.append(from_param(argdef.datatype, arg))
+    newkwargs = {}
+    for argname, value in kwargs.items():
+        newkwargs[argname] = from_param(funcdef.get_arg(argname), value)
+    return newargs, newkwargs
