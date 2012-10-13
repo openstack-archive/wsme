@@ -26,6 +26,10 @@ def scan_api(controller, path=[]):
                 yield i
 
 
+def iswsmefunction(f):
+    return hasattr(f, '_wsme_definition')
+
+
 class FunctionArgument(object):
     """
     An argument definition of an api entry
@@ -45,34 +49,6 @@ class FunctionArgument(object):
 
     def resolve_type(self, registry):
         self.datatype = registry.resolve_type(self.datatype)
-
-
-def funcproxy(func):
-    """
-    A very simple wrapper for exposed function.
-
-    It will carry the FunctionDefinition in place of the
-    decorared function so that a same function can be exposed
-    several times (for example a parent function can be exposed
-    in different ways in the children classes).
-
-    The returned function also carry a ``_original_func`` attribute
-    so that it can be inspected if needed.
-    """
-    def newfunc(*args, **kw):
-        return func(*args, **kw)
-    newfunc._is_wsme_funcproxy = True
-    newfunc._original_func = func
-    newfunc.__doc__ = func.__doc__
-    newfunc.__name__ = func.__name__
-    return newfunc
-
-
-def isfuncproxy(func):
-    """
-    Returns True if ``func`` is already a function proxy.
-    """
-    return getattr(func, '_is_wsme_funcproxy', False)
 
 
 class FunctionDefinition(object):
@@ -108,12 +84,11 @@ class FunctionDefinition(object):
         """
         Returns the :class:`FunctionDefinition` of a method.
         """
-        if not isfuncproxy(func):
+        if not hasattr(func, '_wsme_definition'):
             fd = FunctionDefinition(func)
-            func = funcproxy(func)
             func._wsme_definition = fd
 
-        return func, func._wsme_definition
+        return func._wsme_definition
 
     def get_arg(self, name):
         """
@@ -148,7 +123,7 @@ class expose(object):
         self.options = options
 
     def __call__(self, func):
-        func, fd = FunctionDefinition.get(func)
+        fd = FunctionDefinition.get(func)
         if fd.extra_options is not None:
             raise ValueError("This function is already exposed")
         fd.return_type = self.return_type
@@ -173,7 +148,7 @@ class pexpose(object):
         self.contenttype = contenttype
 
     def __call__(self, func):
-        func, fd = FunctionDefinition.get(func)
+        fd = FunctionDefinition.get(func)
         fd.return_type = self.return_type
         fd.protocol_specific = True
         fd.contenttype = self.contenttype
@@ -197,9 +172,8 @@ class validate(object):
         self.param_types = param_types
 
     def __call__(self, func):
-        func, fd = FunctionDefinition.get(func)
-        args, varargs, keywords, defaults = inspect.getargspec(
-                func._original_func)
+        fd = FunctionDefinition.get(func)
+        args, varargs, keywords, defaults = inspect.getargspec(func)
         if args[0] == 'self':
             args = args[1:]
         for i, argname in enumerate(args):

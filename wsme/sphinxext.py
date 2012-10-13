@@ -314,13 +314,12 @@ class FunctionDocumenter(autodoc.MethodDocumenter):
     @classmethod
     def can_document_member(cls, member, membername, isattr, parent):
         return isinstance(parent, ServiceDocumenter) \
-            and wsme.api.isfuncproxy(member)
+            and wsme.api.iswsmefunction(member)
 
     def import_object(self):
         ret = super(FunctionDocumenter, self).import_object()
         self.directivetype = 'function'
-        self.object, self.wsme_fd = \
-            wsme.api.FunctionDefinition.get(self.object)
+        self.wsme_fd = wsme.api.FunctionDefinition.get(self.object)
         self.retann = self.wsme_fd.return_type.__name__
         return ret
 
