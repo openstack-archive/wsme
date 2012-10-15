@@ -114,6 +114,9 @@ def dict_from_params(datatype, params, path, hit_paths):
 
 
 def get_args(funcdef, args, kwargs, body, mimetype):
+    from wsme.protocols import restjson
+    from wsme.protocols import restxml
+
     newargs = []
     for argdef, arg in zip(funcdef.arguments[:len(args)], args):
         newargs.append(from_param(argdef.datatype, arg))
@@ -140,6 +143,3 @@ def get_args(funcdef, args, kwargs, body, mimetype):
             else:
                 newargs[-1] = bodydata
     return newargs, newkwargs
-
-from . import restjson
-from . import restxml
