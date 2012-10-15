@@ -118,8 +118,9 @@ class expose(object):
             def getint(self):
                 return 1
     """
-    def __init__(self, return_type=None, **options):
+    def __init__(self, return_type=None, body=None, **options):
         self.return_type = return_type
+        self.body_type = body
         self.options = options
 
     def __call__(self, func):
@@ -127,6 +128,7 @@ class expose(object):
         if fd.extra_options is not None:
             raise ValueError("This function is already exposed")
         fd.return_type = self.return_type
+        fd.body_type = self.body_type
         fd.extra_options = self.options
         return func
 
@@ -176,8 +178,11 @@ class validate(object):
         args, varargs, keywords, defaults = inspect.getargspec(func)
         if args[0] == 'self':
             args = args[1:]
+        param_types = list(self.param_types)
+        if fd.body_type is not None:
+            param_types.append(fd.body_type)
         for i, argname in enumerate(args):
-            datatype = self.param_types[i]
+            datatype = param_types[i]
             mandatory = defaults is None or i < (len(args) - len(defaults))
             default = None
             if not mandatory:

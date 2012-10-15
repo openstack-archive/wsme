@@ -59,7 +59,8 @@ def wsexpose(*args, **kwargs):
 
         def callfunction(self, *args, **kwargs):
             args, kwargs = wsme.protocols.commons.get_args(
-                funcdef, args, kwargs
+                funcdef, args, kwargs,
+                pecan.request.body, pecan.request.content_type
             )
             result = f(self, *args, **kwargs)
             return dict(

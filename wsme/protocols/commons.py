@@ -8,7 +8,6 @@ from wsme.types import iscomplex, list_attributes, Unset
 from wsme.types import UserType, ArrayType, DictType, File
 from wsme.utils import parse_isodate, parse_isotime, parse_isodatetime
 
-
 ARRAY_MAX_SIZE = 1000
 
 
@@ -114,11 +113,33 @@ def dict_from_params(datatype, params, path, hit_paths):
         for key in keys))
 
 
-def get_args(funcdef, args, kwargs):
+def get_args(funcdef, args, kwargs, body, mimetype):
     newargs = []
     for argdef, arg in zip(funcdef.arguments[:len(args)], args):
         newargs.append(from_param(argdef.datatype, arg))
     newkwargs = {}
     for argname, value in kwargs.items():
         newkwargs[argname] = from_param(funcdef.get_arg(argname), value)
+    if funcdef.body_type is not None:
+        bodydata = None
+        if mimetype in restjson.RestJsonProtocol.content_types:
+            if hasattr(body, 'read'):
+                jsonbody = restjson.json.load(body)
+            else:
+                jsonbody = restjson.json.loads(body)
+            bodydata = restjson.fromjson(funcdef.body_type, jsonbody)
+        elif mimetype in restxml.RestXmlProtocol.content_types:
+            if hasattr(body, 'read'):
+                xmlbody = restxml.et.parse(body)
+            else:
+                xmlbody = restxml.et.fromstring(body)
+            bodydata = restxml.fromxml(funcdef.body_type, xmlbody)
+        if bodydata:
+            if len(newargs) < len(funcdef.arguments):
+                newkwargs[funcdef.arguments[-1].name] = bodydata
+            else:
+                newargs[-1] = bodydata
     return newargs, newkwargs
+
+from . import restjson
+from . import restxml
