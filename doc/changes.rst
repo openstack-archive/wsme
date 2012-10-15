@@ -1,6 +1,17 @@
 Changes
 =======
 
+0.4 (2012-10-15)
+----------------
+
+*   Automatically converts unicode strings to/from ascii bytes.
+
+*   Use d2to1 to simplify setup.py.
+
+*   Implements the SPORE specification.
+
+*   Fixed a few things in the documentation
+
 0.4b1 (2012-09-14)
 ------------------
 
