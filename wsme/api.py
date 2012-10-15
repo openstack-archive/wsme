@@ -68,6 +68,9 @@ class FunctionDefinition(object):
         #: The function arguments (list of :class:`FunctionArgument`)
         self.arguments = []
 
+        #: If the body carry the datas of a single argument, its type
+        self.body_type = None
+
         #: True if this function is exposed by a protocol and not in
         #: the api tree, which means it is not part of the api.
         self.protocol_specific = False
