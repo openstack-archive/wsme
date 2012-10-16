@@ -215,6 +215,14 @@ class ArgTypes(object):
         assert type(value[0]) == wsme.types.bytes, type(value[0])
         return value
 
+    @expose([wsme.types.text])
+    @validate([wsme.types.text])
+    def settextarray(self, value):
+        print(repr(value))
+        assert type(value) == list
+        assert type(value[0]) == wsme.types.text, type(value[0])
+        return value
+
     @expose([datetime.datetime])
     @validate([datetime.datetime])
     def setdatetimearray(self, value):
@@ -464,6 +472,13 @@ class ProtocolTestCase(unittest.TestCase):
         r = self.call('argtypes/setbytesarray',
                          value=(value, [wsme.types.bytes]),
                          _rt=[wsme.types.bytes])
+        assert r == value, r
+
+    def test_settextarray(self):
+        value = [u("1")]
+        r = self.call('argtypes/settextarray',
+                         value=(value, [wsme.types.text]),
+                         _rt=[wsme.types.text])
         assert r == value, r
 
     def test_setdatetimearray(self):
