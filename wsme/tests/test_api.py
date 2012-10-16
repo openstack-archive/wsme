@@ -31,7 +31,7 @@ def test_pexpose():
         def ufunc(self):
             return u("<p>\xc3\xa9</p>")
 
-    func, fd = FunctionDefinition.get(Proto.func)
+    fd = FunctionDefinition.get(Proto.func)
     assert fd.return_type is None
     assert fd.protocol_specific
     assert fd.contenttype == "text/xml"

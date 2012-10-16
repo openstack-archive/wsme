@@ -26,6 +26,10 @@ def scan_api(controller, path=[]):
                 yield i
 
 
+def iswsmefunction(f):
+    return hasattr(f, '_wsme_definition')
+
+
 class FunctionArgument(object):
     """
     An argument definition of an api entry
@@ -47,34 +51,6 @@ class FunctionArgument(object):
         self.datatype = registry.resolve_type(self.datatype)
 
 
-def funcproxy(func):
-    """
-    A very simple wrapper for exposed function.
-
-    It will carry the FunctionDefinition in place of the
-    decorared function so that a same function can be exposed
-    several times (for example a parent function can be exposed
-    in different ways in the children classes).
-
-    The returned function also carry a ``_original_func`` attribute
-    so that it can be inspected if needed.
-    """
-    def newfunc(*args, **kw):
-        return func(*args, **kw)
-    newfunc._is_wsme_funcproxy = True
-    newfunc._original_func = func
-    newfunc.__doc__ = func.__doc__
-    newfunc.__name__ = func.__name__
-    return newfunc
-
-
-def isfuncproxy(func):
-    """
-    Returns True if ``func`` is already a function proxy.
-    """
-    return getattr(func, '_is_wsme_funcproxy', False)
-
-
 class FunctionDefinition(object):
     """
     An api entry definition
@@ -92,6 +68,9 @@ class FunctionDefinition(object):
         #: The function arguments (list of :class:`FunctionArgument`)
         self.arguments = []
 
+        #: If the body carry the datas of a single argument, its type
+        self.body_type = None
+
         #: True if this function is exposed by a protocol and not in
         #: the api tree, which means it is not part of the api.
         self.protocol_specific = False
@@ -108,12 +87,11 @@ class FunctionDefinition(object):
         """
         Returns the :class:`FunctionDefinition` of a method.
         """
-        if not isfuncproxy(func):
+        if not hasattr(func, '_wsme_definition'):
             fd = FunctionDefinition(func)
-            func = funcproxy(func)
             func._wsme_definition = fd
 
-        return func, func._wsme_definition
+        return func._wsme_definition
 
     def get_arg(self, name):
         """
@@ -143,16 +121,29 @@ class expose(object):
             def getint(self):
                 return 1
     """
-    def __init__(self, return_type=None, **options):
+    def __init__(self, return_type=None, body=None, **options):
         self.return_type = return_type
+        self.body_type = body
         self.options = options
 
     def __call__(self, func):
-        func, fd = FunctionDefinition.get(func)
+        fd = FunctionDefinition.get(func)
         if fd.extra_options is not None:
             raise ValueError("This function is already exposed")
         fd.return_type = self.return_type
+        fd.body_type = self.body_type
         fd.extra_options = self.options
+        return func
+
+
+class sig(object):
+    def __init__(self, return_type, *param_types, **options):
+        self.expose = expose(return_type, **options)
+        self.validate = validate(*param_types)
+
+    def __call__(self, func):
+        func = self.expose(func)
+        func = self.validate(func)
         return func
 
 
@@ -162,7 +153,7 @@ class pexpose(object):
         self.contenttype = contenttype
 
     def __call__(self, func):
-        func, fd = FunctionDefinition.get(func)
+        fd = FunctionDefinition.get(func)
         fd.return_type = self.return_type
         fd.protocol_specific = True
         fd.contenttype = self.contenttype
@@ -186,13 +177,15 @@ class validate(object):
         self.param_types = param_types
 
     def __call__(self, func):
-        func, fd = FunctionDefinition.get(func)
-        args, varargs, keywords, defaults = inspect.getargspec(
-                func._original_func)
+        fd = FunctionDefinition.get(func)
+        args, varargs, keywords, defaults = inspect.getargspec(func)
         if args[0] == 'self':
             args = args[1:]
+        param_types = list(self.param_types)
+        if fd.body_type is not None:
+            param_types.append(fd.body_type)
         for i, argname in enumerate(args):
-            datatype = self.param_types[i]
+            datatype = param_types[i]
             mandatory = defaults is None or i < (len(args) - len(defaults))
             default = None
             if not mandatory:
