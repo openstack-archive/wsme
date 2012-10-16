@@ -1,3 +1,4 @@
+import functools
 import inspect
 
 __all__ = ['expose', 'validate']
@@ -28,6 +29,19 @@ def scan_api(controller, path=[]):
 
 def iswsmefunction(f):
     return hasattr(f, '_wsme_definition')
+
+
+def wrapfunc(f):
+    @functools.wraps(f)
+    def wrapper(*args, **kwargs):
+        return f(*args, **kwargs)
+    wrapper._wsme_original_func = f
+    return wrapper
+
+
+def getargspec(f):
+    f = getattr(f, '_wsme_original_func', f)
+    return inspect.getargspec(f)
 
 
 class FunctionArgument(object):
@@ -121,12 +135,16 @@ class expose(object):
             def getint(self):
                 return 1
     """
-    def __init__(self, return_type=None, body=None, **options):
+    def __init__(self, return_type=None, body=None, multiple_expose=False,
+                 **options):
         self.return_type = return_type
         self.body_type = body
+        self.multiple_expose = multiple_expose
         self.options = options
 
     def __call__(self, func):
+        if self.multiple_expose:
+            func = wrapfunc(func)
         fd = FunctionDefinition.get(func)
         if fd.extra_options is not None:
             raise ValueError("This function is already exposed")
@@ -178,7 +196,7 @@ class validate(object):
 
     def __call__(self, func):
         fd = FunctionDefinition.get(func)
-        args, varargs, keywords, defaults = inspect.getargspec(func)
+        args, varargs, keywords, defaults = getargspec(func)
         if args[0] == 'self':
             args = args[1:]
         param_types = list(self.param_types)
