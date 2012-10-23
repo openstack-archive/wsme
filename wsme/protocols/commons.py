@@ -4,6 +4,8 @@ import re
 
 from simplegeneric import generic
 
+from wsme.exc import UnknownArgument
+
 from wsme.types import iscomplex, list_attributes, Unset
 from wsme.types import UserType, ArrayType, DictType, File
 from wsme.utils import parse_isodate, parse_isotime, parse_isodatetime
@@ -113,16 +115,37 @@ def dict_from_params(datatype, params, path, hit_paths):
         for key in keys))
 
 
-def get_args(funcdef, args, kwargs, body, mimetype):
-    from wsme.protocols import restjson
-    from wsme.protocols import restxml
-
+def args_from_args(funcdef, args, kwargs):
     newargs = []
     for argdef, arg in zip(funcdef.arguments[:len(args)], args):
         newargs.append(from_param(argdef.datatype, arg))
     newkwargs = {}
     for argname, value in kwargs.items():
         newkwargs[argname] = from_param(funcdef.get_arg(argname), value)
+    return newargs, newkwargs
+
+
+def args_from_params(funcdef, params):
+    kw = {}
+    hit_paths = set()
+    for argdef in funcdef.arguments:
+        value = from_params(
+            argdef.datatype, params, argdef.name, hit_paths)
+        if value is not Unset:
+            kw[argdef.name] = value
+    paths = set(params.keys())
+    unknown_paths = paths - hit_paths
+    if unknown_paths:
+        raise UnknownArgument(', '.join(unknown_paths))
+    return kw
+
+
+def args_from_body(funcdef, body, mimetype):
+    from wsme.protocols import restjson
+    from wsme.protocols import restxml
+
+    kw = {}
+
     if funcdef.body_type is not None:
         bodydata = None
         if mimetype in restjson.RestJsonProtocol.content_types:
@@ -138,8 +161,28 @@ def get_args(funcdef, args, kwargs, body, mimetype):
                 xmlbody = restxml.et.fromstring(body)
             bodydata = restxml.fromxml(funcdef.body_type, xmlbody)
         if bodydata:
-            if len(newargs) < len(funcdef.arguments):
-                newkwargs[funcdef.arguments[-1].name] = bodydata
-            else:
-                newargs[-1] = bodydata
+            kw[funcdef.arguments[-1].name] = bodydata
+
+    return (), kw
+
+
+def combine_args(funcdef, *akw):
+    newargs, newkwargs = [], {}
+    argindexes = {}
+    for i, arg in enumerate(funcdef.arguments):
+        argindexes[arg.name] = i
+        newargs.append(arg.default)
+    for args, kwargs in akw:
+        for i, arg in enumerate(args):
+            newargs[i] = arg
+        for name, value in kwargs.iteritems():
+            newargs[argindexes[name]] = value
     return newargs, newkwargs
+
+
+def get_args(funcdef, args, kwargs, body, mimetype):
+    return combine_args(
+        funcdef,
+        args_from_args(funcdef, args, kwargs),
+        args_from_body(funcdef, body, mimetype)
+    )
