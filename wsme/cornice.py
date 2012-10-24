@@ -68,10 +68,14 @@ def wsexpose(*args, **kwargs):
         @functools.wraps(f)
         def callfunction(request):
             args, kwargs = combine_args(
+                funcdef,
                 args_from_params(funcdef, request.params),
                 args_from_body(funcdef, request.body, request.content_type)
             )
-            request.override_renderer = 'wsmexml'
+            if 'application/json' in request.headers['Accept']:
+                request.override_renderer = 'wsmejson'
+            elif 'text/xml' in request.headers['Accept']:
+                request.override_renderer = 'wsmexml'
             return {
                 'datatype': funcdef.return_type,
                 'result': f(*args, **kwargs)

@@ -137,7 +137,7 @@ def args_from_params(funcdef, params):
     unknown_paths = paths - hit_paths
     if unknown_paths:
         raise UnknownArgument(', '.join(unknown_paths))
-    return kw
+    return [], kw
 
 
 def args_from_body(funcdef, body, mimetype):
