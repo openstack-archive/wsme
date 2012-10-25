@@ -78,10 +78,12 @@ class WSRoot(object):
     """
     __registry__ = wsme.types.registry
 
-    def __init__(self, protocols=[], webpath='', transaction=None):
+    def __init__(self, protocols=[], webpath='', transaction=None,
+            scan_api=scan_api):
         self._debug = True
         self._webpath = webpath
         self.protocols = []
+        self.scan_api = scan_api
 
         self._transaction = transaction
         if self._transaction is True:
@@ -123,7 +125,7 @@ class WSRoot(object):
         :rtype: list of (path, :class:`FunctionDefinition`)
         """
         if self._api is None:
-            self._api = [i for i in scan_api(self)]
+            self._api = [i for i in self.scan_api(self)]
             for path, fdef in self._api:
                 fdef.resolve_types(self.__registry__)
         return self._api
