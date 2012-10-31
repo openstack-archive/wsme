@@ -27,7 +27,7 @@ class expose(object):
         func.exposed = True
         cfg = _cfg(func)
         cfg['content-type'] = self.content_type
-        cfg['path'] = self.path
+        cfg.setdefault('paths', []).append(self.path)
         return func
 
 
@@ -44,17 +44,33 @@ class CallContext(object):
         return self._request()
 
 
+class ObjectDict(object):
+    def __init__(self, obj):
+        self.obj = obj
+
+    def __getitem__(self, name):
+        return getattr(self.obj, name)
+
+
 class Protocol(object):
     name = None
     displayname = None
     dataformat = None
     content_types = []
 
+    def resolve_path(self, path):
+        if '$' in path:
+            from string import Template
+            s = Template(path)
+            path = s.substitute(ObjectDict(self))
+        return path
+
     def iter_routes(self):
         for attrname in dir(self):
             attr = getattr(self, attrname)
             if getattr(attr, 'exposed', False):
-                yield _cfg(attr)['path'], attr
+                for path in _cfg(attr)['paths']:
+                    yield self.resolve_path(path), attr
 
     def accept(self, request):
         if request.path.endswith('.' + self.dataformat):
