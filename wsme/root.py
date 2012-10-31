@@ -199,9 +199,29 @@ class WSRoot(object):
                 request.server_errorcount += 1
             return protocol.encode_error(context, infos)
 
+    def find_route(self, path):
+        for p in self.protocols:
+            for routepath, func in p.iter_routes():
+                if path.startswith(routepath):
+                    return routepath, func
+        return None, None
+
     def _handle_request(self, request):
         res = webob.Response()
         res_content_type = None
+
+        path = request.path
+        if path.startswith(self._webpath):
+            path = path[len(self._webpath):]
+        routepath, func = self.find_route(path)
+        if routepath:
+            content = func()
+            if isinstance(content, six.text_type):
+                res.text = content
+            elif isinstance(content, six.binary_type):
+                res.body = content
+            res.content_type = func._cfg['content-type']
+            return res
 
         if request.path == self._webpath + '/api.spore':
             res.body = spore.getdesc(self, request.host_url)

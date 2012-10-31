@@ -11,6 +11,26 @@ __all__ = [
 registered_protocols = {}
 
 
+def _cfg(f):
+    cfg = getattr(f, '_cfg', None)
+    if cfg is None:
+        f._cfg = cfg = {}
+    return cfg
+
+
+class expose(object):
+    def __init__(self, path, content_type):
+        self.path = path
+        self.content_type = content_type
+
+    def __call__(self, func):
+        func.exposed = True
+        cfg = _cfg(func)
+        cfg['content-type'] = self.content_type
+        cfg['path'] = self.path
+        return func
+
+
 class CallContext(object):
     def __init__(self, request):
         self._request = weakref.ref(request)
@@ -29,6 +49,12 @@ class Protocol(object):
     displayname = None
     dataformat = None
     content_types = []
+
+    def iter_routes(self):
+        for attrname in dir(self):
+            attr = getattr(self, attrname)
+            if getattr(attr, 'exposed', False):
+                yield _cfg(attr)['path'], attr
 
     def accept(self, request):
         if request.path.endswith('.' + self.dataformat):
