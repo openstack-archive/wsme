@@ -3,11 +3,11 @@
 import unittest
 
 from wsme import WSRoot
-from wsme.protocols import getprotocol, CallContext
+from wsme.protocols import getprotocol, CallContext, Protocol
 import wsme.protocols
 
 
-class DummyProtocol(object):
+class DummyProtocol(Protocol):
     name = 'dummy'
     content_types = ['', None]
 
