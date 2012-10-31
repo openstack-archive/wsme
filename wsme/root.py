@@ -8,9 +8,9 @@ import six
 
 import webob
 
-from wsme import exc
+from wsme.exc import ClientSideError, MissingArgument, UnknownFunction
 from wsme.protocols import getprotocol
-from wsme.api import scan_api
+from wsme.rest import scan_api
 from wsme import spore
 import wsme.types
 
@@ -125,7 +125,7 @@ class WSRoot(object):
         :rtype: list of (path, :class:`FunctionDefinition`)
         """
         if self._api is None:
-            self._api = [i for i in self._scan_api(self)]
+            self._api = list(self._scan_api(self))
             for path, fdef in self._api:
                 fdef.resolve_types(self.__registry__)
         return self._api
@@ -167,7 +167,7 @@ class WSRoot(object):
                 context.path = protocol.extract_path(context)
 
             if context.path is None:
-                raise exc.ClientSideError(u(
+                raise ClientSideError(u(
                     'The %s protocol was unable to extract a function '
                     'path from the request') % protocol.name)
 
@@ -176,7 +176,7 @@ class WSRoot(object):
 
             for arg in context.funcdef.arguments:
                 if arg.mandatory and arg.name not in kw:
-                    raise exc.MissingArgument(arg.name)
+                    raise MissingArgument(arg.name)
 
             txn = self.begin()
             try:
@@ -186,9 +186,6 @@ class WSRoot(object):
                 txn.abort()
                 raise
 
-            if context.funcdef.protocol_specific \
-                    and context.funcdef.return_type is None:
-                return result
             else:
                 # TODO make sure result type == a._wsme_definition.return_type
                 return protocol.encode_result(context, result)
@@ -196,7 +193,7 @@ class WSRoot(object):
         except Exception:
             e = sys.exc_info()[1]
             infos = self._format_exception(sys.exc_info())
-            if isinstance(e, exc.ClientSideError):
+            if isinstance(e, ClientSideError):
                 request.client_errorcount += 1
             else:
                 request.server_errorcount += 1
@@ -263,8 +260,6 @@ class WSRoot(object):
                         res.status = 500
                     else:
                         res.status = 200
-                if request.calls[0].funcdef:
-                    res_content_type = request.calls[0].funcdef.contenttype
             else:
                 res.status = protocol.get_response_status(request)
                 res_content_type = protocol.get_response_contenttype(request)
@@ -308,7 +303,7 @@ class WSRoot(object):
                 break
 
         if not hasattr(a, '_wsme_definition'):
-            raise exc.UnknownFunction('/'.join(path))
+            raise UnknownFunction('/'.join(path))
 
         definition = a._wsme_definition
 
@@ -317,7 +312,7 @@ class WSRoot(object):
     def _format_exception(self, excinfo):
         """Extract informations that can be sent to the client."""
         error = excinfo[1]
-        if isinstance(error, exc.ClientSideError):
+        if isinstance(error, ClientSideError):
             r = dict(faultcode="Client",
                      faultstring=error.faultstring)
             log.warning("Client-side error: %s" % r['faultstring'])

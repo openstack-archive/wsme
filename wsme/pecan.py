@@ -51,7 +51,7 @@ def wsexpose(*args, **kwargs):
         content_type='application/xml',
         generic=False
     )
-    sig = wsme.sig(*args, **kwargs)
+    sig = wsme.signature(*args, **kwargs)
 
     def decorate(f):
         sig(f)

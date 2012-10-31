@@ -1,20 +1,19 @@
 import base64
 import datetime
 import decimal
-import urllib
 
 import wsme.tests.protocol
 
 try:
     import simplejson as json
 except:
-    import json
+    import json  # noqa
 
 import wsme.protocols.restjson
 from wsme.protocols.restjson import fromjson, tojson
 from wsme.utils import parse_isodatetime, parse_isotime, parse_isodate
 from wsme.types import isusertype, register_type
-from wsme.api import expose, validate
+from wsme.rest import expose, validate
 
 
 import six
@@ -23,7 +22,7 @@ from six import b, u
 if six.PY3:
     from urllib.parse import urlencode
 else:
-    from urllib import urlencode
+    from urllib import urlencode  # noqa
 
 
 def prepare_value(value, datatype):

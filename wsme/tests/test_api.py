@@ -1,53 +1,18 @@
 # encoding=utf8
 
-from six import u, b
+from six import b
 import sys
 
 import unittest
 import webtest
 
 from wsme import WSRoot, expose, validate
-from wsme.api import scan_api, pexpose
+from wsme.rest import scan_api
 from wsme.api import FunctionArgument, FunctionDefinition
 from wsme.types import iscomplex
 import wsme.types
 
 from wsme.tests.test_protocols import DummyProtocol
-
-
-def test_pexpose():
-    class Proto(DummyProtocol):
-        def extract_path(self, context):
-            if context.request.path.endswith('ufunc'):
-                return ['_protocol', 'dummy', 'ufunc']
-            else:
-                return ['_protocol', 'dummy', 'func']
-
-        @pexpose(None, "text/xml")
-        def func(self):
-            return "<p></p>"
-
-        @pexpose(None, "text/xml")
-        def ufunc(self):
-            return u("<p>\xc3\xa9</p>")
-
-    fd = FunctionDefinition.get(Proto.func)
-    assert fd.return_type is None
-    assert fd.protocol_specific
-    assert fd.contenttype == "text/xml"
-
-    p = Proto()
-    r = WSRoot()
-    r.addprotocol(p)
-
-    app = webtest.TestApp(r.wsgiapp())
-
-    res = app.get('/func')
-
-    assert res.status_int == 200
-    assert res.body == b("<p></p>"), res.body
-    res = app.get('/ufunc')
-    assert res.unicode_body == u("<p>\xc3\xa9</p>"), res.body
 
 
 class TestController(unittest.TestCase):
