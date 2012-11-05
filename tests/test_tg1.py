@@ -1,5 +1,6 @@
 import wsme.tg1
-from wsme import expose, validate, WSRoot
+from wsme import WSRoot
+from wsme.tg1 import wsexpose, wsvalidate
 
 from turbogears.controllers import RootController
 
@@ -9,15 +10,17 @@ import simplejson
 
 
 class WSController(WSRoot):
-    @expose(int)
-    @validate(int, int)
-    def multiply(self, a, b):
-        return a * b
+    pass
 
 
 class Root(RootController):
     ws = wsme.tg1.adapt(
             WSController(webpath='/ws', protocols=['restjson']))
+
+    @wsexpose(int)
+    @wsvalidate(int, int)
+    def multiply(self, a, b):
+        return a * b
 
 
 import cherrypy
@@ -48,7 +51,7 @@ class TestController(unittest.TestCase):
             config.update({"server_started": False})
 
     def test_simplecall(self):
-        response = self.app.post("/ws/multiply",
+        response = self.app.post("/multiply",
             simplejson.dumps({'a': 5, 'b': 10}),
             {'Content-Type': 'application/json'})
         print response
