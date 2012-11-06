@@ -4,8 +4,8 @@ import six
 from six import u
 
 from wsme.exc import ClientSideError, UnknownArgument
-from wsme.protocols import CallContext, Protocol
-from wsme.protocols.commons import from_params
+from wsme.protocol import CallContext, Protocol
+from wsme.rest.args import from_params
 from wsme.types import Unset
 
 log = logging.getLogger(__name__)

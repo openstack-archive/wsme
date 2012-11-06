@@ -9,8 +9,7 @@ try:
 except:
     import json  # noqa
 
-import wsme.protocols.restjson
-from wsme.protocols.restjson import fromjson, tojson
+from wsme.rest.json import fromjson, tojson
 from wsme.utils import parse_isodatetime, parse_isotime, parse_isodate
 from wsme.types import isusertype, register_type
 from wsme.rest import expose, validate

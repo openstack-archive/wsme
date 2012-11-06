@@ -3,8 +3,8 @@
 import unittest
 
 from wsme import WSRoot
-from wsme.protocols import getprotocol, CallContext, Protocol
-import wsme.protocols
+from wsme.protocol import getprotocol, CallContext, Protocol
+import wsme.protocol
 
 
 class DummyProtocol(Protocol):
@@ -45,8 +45,8 @@ def test_getprotocol():
 
 class TestProtocols(unittest.TestCase):
     def test_register_protocol(self):
-        wsme.protocols.register_protocol(DummyProtocol)
-        assert wsme.protocols.registered_protocols['dummy'] == DummyProtocol
+        wsme.protocol.register_protocol(DummyProtocol)
+        assert wsme.protocol.registered_protocols['dummy'] == DummyProtocol
 
         r = WSRoot()
         assert len(r.protocols) == 0
@@ -60,7 +60,7 @@ class TestProtocols(unittest.TestCase):
         assert r.protocols[0].__class__ == DummyProtocol
 
     def test_Protocol(self):
-        p = wsme.protocols.Protocol()
+        p = wsme.protocol.Protocol()
         assert p.iter_calls(None) is None
         assert p.extract_path(None) is None
         assert p.read_arguments(None) is None

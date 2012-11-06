@@ -173,7 +173,7 @@ class TypeDocumenter(autodoc.ClassDocumenter):
 
     def add_content(self, more_content, no_docstring=False):
         protocols = self.options.protocols or self.env.app.config.wsme_protocols
-        protocols = [wsme.protocols.getprotocol(p) for p in protocols]
+        protocols = [wsme.protocol.getprotocol(p) for p in protocols]
         content = []
         if protocols:
             sample_obj = make_sample_object(self.object)
@@ -336,7 +336,7 @@ class FunctionDocumenter(autodoc.MethodDocumenter):
         found_params = set()
 
         protocols = self.options.protocols or self.env.app.config.wsme_protocols
-        protocols = [wsme.protocols.getprotocol(p) for p in protocols]
+        protocols = [wsme.protocol.getprotocol(p) for p in protocols]
 
         for si, docstring in enumerate(docstrings):
             for i, line in enumerate(docstring):

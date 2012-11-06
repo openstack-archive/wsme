@@ -6,9 +6,9 @@ import json
 import xml.etree.ElementTree as et
 
 import wsme
-import wsme.protocols.commons
-import wsme.protocols.restjson
-import wsme.protocols.restxml
+import wsme.rest.args
+import wsme.rest.json
+import wsme.rest.xml
 
 pecan = sys.modules['pecan']
 
@@ -18,7 +18,7 @@ class JSonRenderer(object):
         pass
 
     def render(self, template_path, namespace):
-        data = wsme.protocols.restjson.tojson(
+        data = wsme.rest.json.tojson(
             namespace['datatype'],
             namespace['result']
         )
@@ -30,7 +30,7 @@ class XMLRenderer(object):
         pass
 
     def render(self, template_path, namespace):
-        data = wsme.protocols.restxml.toxml(
+        data = wsme.rest.xml.toxml(
             namespace['datatype'],
             'result',
             namespace['result']
@@ -58,7 +58,7 @@ def wsexpose(*args, **kwargs):
         funcdef = wsme.api.FunctionDefinition.get(f)
 
         def callfunction(self, *args, **kwargs):
-            args, kwargs = wsme.protocols.commons.get_args(
+            args, kwargs = wsme.rest.args.get_args(
                 funcdef, args, kwargs,
                 pecan.request.body, pecan.request.content_type
             )

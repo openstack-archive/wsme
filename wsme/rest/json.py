@@ -1,6 +1,7 @@
 """
 REST+Json protocol implementation.
 """
+from __future__ import absolute_import
 import datetime
 import decimal
 
@@ -8,14 +9,14 @@ import six
 
 from simplegeneric import generic
 
-from wsme.protocols.rest import RestProtocol
+from wsme.rest.protocol import RestProtocol
 from wsme.types import Unset
 import wsme.types
 
 try:
     import simplejson as json
 except ImportError:
-    import json
+    import json  # noqa
 
 
 @generic

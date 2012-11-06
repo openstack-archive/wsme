@@ -141,8 +141,8 @@ def args_from_params(funcdef, params):
 
 
 def args_from_body(funcdef, body, mimetype):
-    from wsme.protocols import restjson
-    from wsme.protocols import restxml
+    from wsme.rest import json as restjson
+    from wsme.rest import xml as restxml
 
     kw = {}
 

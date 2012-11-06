@@ -9,7 +9,7 @@ import six
 import webob
 
 from wsme.exc import ClientSideError, MissingArgument, UnknownFunction
-from wsme.protocols import getprotocol
+from wsme.protocol import getprotocol
 from wsme.rest import scan_api
 from wsme import spore
 import wsme.types

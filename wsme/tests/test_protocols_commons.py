@@ -3,7 +3,7 @@
 import datetime
 import unittest
 
-from wsme.protocols.commons import from_param, from_params
+from wsme.rest.args import from_param, from_params
 
 from wsme.types import UserType, Unset, ArrayType, DictType
 

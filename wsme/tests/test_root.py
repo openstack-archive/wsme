@@ -24,9 +24,9 @@ class TestRoot(unittest.TestCase):
         default_prepare_response_body(None, [u('a'), u('b')]) == u('a\nb')
 
     def test_protocol_selection_error(self):
-        import wsme.protocols
+        import wsme.protocol
 
-        class P(wsme.protocols.Protocol):
+        class P(wsme.protocol.Protocol):
             def accept(self, r):
                 raise Exception('test')
 

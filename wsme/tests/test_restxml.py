@@ -9,7 +9,7 @@ import wsme.tests.protocol
 from wsme.utils import parse_isodatetime, parse_isodate, parse_isotime
 from wsme.types import isusertype, register_type
 
-from wsme.protocols.restxml import fromxml, toxml
+from wsme.rest.xml import fromxml, toxml
 
 try:
     import xml.etree.ElementTree as et
