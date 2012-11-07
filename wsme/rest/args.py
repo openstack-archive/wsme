@@ -168,7 +168,7 @@ def combine_args(funcdef, *akw):
     for args, kwargs in akw:
         for i, arg in enumerate(args):
             newkwargs[funcdef.arguments[i].name] = arg
-        for name, value in kwargs.iteritems():
+        for name, value in kwargs.items():
             newkwargs[name] = value
     return newargs, newkwargs
 
