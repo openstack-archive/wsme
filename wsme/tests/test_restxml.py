@@ -139,7 +139,7 @@ class TestRestXML(wsme.tests.protocol.ProtocolTestCase):
         value.aint = 5
         value.atext = u('test')
 
-        language, sample = self.root.protocols[0].encode_sample_value(
+        language, sample = wsme.rest.xml.encode_sample_value(
             MyType, value, True)
         print (language, sample)
 
@@ -150,13 +150,13 @@ class TestRestXML(wsme.tests.protocol.ProtocolTestCase):
 </value>""")
 
     def test_encode_sample_params(self):
-        lang, content = self.root.protocols[0].encode_sample_params(
+        lang, content = wsme.rest.xml.encode_sample_params(
             [('a', int, 2)], True)
         assert lang == 'xml', lang
         assert content == b('<parameters>\n  <a>2</a>\n</parameters>'), content
 
     def test_encode_sample_result(self):
-        lang, content = self.root.protocols[0].encode_sample_result(int, 2, True)
+        lang, content = wsme.rest.xml.encode_sample_result(int, 2, True)
         assert lang == 'xml', lang
         assert content == b('<result>2</result>'), content
 
@@ -183,8 +183,3 @@ class TestRestXML(wsme.tests.protocol.ProtocolTestCase):
 
         x = et.tostring(toxml(AType, 'value', AType()))
         assert x == b('<value />'), x
-
-    def test_parse_arg(self):
-        e = self.root.protocols[0].parse_arg('value', '5')
-        assert e.text == '5'
-        assert e.tag == 'value'

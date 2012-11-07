@@ -60,6 +60,9 @@ class RestProtocol(Protocol):
                     outformat = df
 
         context.outformat = outformat
+        context.outformat_options = {
+            'nest_result': getattr(self, 'nest_result', False)
+        }
         yield context
 
     def extract_path(self, context):
@@ -150,8 +153,9 @@ class RestProtocol(Protocol):
         return kw
 
     def encode_result(self, context, result):
-        out = context.outformat.tostring(
-            result, context.funcdef.return_type
+        out = context.outformat.encode_result(
+            result, context.funcdef.return_type,
+            **context.outformat_options
         )
         return out
 

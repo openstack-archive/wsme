@@ -224,73 +224,6 @@ def datetime_fromxml(datatype, element):
     return datetime.datetime.strptime(element.text, '%Y-%m-%dT%H:%M:%S')
 
 
-class RestXmlProtocol(RestProtocol):
-    """
-    REST+XML protocol.
-
-    .. autoattribute:: name
-    .. autoattribute:: dataformat
-    .. autoattribute:: content_types
-    """
-    name = 'restxml'
-    displayname = 'REST+Xml'
-    dataformat = 'xml'
-    content_types = ['text/xml']
-
-    def decode_arg(self, value, arg):
-        return fromxml(arg.datatype, value)
-
-    def parse_arg(self, name, value):
-        return et.fromstring(u("<%s>%s</%s>") % (name, value, name))
-
-    def parse_args(self, body):
-        return dict((sub.tag, sub) for sub in et.fromstring(body))
-
-    def encode_result(self, context, result):
-        return et.tostring(
-            toxml(context.funcdef.return_type, 'result', result))
-
-
-class RestXml(object):
-    name = 'xml'
-    content_type = 'text/xml'
-
-    def encode_error(self, context, errordetail):
-        el = et.Element('error')
-        et.SubElement(el, 'faultcode').text = errordetail['faultcode']
-        et.SubElement(el, 'faultstring').text = errordetail['faultstring']
-        if 'debuginfo' in errordetail:
-            et.SubElement(el, 'debuginfo').text = errordetail['debuginfo']
-        return et.tostring(el)
-
-    def encode_sample_value(self, datatype, value, format=False):
-        r = toxml(datatype, 'value', value)
-        if format:
-            xml_indent(r)
-        content = et.tostring(r)
-        return ('xml', content)
-
-    def encode_sample_params(self, params, format=False):
-        node = et.Element('parameters')
-        for name, datatype, value in params:
-            node.append(toxml(datatype, name, value))
-        if format:
-            xml_indent(node)
-        content = et.tostring(node)
-        return ('xml', content)
-
-    def encode_sample_result(self, datatype, value, format=False):
-        r = toxml(datatype, 'result', value)
-        if format:
-            xml_indent(r)
-        content = et.tostring(r)
-        return ('xml', content)
-
-
-def get_format():
-    return RestXml()
-
-
 def parse(s, datatypes, bodyarg):
     if hasattr(s, 'read'):
         tree = et.parse(s)
@@ -308,8 +241,10 @@ def parse(s, datatypes, bodyarg):
         return kw
 
 
-def tostring(value, datatype, attrname='result'):
-    return et.tostring(toxml(datatype, attrname, value))
+def encode_result(value, datatype, **options):
+    return et.tostring(toxml(
+        datatype, options.get('nested_result_attrname', 'result'), value
+    ))
 
 
 def encode_error(context, errordetail):
@@ -319,3 +254,29 @@ def encode_error(context, errordetail):
     if 'debuginfo' in errordetail:
         et.SubElement(el, 'debuginfo').text = errordetail['debuginfo']
     return et.tostring(el)
+
+
+def encode_sample_value(datatype, value, format=False):
+    r = toxml(datatype, 'value', value)
+    if format:
+        xml_indent(r)
+    content = et.tostring(r)
+    return ('xml', content)
+
+
+def encode_sample_params(params, format=False):
+    node = et.Element('parameters')
+    for name, datatype, value in params:
+        node.append(toxml(datatype, name, value))
+    if format:
+        xml_indent(node)
+    content = et.tostring(node)
+    return ('xml', content)
+
+
+def encode_sample_result(datatype, value, format=False):
+    r = toxml(datatype, 'result', value)
+    if format:
+        xml_indent(r)
+    content = et.tostring(r)
+    return ('xml', content)

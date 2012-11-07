@@ -11,6 +11,7 @@ from simplegeneric import generic
 
 from wsme.types import Unset
 import wsme.types
+from wsme.exc import UnknownArgument
 
 try:
     import simplejson as json
@@ -191,68 +192,6 @@ def datetime_fromjson(datatype, value):
     return datetime.datetime.strptime(value, '%Y-%m-%dT%H:%M:%S')
 
 
-class RestJson(object):
-    """
-    REST+Json protocol.
-
-    .. autoattribute:: name
-    .. autoattribute:: dataformat
-    .. autoattribute:: content_types
-    """
-
-    name = 'json'
-    content_type = 'application/json'
-
-    #def __init__(self, nest_result=False):
-    #    super(RestJsonProtocol, self).__init__()
-    #    self.nest_result = nest_result
-
-    def decode_arg(self, value, arg):
-        return fromjson(arg.datatype, value)
-
-    def parse_arg(self, name, value):
-        return json.loads(value)
-
-    def parse_args(self, body):
-        raw_args = json.loads(body)
-        return raw_args
-
-    def encode_result(self, context, result):
-        r = tojson(context.funcdef.return_type, result)
-        if self.nest_result:
-            r = {'result': r}
-        return json.dumps(r)
-
-    def encode_sample_value(self, datatype, value, format=False):
-        r = tojson(datatype, value)
-        content = json.dumps(r, ensure_ascii=False,
-            indent=4 if format else 0,
-            sort_keys=format)
-        return ('javascript', content)
-
-    def encode_sample_params(self, params, format=False):
-        kw = {}
-        for name, datatype, value in params:
-            kw[name] = tojson(datatype, value)
-        content = json.dumps(kw, ensure_ascii=False,
-            indent=4 if format else 0,
-            sort_keys=format)
-        return ('javascript', content)
-
-    def encode_sample_result(self, datatype, value, format=False):
-        r = tojson(datatype, value)
-        if self.nest_result:
-            r = {'result': r}
-        content = json.dumps(r, ensure_ascii=False,
-            indent=4 if format else 0,
-            sort_keys=format)
-        return ('javascript', content)
-
-
-def get_format():
-    return RestJson()
-
-
 def parse(s, datatypes, bodyarg):
     if hasattr(s, 'read'):
         jdata = json.load(s)
@@ -263,18 +202,47 @@ def parse(s, datatypes, bodyarg):
         kw = {argname: fromjson(datatypes[argname], jdata)}
     else:
         kw = {}
-        for key, datatype in datatypes.items():
-            if key in jdata:
-                kw[key] = fromjson(datatype, jdata[key])
+        for key in jdata:
+            if key not in datatypes:
+                raise UnknownArgument(key)
+            kw[key] = fromjson(datatypes[key], jdata[key])
     return kw
 
 
-def tostring(value, datatype, attrname=None):
+def encode_result(value, datatype, **options):
     jsondata = tojson(datatype, value)
-    if attrname is not None:
-        jsondata = {attrname: jsondata}
-    return json.dumps(tojson(datatype, value))
+    if options.get('nest_result', False):
+        jsondata = {options.get('nested_result_attrname', 'result'): jsondata}
+    return json.dumps(jsondata)
 
 
 def encode_error(context, errordetail):
     return json.dumps(errordetail)
+
+
+def encode_sample_value(datatype, value, format=False):
+    r = tojson(datatype, value)
+    content = json.dumps(r, ensure_ascii=False,
+        indent=4 if format else 0,
+        sort_keys=format)
+    return ('javascript', content)
+
+
+def encode_sample_params(params, format=False):
+    kw = {}
+    for name, datatype, value in params:
+        kw[name] = tojson(datatype, value)
+    content = json.dumps(kw, ensure_ascii=False,
+        indent=4 if format else 0,
+        sort_keys=format)
+    return ('javascript', content)
+
+
+def encode_sample_result(datatype, value, format=False):
+    r = tojson(datatype, value)
+    #if self.nest_result:
+        #r = {'result': r}
+    content = json.dumps(r, ensure_ascii=False,
+        indent=4 if format else 0,
+        sort_keys=format)
+    return ('javascript', content)
