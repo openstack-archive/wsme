@@ -1,8 +1,8 @@
-import collections
 import os.path
 import logging
 import six
 
+from wsme.utils import OrderedDict
 from wsme.exc import ClientSideError, UnknownArgument, MissingArgument
 from wsme.protocol import CallContext, Protocol
 
@@ -22,7 +22,7 @@ class RestProtocol(Protocol):
         if dataformats is None:
             dataformats = RestProtocol.dataformats
 
-        self.dataformats = collections.OrderedDict()
+        self.dataformats = OrderedDict()
         self.content_types = []
 
         for dataformat in dataformats:
@@ -118,12 +118,13 @@ class RestProtocol(Protocol):
         if 'body' in request.params:
             body = request.params['body']
             body_mimetype = context.outformat.content_type
-        if body is None:
-            body = request.body
-            body_mimetype = request.content_type
+        else:
             param_args = wsme.rest.args.args_from_params(
                 funcdef, request.params
             )
+            if request.content_length:
+                body = request.body
+                body_mimetype = request.content_type
         if isinstance(body, six.binary_type):
             body = body.decode('utf8')
 

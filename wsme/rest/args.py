@@ -169,7 +169,7 @@ def combine_args(funcdef, *akw):
         for i, arg in enumerate(args):
             newkwargs[funcdef.arguments[i].name] = arg
         for name, value in kwargs.items():
-            newkwargs[name] = value
+            newkwargs[str(name)] = value
     return newargs, newkwargs
 
 
