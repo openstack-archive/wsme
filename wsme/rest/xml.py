@@ -11,8 +11,14 @@ from simplegeneric import generic
 
 from wsme.rest.protocol import RestProtocol
 import wsme.types
+from wsme.exc import UnknownArgument
 
 import re
+
+content_type = 'text/xml'
+accept_content_types = [
+    content_type,
+]
 
 time_re = re.compile(r'(?P<h>[0-2][0-9]):(?P<m>[0-5][0-9]):(?P<s>[0-6][0-9])')
 
@@ -244,6 +250,11 @@ class RestXmlProtocol(RestProtocol):
         return et.tostring(
             toxml(context.funcdef.return_type, 'result', result))
 
+
+class RestXml(object):
+    name = 'xml'
+    content_type = 'text/xml'
+
     def encode_error(self, context, errordetail):
         el = et.Element('error')
         et.SubElement(el, 'faultcode').text = errordetail['faultcode']
@@ -274,3 +285,37 @@ class RestXmlProtocol(RestProtocol):
             xml_indent(r)
         content = et.tostring(r)
         return ('xml', content)
+
+
+def get_format():
+    return RestXml()
+
+
+def parse(s, datatypes, bodyarg):
+    if hasattr(s, 'read'):
+        tree = et.parse(s)
+    else:
+        tree = et.fromstring(s)
+    if bodyarg:
+        name = list(datatypes.keys())[0]
+        return fromxml(datatypes[name], tree)
+    else:
+        kw = {}
+        for sub in tree:
+            if sub.tag not in datatypes:
+                raise UnknownArgument(sub.tag)
+            kw[sub.tag] = fromxml(datatypes[sub.tag], sub)
+        return kw
+
+
+def tostring(value, datatype, attrname='result'):
+    return et.tostring(toxml(datatype, attrname, value))
+
+
+def encode_error(context, errordetail):
+    el = et.Element('error')
+    et.SubElement(el, 'faultcode').text = errordetail['faultcode']
+    et.SubElement(el, 'faultstring').text = errordetail['faultstring']
+    if 'debuginfo' in errordetail:
+        et.SubElement(el, 'debuginfo').text = errordetail['debuginfo']
+    return et.tostring(el)

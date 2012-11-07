@@ -9,7 +9,6 @@ import six
 
 from simplegeneric import generic
 
-from wsme.rest.protocol import RestProtocol
 from wsme.types import Unset
 import wsme.types
 
@@ -17,6 +16,14 @@ try:
     import simplejson as json
 except ImportError:
     import json  # noqa
+
+
+content_type = 'application/json'
+accept_content_types = [
+    content_type,
+    'text/javascript',
+    'application/javascript'
+]
 
 
 @generic
@@ -184,7 +191,7 @@ def datetime_fromjson(datatype, value):
     return datetime.datetime.strptime(value, '%Y-%m-%dT%H:%M:%S')
 
 
-class RestJsonProtocol(RestProtocol):
+class RestJson(object):
     """
     REST+Json protocol.
 
@@ -193,18 +200,12 @@ class RestJsonProtocol(RestProtocol):
     .. autoattribute:: content_types
     """
 
-    name = 'restjson'
-    displayname = 'REST+Json'
-    dataformat = 'json'
-    content_types = [
-        'application/json',
-        'application/javascript',
-        'text/javascript',
-         '']
+    name = 'json'
+    content_type = 'application/json'
 
-    def __init__(self, nest_result=False):
-        super(RestJsonProtocol, self).__init__()
-        self.nest_result = nest_result
+    #def __init__(self, nest_result=False):
+    #    super(RestJsonProtocol, self).__init__()
+    #    self.nest_result = nest_result
 
     def decode_arg(self, value, arg):
         return fromjson(arg.datatype, value)
@@ -221,9 +222,6 @@ class RestJsonProtocol(RestProtocol):
         if self.nest_result:
             r = {'result': r}
         return json.dumps(r)
-
-    def encode_error(self, context, errordetail):
-        return json.dumps(errordetail)
 
     def encode_sample_value(self, datatype, value, format=False):
         r = tojson(datatype, value)
@@ -249,3 +247,34 @@ class RestJsonProtocol(RestProtocol):
             indent=4 if format else 0,
             sort_keys=format)
         return ('javascript', content)
+
+
+def get_format():
+    return RestJson()
+
+
+def parse(s, datatypes, bodyarg):
+    if hasattr(s, 'read'):
+        jdata = json.load(s)
+    else:
+        jdata = json.loads(s)
+    if bodyarg:
+        argname = list(datatypes.keys())[0]
+        kw = {argname: fromjson(datatypes[argname], jdata)}
+    else:
+        kw = {}
+        for key, datatype in datatypes.items():
+            if key in jdata:
+                kw[key] = fromjson(datatype, jdata[key])
+    return kw
+
+
+def tostring(value, datatype, attrname=None):
+    jsondata = tojson(datatype, value)
+    if attrname is not None:
+        jsondata = {attrname: jsondata}
+    return json.dumps(tojson(datatype, value))
+
+
+def encode_error(context, errordetail):
+    return json.dumps(errordetail)

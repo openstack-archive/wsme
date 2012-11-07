@@ -144,39 +144,32 @@ def args_from_body(funcdef, body, mimetype):
     from wsme.rest import json as restjson
     from wsme.rest import xml as restxml
 
-    kw = {}
-
     if funcdef.body_type is not None:
-        bodydata = None
-        if mimetype in restjson.RestJsonProtocol.content_types:
-            if hasattr(body, 'read'):
-                jsonbody = restjson.json.load(body)
-            else:
-                jsonbody = restjson.json.loads(body)
-            bodydata = restjson.fromjson(funcdef.body_type, jsonbody)
-        elif mimetype in restxml.RestXmlProtocol.content_types:
-            if hasattr(body, 'read'):
-                xmlbody = restxml.et.parse(body)
-            else:
-                xmlbody = restxml.et.fromstring(body)
-            bodydata = restxml.fromxml(funcdef.body_type, xmlbody)
-        if bodydata:
-            kw[funcdef.arguments[-1].name] = bodydata
+        datatypes = {funcdef.arguments[-1].name: funcdef.body_type}
+    else:
+        datatypes = dict(((a.name, a.datatype) for a in funcdef.arguments))
+
+    if mimetype in restjson.accept_content_types:
+        dataformat = restjson
+    elif mimetype in restxml.accept_content_types:
+        dataformat = restxml
+    else:
+        raise ValueError("Unknow mimetype: %s" % mimetype)
+
+    kw = dataformat.parse(
+        body, datatypes, bodyarg=funcdef.body_type is not None
+    )
 
     return (), kw
 
 
 def combine_args(funcdef, *akw):
     newargs, newkwargs = [], {}
-    argindexes = {}
-    for i, arg in enumerate(funcdef.arguments):
-        argindexes[arg.name] = i
-        newargs.append(arg.default)
     for args, kwargs in akw:
         for i, arg in enumerate(args):
-            newargs[i] = arg
+            newkwargs[funcdef.arguments[i].name] = arg
         for name, value in kwargs.iteritems():
-            newargs[argindexes[name]] = value
+            newkwargs[name] = value
     return newargs, newkwargs
 
 

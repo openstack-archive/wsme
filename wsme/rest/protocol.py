@@ -1,19 +1,66 @@
+import collections
+import os.path
 import logging
 import six
 
-from six import u
-
-from wsme.exc import ClientSideError, UnknownArgument
+from wsme.exc import ClientSideError, UnknownArgument, MissingArgument
 from wsme.protocol import CallContext, Protocol
-from wsme.rest.args import from_params
-from wsme.types import Unset
+
+import wsme.rest
+import wsme.rest.args
 
 log = logging.getLogger(__name__)
 
 
 class RestProtocol(Protocol):
+    name = 'rest'
+    displayname = 'REST'
+    dataformats = ['json', 'xml']
+    content_types = ['application/json', 'text/xml']
+
+    def __init__(self, dataformats=None):
+        if dataformats is None:
+            dataformats = RestProtocol.dataformats
+
+        self.dataformats = collections.OrderedDict()
+        self.content_types = []
+
+        for dataformat in dataformats:
+            __import__('wsme.rest.' + dataformat)
+            dfmod = getattr(wsme.rest, dataformat)
+            self.dataformats[dataformat] = dfmod
+            self.content_types.extend(dfmod.accept_content_types)
+
+    def accept(self, request):
+        for dataformat in self.dataformats:
+            if request.path.endswith('.' + dataformat):
+                return True
+        return request.headers.get('Content-Type') in self.content_types
+
     def iter_calls(self, request):
-        yield CallContext(request)
+        context = CallContext(request)
+        context.outformat = None
+        ext = os.path.splitext(request.path.split('/')[-1])[1]
+        inmime = request.content_type
+        outmime = request.accept.best_match(self.content_types)
+
+        outformat = None
+        for dfname, df in self.dataformats.items():
+            if ext == '.' + dfname:
+                outformat = df
+
+        if outformat is None and request.accept:
+            for dfname, df in self.dataformats.items():
+                if outmime in df.accept_content_types:
+                    outformat = df
+
+        if outformat is None:
+            for dfname, df in self.dataformats.items():
+                if inmime == df.content_type:
+                    outformat = df
+
+        context.outformat = outformat
+        yield context
 
     def extract_path(self, context):
         path = context.request.path
@@ -21,8 +68,9 @@ class RestProtocol(Protocol):
         path = path[len(self.root._webpath):]
         path = path.strip('/').split('/')
 
-        if path[-1].endswith('.' + self.dataformat):
-            path[-1] = path[-1][:-len(self.dataformat) - 1]
+        for dataformat in self.dataformats:
+            if path[-1].endswith('.' + dataformat):
+                path[-1] = path[-1][:-len(dataformat) - 1]
 
         # Check if the path is actually a function, and if not
         # see if the http method make a difference
@@ -60,42 +108,55 @@ class RestProtocol(Protocol):
             raise ClientSideError(
                 "Cannot read parameters from both a body and GET/POST params")
 
+        param_args = (), {}
+
         body = None
+
         if 'body' in request.params:
             body = request.params['body']
+            body_mimetype = context.outformat.content_type
+        if body is None:
+            body = request.body
+            body_mimetype = request.content_type
+            param_args = wsme.rest.args.args_from_params(
+                funcdef, request.params
+            )
+        if isinstance(body, six.binary_type):
+            body = body.decode('utf8')
 
-        if body is None and len(request.params):
-            kw = {}
-            hit_paths = set()
-            for argdef in funcdef.arguments:
-                value = from_params(
-                    argdef.datatype, request.params, argdef.name, hit_paths)
-                if value is not Unset:
-                    kw[argdef.name] = value
-            paths = set(request.params.keys())
-            unknown_paths = paths - hit_paths
-            if unknown_paths:
-                raise UnknownArgument(', '.join(unknown_paths))
-            return kw
+        if body and body_mimetype in self.content_types:
+            body_args = wsme.rest.args.args_from_body(
+                funcdef, body, body_mimetype
+            )
         else:
-            if body is None:
-                body = request.body
-            if isinstance(body, six.binary_type):
-                body = body.decode('utf8')
-            if body:
-                parsed_args = self.parse_args(body)
-            else:
-                parsed_args = {}
+            body_args = ((), {})
 
-        kw = {}
+        args, kw = wsme.rest.args.combine_args(
+            funcdef,
+            param_args,
+            body_args
+        )
 
-        for arg in funcdef.arguments:
-            if arg.name not in parsed_args:
-                continue
+        for a in funcdef.arguments:
+            if a.mandatory and a.name not in kw:
+                raise MissingArgument(a.name)
 
-            value = parsed_args.pop(arg.name)
-            kw[arg.name] = self.decode_arg(value, arg)
+        argnames = set((a.name for a in funcdef.arguments))
 
-        if parsed_args:
-            raise UnknownArgument(u(', ').join(parsed_args.keys()))
+        for k in kw:
+            if k not in argnames:
+                raise UnknownArgument(k)
+
         return kw
+
+    def encode_result(self, context, result):
+        out = context.outformat.tostring(
+            result, context.funcdef.return_type
+        )
+        return out
+
+    def encode_error(self, context, errordetail):
+        out = context.outformat.encode_error(
+            context, errordetail
+        )
+        return out

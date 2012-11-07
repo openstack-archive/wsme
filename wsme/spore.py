@@ -3,7 +3,7 @@ from wsme import types
 try:
     import simplejson as json
 except ImportError:
-    import json
+    import json  # noqa
 
 
 def getdesc(root, host_url=''):

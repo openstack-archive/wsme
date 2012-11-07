@@ -55,7 +55,6 @@ class ObjectDict(object):
 class Protocol(object):
     name = None
     displayname = None
-    dataformat = None
     content_types = []
 
     def resolve_path(self, path):
@@ -73,8 +72,6 @@ class Protocol(object):
                     yield self.resolve_path(path), attr
 
     def accept(self, request):
-        if request.path.endswith('.' + self.dataformat):
-            return True
         return request.headers.get('Content-Type') in self.content_types
 
     def iter_calls(self, request):
