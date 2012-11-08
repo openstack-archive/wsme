@@ -35,11 +35,11 @@ Internals
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 .. automodule:: wsme.api
-    :members: scan_api, FunctionArgument, FunctionDefinition
+    :members: FunctionArgument, FunctionDefinition
 
-:mod:`wsme.protocols.rest` -- REST protocol commons
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+:mod:`wsme.rest.args` -- REST protocol argument handling
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-.. automodule:: wsme.protocols.rest
+.. automodule:: wsme.rest.args
     :members:
 
