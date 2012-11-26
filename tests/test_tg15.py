@@ -1,28 +1,28 @@
 import wsme.tg15
-from wsme import expose, validate, WSRoot
+from wsme import WSRoot
 
 from turbogears.controllers import RootController
 
-import unittest
+from wsmeext.soap.tests import test_soap
 
 import simplejson
 
 
-class WSController(WSRoot):
-    @expose(int)
-    @validate(int, int)
+class Root(RootController):
+    ws = WSRoot(webpath='/ws')
+    ws.addprotocol('soap',
+        tns=test_soap.tns,
+        typenamespace=test_soap.typenamespace
+    )
+    ws = wsme.tg15.adapt(ws)
+
+    @wsme.tg15.wsexpose(int)
+    @wsme.tg15.wsvalidate(int, int)
     def multiply(self, a, b):
         return a * b
 
 
-class Root(RootController):
-    ws = wsme.tg15.adapt(
-            WSController(webpath='/ws', protocols=['restjson']))
-
-
-import cherrypy
-
-from turbogears import testutil, config, startup
+from turbogears import testutil
 
 
 class TestController(testutil.TGTest):
@@ -47,9 +47,45 @@ class TestController(testutil.TGTest):
 #            startup.stopTurboGears()
 #            config.update({"server_started": False})
 
-    def test_simplecall(self):
-        response = self.app.post("/ws/multiply",
+    def test_restcall(self):
+        response = self.app.post("/multiply",
             simplejson.dumps({'a': 5, 'b': 10}),
-            {'Content-Type': 'application/json'})
+            {'Content-Type': 'application/json'}
+        )
         print response
         assert simplejson.loads(response.body) == 50
+
+        response = self.app.post("/multiply",
+            simplejson.dumps({'a': 5, 'b': 10}),
+            {'Content-Type': 'application/json', 'Accept': 'application/json'}
+        )
+        print response
+        assert simplejson.loads(response.body) == 50
+
+        response = self.app.post("/multiply",
+            simplejson.dumps({'a': 5, 'b': 10}),
+            {'Content-Type': 'application/json', 'Accept': 'text/javascript'}
+        )
+        print response
+        assert simplejson.loads(response.body) == 50
+
+        response = self.app.post("/multiply",
+            simplejson.dumps({'a': 5, 'b': 10}),
+            {'Content-Type': 'application/json',
+             'Accept': 'text/xml'}
+        )
+        print response
+        assert response.body == "<result>50</result>"
+
+    def test_soap_wsdl(self):
+        wsdl = self.app.get('/ws/api.wsdl').body
+        print wsdl
+        assert 'multiply' in wsdl
+
+    def test_soap_call(self):
+        ts = test_soap.TestSOAP('test_wsdl')
+        ts.app = self.app
+        ts.ws_path = '/ws'
+
+        print ts.ws_path
+        assert ts.call('multiply', a=5, b=10, _rt=int) == 50

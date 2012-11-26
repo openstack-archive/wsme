@@ -1,21 +1,20 @@
 import cherrypy
-import webob
-from turbogears import expose
+
+from wsme.tg1 import wsexpose, wsvalidate
+import wsme.tg1
 
 
-class Controller(object):
-    def __init__(self, wsroot):
-        self._wsroot = wsroot
+__all__ = ['adapt', 'wsexpose', 'wsvalidate']
 
-    @expose()
-    def default(self, *args, **kw):
-        req = webob.Request(cherrypy.request.wsgi_environ)
-        res = self._wsroot._handle_request(req)
-        cherrypy.response.header_list = res.headerlist
-        cherrypy.response.status = res.status
-        return res.body
+
+def scan_api(root=None):
+    for baseurl, instance in cherrypy.tree.apps.items():
+        path = [token for token in baseurl.split('/') if token]
+        for i in wsme.tg1._scan_api(instance.root, path):
+            yield i
 
 
 def adapt(wsroot):
-    controller = Controller(wsroot)
+    wsroot._scan_api = scan_api
+    controller = wsme.tg1.Controller(wsroot)
     return controller

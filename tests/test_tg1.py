@@ -1,6 +1,6 @@
-import wsme.tg1
+import wsme.tg11
 from wsme import WSRoot
-from wsme.tg1 import wsexpose, wsvalidate
+from wsme.tg11 import wsexpose, wsvalidate
 
 from turbogears.controllers import RootController
 
@@ -23,7 +23,7 @@ class Root(RootController):
         tns=test_soap.tns,
         typenamespace=test_soap.typenamespace
     )
-    ws = wsme.tg1.adapt(ws)
+    ws = wsme.tg11.adapt(ws)
 
     @wsexpose(int)
     @wsvalidate(int, int)
@@ -48,7 +48,7 @@ class TestController(unittest.TestCase):
     def tearDown(self):
         # implementation copied from turbogears.testutil.stop_server.
         # The only change is that cherrypy.root is set to None
-        # AFTER stopTurbogears has been called so that wsme.tg1
+        # AFTER stopTurbogears has been called so that wsme.tg11
         # can correctly uninstall its filter.
         if config.get("cp_started"):
             cherrypy.server.stop()
