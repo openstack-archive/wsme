@@ -9,13 +9,21 @@ import unittest
 import simplejson
 
 
+from wsmeext.soap.tests import test_soap
+
+
 class WSController(WSRoot):
     pass
 
 
 class Root(RootController):
-    ws = wsme.tg1.adapt(
-            WSController(webpath='/ws', protocols=['restjson']))
+    ws = WSController(webpath='/ws')
+    ws.addprotocol(
+        'soap',
+        tns=test_soap.tns,
+        typenamespace=test_soap.typenamespace
+    )
+    ws = wsme.tg1.adapt(ws)
 
     @wsexpose(int)
     @wsvalidate(int, int)
@@ -50,9 +58,45 @@ class TestController(unittest.TestCase):
             startup.stopTurboGears()
             config.update({"server_started": False})
 
-    def test_simplecall(self):
+    def test_restcall(self):
         response = self.app.post("/multiply",
             simplejson.dumps({'a': 5, 'b': 10}),
-            {'Content-Type': 'application/json'})
+            {'Content-Type': 'application/json'}
+        )
         print response
         assert simplejson.loads(response.body) == 50
+
+        response = self.app.post("/multiply",
+            simplejson.dumps({'a': 5, 'b': 10}),
+            {'Content-Type': 'application/json', 'Accept': 'application/json'}
+        )
+        print response
+        assert simplejson.loads(response.body) == 50
+
+        response = self.app.post("/multiply",
+            simplejson.dumps({'a': 5, 'b': 10}),
+            {'Content-Type': 'application/json', 'Accept': 'text/javascript'}
+        )
+        print response
+        assert simplejson.loads(response.body) == 50
+
+        response = self.app.post("/multiply",
+            simplejson.dumps({'a': 5, 'b': 10}),
+            {'Content-Type': 'application/json',
+             'Accept': 'text/xml'}
+        )
+        print response
+        assert response.body == "<result>50</result>"
+
+    def test_soap_wsdl(self):
+        wsdl = self.app.get('/ws/api.wsdl').body
+        print wsdl
+        assert 'multiply' in wsdl
+
+    def test_soap_call(self):
+        ts = test_soap.TestSOAP('test_wsdl')
+        ts.app = self.app
+        ts.ws_path = '/ws'
+
+        print ts.ws_path
+        assert ts.call('multiply', a=5, b=10, _rt=int) == 50

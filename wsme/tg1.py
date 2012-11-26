@@ -13,25 +13,30 @@ from turbogears.startup import call_on_startup, call_on_shutdown
 
 from wsme.rest import validate as wsvalidate
 import wsme.api
-import wsme.protocols.restjson
+import wsme.rest.args
+import wsme.rest.json
+
+import inspect
+
+APIPATH_MAXLEN = 50
 
 __all__ = ['adapt', 'wsexpose', 'wsvalidate']
 
 
 def wsexpose(*args, **kwargs):
     tg_json_expose = expose(
-        'wsmejson',
+        'wsmejson:',
         accept_format='application/json',
         content_type='application/json',
         tg_format='json'
     )
     tg_altjson_expose = expose(
-        'wsmejson',
+        'wsmejson:',
         accept_format='text/javascript',
         content_type='application/json'
     )
     tg_xml_expose = expose(
-        'wsmxml',
+        'wsmexml:',
         accept_format='text/xml',
         content_type='text/xml',
         tg_format='xml'
@@ -44,8 +49,7 @@ def wsexpose(*args, **kwargs):
 
         @functools.wraps(f)
         def callfunction(self, *args, **kwargs):
-            print args, kwargs, cherrypy.request.body
-            args, kwargs = wsme.protocols.commons.get_args(
+            args, kwargs = wsme.rest.args.get_args(
                 funcdef, args, kwargs,
                 cherrypy.request.body,
                 cherrypy.request.headers['Content-Type']
@@ -56,9 +60,10 @@ def wsexpose(*args, **kwargs):
                 result=result
             )
 
-        callfunction = tg_json_expose(callfunction)
-        callfunction = tg_altjson_expose(callfunction)
         callfunction = tg_xml_expose(callfunction)
+        callfunction = tg_altjson_expose(callfunction)
+        callfunction = tg_json_expose(callfunction)
+        callfunction._wsme_original_function = f
         return callfunction
 
     return decorate
@@ -74,14 +79,36 @@ class AutoJSONTemplate(object):
 
     def render(self, info, format="json", fragment=False, template=None):
         "Renders the template to a string using the provided info."
-        data = wsme.protocols.restjson.tojson(
-            info['datatype'],
-            info['result']
+        return wsme.rest.json.encode_result(
+            info['result'], info['datatype']
         )
-        return json.dumps(data)
 
     def get_content_type(self, user_agent):
         return "application/json"
+
+
+class AutoXMLTemplate(object):
+    def __init__(self, extra_vars_func=None, options=None):
+        pass
+
+    def load_template(self, templatename):
+        "There are no actual templates with this engine"
+        pass
+
+    def render(self, info, format="json", fragment=False, template=None):
+        "Renders the template to a string using the provided info."
+        return wsme.rest.xml.encode_result(
+            info['result'], info['datatype']
+        )
+
+    def get_content_type(self, user_agent):
+        return "text/xml"
+
+
+import turbogears.view
+
+turbogears.view.engines['wsmejson'] = AutoJSONTemplate(turbogears.view.stdvars)
+turbogears.view.engines['wsmexml'] = AutoXMLTemplate(turbogears.view.stdvars)
 
 
 class WSMECherrypyFilter(BaseFilter):
@@ -109,6 +136,7 @@ class Controller(object):
 
 
 def adapt(wsroot):
+    wsroot._scan_api = scan_api
     controller = Controller(wsroot)
     filter_ = WSMECherrypyFilter(controller)
 
@@ -126,3 +154,32 @@ def adapt(wsroot):
     call_on_startup.append(install_filter)
     call_on_shutdown.insert(0, uninstall_filter)
     return controller
+
+
+import wsme.rest
+
+
+def _scan_api(controller, path=[], objects=[]):
+    """
+    Recursively iterate a controller api entries.
+    """
+    for name in dir(controller):
+        if name.startswith('_'):
+            continue
+        a = getattr(controller, name)
+        if a in objects:
+            continue
+        if inspect.ismethod(a):
+            if wsme.api.iswsmefunction(a):
+                yield path + [name], a._wsme_original_function, [controller]
+        elif inspect.isclass(a):
+            continue
+        else:
+            if len(path) > APIPATH_MAXLEN:
+                raise ValueError("Path is too long: " + str(path))
+            for i in _scan_api(a, path + [name], objects + [a]):
+                yield i
+
+
+def scan_api(root=None):
+    return _scan_api(cherrypy.root)
