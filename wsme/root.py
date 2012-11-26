@@ -125,10 +125,16 @@ class WSRoot(object):
         :rtype: list of (path, :class:`FunctionDefinition`)
         """
         if self._api is None:
-            self._api = list(self._scan_api(self))
-            for path, fdef in self._api:
+            self._api = [
+                (path, f, f._wsme_definition, args)
+                for path, f, args in self._scan_api(self)
+            ]
+            for path, f, fdef, args in self._api:
                 fdef.resolve_types(self.__registry__)
-        return self._api
+        return [
+            (path, fdef)
+            for path, f, fdef, args in self._api
+        ]
 
     def _get_protocol(self, name):
         for protocol in self.protocols:
@@ -171,8 +177,10 @@ class WSRoot(object):
                     'The %s protocol was unable to extract a function '
                     'path from the request') % protocol.name)
 
-            context.func, context.funcdef = self._lookup_function(context.path)
+            context.func, context.funcdef, args = \
+                self._lookup_function(context.path)
             kw = protocol.read_arguments(context)
+            args = list(args)
 
             for arg in context.funcdef.arguments:
                 if arg.mandatory and arg.name not in kw:
@@ -180,7 +188,7 @@ class WSRoot(object):
 
             txn = self.begin()
             try:
-                result = context.func(**kw)
+                result = context.func(*args, **kw)
                 txn.commit()
             except:
                 txn.abort()
@@ -309,25 +317,13 @@ class WSRoot(object):
         return res
 
     def _lookup_function(self, path):
-        a = self
+        if not self._api:
+            self.getapi()
 
-        isprotocol_specific = path[0] == '_protocol'
-
-        if isprotocol_specific:
-            a = self._get_protocol(path[1])
-            path = path[2:]
-
-        for name in path:
-            a = getattr(a, name, None)
-            if a is None:
-                break
-
-        if not hasattr(a, '_wsme_definition'):
-            raise UnknownFunction('/'.join(path))
-
-        definition = a._wsme_definition
-
-        return a, definition
+        for fpath, f, fdef, args in self._api:
+            if path == fpath:
+                return f, fdef, args
+        raise UnknownFunction('/'.join(path))
 
     def _format_exception(self, excinfo):
         """Extract informations that can be sent to the client."""

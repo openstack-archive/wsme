@@ -74,9 +74,10 @@ class TestController(unittest.TestCase):
 
         api = list(scan_api(r))
         assert len(api) == 1
-        path, fd = api[0]
+        path, fd, args = api[0]
         assert path == ['ns', 'multiply']
-        assert fd.name == 'multiply'
+        assert fd._wsme_definition.name == 'multiply'
+        assert args == []
 
     def test_scan_subclass(self):
         class MyRoot(WSRoot):
@@ -90,11 +91,16 @@ class TestController(unittest.TestCase):
 
     def test_scan_api_too_deep(self):
         class Loop(object):
-            loop = None
-        Loop.me = Loop()
+            pass
+
+        l = Loop()
+        for i in range(0, 21):
+            nl = Loop()
+            nl.l = l
+            l = nl
 
         class MyRoot(WSRoot):
-            loop = Loop()
+            loop = l
 
         r = MyRoot()
 
@@ -178,14 +184,6 @@ class TestController(unittest.TestCase):
             assert False, "A ValueError should have been raised"
         except ValueError:
             pass
-
-    def test_getapi(self):
-        class MyRoot(WSRoot):
-            pass
-
-        r = MyRoot()
-        api = r.getapi()
-        assert r.getapi() is api
 
 
 class TestFunctionDefinition(unittest.TestCase):
