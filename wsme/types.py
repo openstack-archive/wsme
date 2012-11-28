@@ -31,7 +31,8 @@ class ArrayType(object):
         return hash(self.item_type)
 
     def __eq__(self, other):
-        return self.item_type == other.item_type
+        return isinstance(other, ArrayType) \
+            and self.item_type == other.item_type
 
     @property
     def item_type(self):
