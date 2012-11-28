@@ -1,10 +1,6 @@
 import inspect
 import sys
 
-import json
-
-import xml.etree.ElementTree as et
-
 import wsme
 import wsme.rest.args
 import wsme.rest.json
@@ -18,11 +14,10 @@ class JSonRenderer(object):
         pass
 
     def render(self, template_path, namespace):
-        data = wsme.rest.json.tojson(
+        return wsme.rest.json.encode_result(
             namespace['datatype'],
             namespace['result']
         )
-        return json.dumps(data)
 
 
 class XMLRenderer(object):
@@ -30,12 +25,10 @@ class XMLRenderer(object):
         pass
 
     def render(self, template_path, namespace):
-        data = wsme.rest.xml.toxml(
+        return wsme.rest.xml.encode_result(
             namespace['datatype'],
-            'result',
             namespace['result']
         )
-        return et.tostring(data)
 
 pecan.templating._builtin_renderers['wsmejson'] = JSonRenderer
 pecan.templating._builtin_renderers['wsmexml'] = XMLRenderer
