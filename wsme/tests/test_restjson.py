@@ -11,7 +11,7 @@ except:
 
 from wsme.rest.json import fromjson, tojson
 from wsme.utils import parse_isodatetime, parse_isotime, parse_isodate
-from wsme.types import isusertype, register_type
+from wsme.types import isarray, isdict, isusertype, register_type
 from wsme.rest import expose, validate
 
 
@@ -53,10 +53,18 @@ def prepare_result(value, datatype):
         datatype = datatype.basetype
     if isinstance(datatype, list):
         return [prepare_result(item, datatype[0]) for item in value]
+    if isarray(datatype):
+        return [prepare_result(item, datatype.item_type) for item in value]
     if isinstance(datatype, dict):
         return dict((
             (prepare_result(item[0], list(datatype.keys())[0]),
                 prepare_result(item[1], list(datatype.values())[0]))
+            for item in value.items()
+        ))
+    if isdict(datatype):
+        return dict((
+            (prepare_result(item[0], datatype.key_type),
+                prepare_result(item[1], datatype.value_type))
             for item in value.items()
         ))
     if datatype == datetime.date:
@@ -74,6 +82,7 @@ def prepare_result(value, datatype):
     if datatype == wsme.types.bytes:
         return value.encode('ascii')
     if type(value) != datatype:
+        print(type(value), datatype)
         return datatype(value)
     return value
 
