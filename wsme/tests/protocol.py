@@ -49,6 +49,8 @@ class NestedInner(object):
 
 class NestedOuter(object):
     inner = NestedInner
+    inner_array = wsme.types.wsattr([NestedInner])
+    inner_dict = {wsme.types.text: NestedInner}
 
     def __init__(self):
         self.inner = NestedInner(0)
@@ -126,6 +128,21 @@ class ReturnTypes(object):
     @expose({wsme.types.bytes: NestedOuter})
     def getnesteddict(self):
         return {b('a'): NestedOuter(), b('b'): NestedOuter()}
+
+    @expose(NestedOuter)
+    def getobjectarrayattribute(self):
+        obj = NestedOuter()
+        obj.inner_array = [NestedInner(12), NestedInner(13)]
+        return obj
+
+    @expose(NestedOuter)
+    def getobjectdictattribute(self):
+        obj = NestedOuter()
+        obj.inner_dict = {
+            '12': NestedInner(12),
+            '13': NestedInner(13)
+        }
+        return obj
 
     @expose(myenumtype)
     def getenum(self):
@@ -406,6 +423,25 @@ class ProtocolTestCase(unittest.TestCase):
         assert r == {
             b('a'): {'inner': {'aint': 0}},
             b('b'): {'inner': {'aint': 0}}}, r
+
+    def test_return_objectarrayattribute(self):
+        r = self.call('returntypes/getobjectarrayattribute',
+            _rt=NestedOuter)
+        assert r == {
+            'inner': {'aint': 0},
+            'inner_array': [{'aint': 12}, {'aint': 13}]
+        }, r
+
+    def test_return_objectdictattribute(self):
+        r = self.call('returntypes/getobjectdictattribute',
+            _rt=NestedOuter)
+        assert r == {
+            'inner': {'aint': 0},
+            'inner_dict': {
+                '12': {'aint': 12},
+                '13': {'aint': 13}
+            }
+        }, r
 
     def test_return_enum(self):
         r = self.call('returntypes/getenum', _rt=myenumtype)

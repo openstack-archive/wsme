@@ -7,14 +7,14 @@ import six
 
 import wsme.tests.protocol
 from wsme.utils import parse_isodatetime, parse_isodate, parse_isotime
-from wsme.types import isusertype, register_type
+from wsme.types import isarray, isdict, isusertype, register_type
 
 from wsme.rest.xml import fromxml, toxml
 
 try:
     import xml.etree.ElementTree as et
 except:
-    import cElementTree as et
+    import cElementTree as et  # noqa
 
 
 def dumpxml(key, obj, datatype=None):
@@ -60,11 +60,21 @@ def loadxml(el, datatype):
         return None
     if isinstance(datatype, list):
         return [loadxml(item, datatype[0]) for item in el.findall('item')]
+    elif isarray(datatype):
+        return [
+            loadxml(item, datatype.item_type) for item in el.findall('item')
+        ]
     elif isinstance(datatype, dict):
         key_type, value_type = list(datatype.items())[0]
         return dict((
             (loadxml(item.find('key'), key_type),
                 loadxml(item.find('value'), value_type))
+            for item in el.findall('item')
+        ))
+    elif isdict(datatype):
+        return dict((
+            (loadxml(item.find('key'), datatype.key_type),
+                loadxml(item.find('value'), datatype.value_type))
             for item in el.findall('item')
         ))
     elif len(el):
