@@ -2,14 +2,12 @@ from __future__ import absolute_import
 
 import datetime
 
-from six import u
 import six
 
 import xml.etree.ElementTree as et
 
 from simplegeneric import generic
 
-from wsme.rest.protocol import RestProtocol
 import wsme.types
 from wsme.exc import UnknownArgument
 
