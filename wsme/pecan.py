@@ -49,6 +49,7 @@ def wsexpose(*args, **kwargs):
     def decorate(f):
         sig(f)
         funcdef = wsme.api.FunctionDefinition.get(f)
+        funcdef.resolve_types(wsme.types.registry)
 
         def callfunction(self, *args, **kwargs):
             args, kwargs = wsme.rest.args.get_args(
