@@ -218,6 +218,8 @@ def validate_value(datatype, value):
             value = value.decode()
         elif datatype is bytes and isinstance(value, text):
             value = value.encode()
+        elif datatype is float and not isinstance(value, float):
+            value = float(value)
         elif not isinstance(value, datatype):
             raise ValueError(
                 "Wrong type. Expected '%s', got '%s'" % (
