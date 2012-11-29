@@ -41,9 +41,21 @@ class AuthorsController(RestController):
 
     books = BooksController()
 
+    @wsme.pecan.wsexpose([Author])
+    def get_all(self):
+        return [
+            Author(id=1, firstname=u'FirstName')
+        ]
+
     @wsme.pecan.wsexpose(Author, int)
     def get(self, id):
         author = Author()
         author.id = id
-        author.name = u"aname"
+        author.firstname = u"aname"
+        author.books = [
+            Book(
+                name=u"Les Confessions d’un révolutionnaire pour servir à "
+                    u"l’histoire de la révolution de février",
+            )
+        ]
         return author
