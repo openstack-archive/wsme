@@ -15,8 +15,8 @@ class JSonRenderer(object):
 
     def render(self, template_path, namespace):
         return wsme.rest.json.encode_result(
-            namespace['datatype'],
-            namespace['result']
+            namespace['result'],
+            namespace['datatype']
         )
 
 
@@ -26,8 +26,8 @@ class XMLRenderer(object):
 
     def render(self, template_path, namespace):
         return wsme.rest.xml.encode_result(
-            namespace['datatype'],
-            namespace['result']
+            namespace['result'],
+            namespace['datatype']
         )
 
 pecan.templating._builtin_renderers['wsmejson'] = JSonRenderer
