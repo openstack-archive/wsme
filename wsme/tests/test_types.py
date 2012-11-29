@@ -269,6 +269,11 @@ class TestTypes(unittest.TestCase):
         except ValueError:
             pass
 
+    def test_validate_float(self):
+        self.assertEqual(types.validate_value(float, 1), 1.0)
+        self.assertEqual(types.validate_value(float, '1'), 1.0)
+        self.assertEqual(types.validate_value(float, 1.1), 1.1)
+
     def test_register_invalid_array(self):
         self.assertRaises(ValueError, types.register_type, [])
         self.assertRaises(ValueError, types.register_type, [int, str])
