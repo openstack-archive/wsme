@@ -18,6 +18,8 @@ from docutils.parsers.rst import directives
 
 import wsme
 import wsme.types
+import wsme.rest.json
+import wsme.rest.xml
 
 field_re = re.compile(r':(?P<field>\w+)(\s+(?P<name>\w+))?:')
 
@@ -172,8 +174,22 @@ class TypeDocumenter(autodoc.ClassDocumenter):
             return False
 
     def add_content(self, more_content, no_docstring=False):
-        protocols = self.options.protocols or self.env.app.config.wsme_protocols
-        protocols = [wsme.protocol.getprotocol(p) for p in protocols]
+        protocolnames = list(
+            self.options.protocols or self.env.app.config.wsme_protocols
+        )
+        protocols = []
+        if 'rest' in protocolnames:
+            protocolnames.remove('rest')
+            protocolnames.extend('restjson', 'restxml')
+        if 'restjson' in protocolnames:
+            protocolnames.remove('restjson')
+            protocols.append(('Json', wsme.rest.json))
+        if 'restxml' in protocolnames:
+            protocolnames.remove('restxml')
+            protocols.append(('XML', wsme.rest.xml))
+        for name in protocolnames:
+            p = wsme.protocol.getprotocol(name)
+            protocols.append((p.displayname or p.name, p))
         content = []
         if protocols:
             sample_obj = make_sample_object(self.object)
@@ -183,11 +199,11 @@ class TypeDocumenter(autodoc.ClassDocumenter):
                 u'.. cssclass:: toggle',
                 u''
             ])
-            for protocol in protocols:
+            for name, protocol in protocols:
                 language, sample = protocol.encode_sample_value(
                     self.object, sample_obj, format=True)
                 content.extend([
-                    protocol.displayname or protocol.name,
+                    name,
                     u'    .. code-block:: ' + language,
                     u'',
                 ])
