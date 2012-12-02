@@ -41,6 +41,24 @@ def make_sample_object(datatype):
     return sample_obj
 
 
+def get_protocols(names):
+    names = list(names)
+    protocols = []
+    if 'rest' in names:
+        names.remove('rest')
+        protocols.extend('restjson', 'restxml')
+    if 'restjson' in names:
+        names.remove('restjson')
+        protocols.append(('Json', wsme.rest.json))
+    if 'restxml' in names:
+        names.remove('restxml')
+        protocols.append(('XML', wsme.rest.xml))
+    for name in names:
+        p = wsme.protocol.getprotocol(name)
+        protocols.append((p.displayname or p.name, p))
+    return protocols
+
+
 class SampleType(object):
     """A Sample Type"""
 
@@ -174,22 +192,9 @@ class TypeDocumenter(autodoc.ClassDocumenter):
             return False
 
     def add_content(self, more_content, no_docstring=False):
-        protocolnames = list(
+        protocols = get_protocols(
             self.options.protocols or self.env.app.config.wsme_protocols
         )
-        protocols = []
-        if 'rest' in protocolnames:
-            protocolnames.remove('rest')
-            protocolnames.extend('restjson', 'restxml')
-        if 'restjson' in protocolnames:
-            protocolnames.remove('restjson')
-            protocols.append(('Json', wsme.rest.json))
-        if 'restxml' in protocolnames:
-            protocolnames.remove('restxml')
-            protocols.append(('XML', wsme.rest.xml))
-        for name in protocolnames:
-            p = wsme.protocol.getprotocol(name)
-            protocols.append((p.displayname or p.name, p))
         content = []
         if protocols:
             sample_obj = make_sample_object(self.object)
@@ -351,8 +356,9 @@ class FunctionDocumenter(autodoc.MethodDocumenter):
         docstrings = super(FunctionDocumenter, self).get_doc(encoding)
         found_params = set()
 
-        protocols = self.options.protocols or self.env.app.config.wsme_protocols
-        protocols = [wsme.protocol.getprotocol(p) for p in protocols]
+        protocols = get_protocols(
+            self.options.protocols or self.env.app.config.wsme_protocols
+        )
 
         for si, docstring in enumerate(docstrings):
             for i, line in enumerate(docstring):
@@ -412,11 +418,11 @@ class FunctionDocumenter(autodoc.MethodDocumenter):
                 u'    .. cssclass:: toggle',
                 u''
             ])
-            for protocol in protocols:
+            for name, protocol in protocols:
                 language, sample = protocol.encode_sample_params(
                     params, format=True)
                 codesamples.extend([
-                    u' ' * 4 + (protocol.displayname or protocol.name),
+                    u' ' * 4 + name,
                     u'        .. code-block:: ' + language,
                     u'',
                 ])
@@ -430,11 +436,11 @@ class FunctionDocumenter(autodoc.MethodDocumenter):
                     u''
                 ])
                 sample_obj = make_sample_object(self.wsme_fd.return_type)
-                for protocol in protocols:
+                for name, protocol in protocols:
                     language, sample = protocol.encode_sample_result(
                         self.wsme_fd.return_type, sample_obj, format=True)
                     codesamples.extend([
-                        u' ' * 4 + protocol.displayname or protocol.name,
+                        u' ' * 4 + name,
                         u'        .. code-block:: ' + language,
                         u'',
                     ])
