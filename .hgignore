@@ -7,7 +7,7 @@ syntax: glob
 *.orig
 ~*
 *~
-.coverage
+.coverage*
 coverage.xml
 .noseids
 .tox
