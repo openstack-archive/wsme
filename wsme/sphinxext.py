@@ -194,6 +194,8 @@ class TypeDocumenter(autodoc.ClassDocumenter):
             return False
 
     def add_content(self, more_content, no_docstring=False):
+        super(TypeDocumenter, self).add_content(
+            more_content, no_docstring)
         protocols = get_protocols(
             self.options.protocols or self.env.app.config.wsme_protocols
         )
@@ -220,8 +222,6 @@ class TypeDocumenter(autodoc.ClassDocumenter):
             self.add_line(line, u'<wsme.sphinxext')
 
         self.add_line(u'', '<wsme.sphinxext>')
-        super(TypeDocumenter, self).add_content(
-            more_content, no_docstring)
 
 
 class AttributeDocumenter(autodoc.AttributeDocumenter):
