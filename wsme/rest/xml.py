@@ -255,7 +255,7 @@ def encode_error(context, errordetail):
 
 
 def encode_sample_value(datatype, value, format=False):
-    r = toxml(datatype, 'value', value)
+    r = toxml(datatype, 'result', value)
     if format:
         xml_indent(r)
     content = et.tostring(r)
