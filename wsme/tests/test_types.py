@@ -249,7 +249,7 @@ class TestTypes(unittest.TestCase):
         assert value.a is types.Unset
 
     def test_validate_dict(self):
-        types.validate_value({int: str}, {1: '1', 5: '5'})
+        assert types.validate_value({int: str}, {1: '1', 5: '5'})
 
         try:
             types.validate_value({int: str}, [])
@@ -257,11 +257,7 @@ class TestTypes(unittest.TestCase):
         except ValueError:
             pass
 
-        try:
-            types.validate_value({int: str}, {'1': '1', 5: '5'})
-            assert False, "No ValueError raised"
-        except ValueError:
-            pass
+        assert types.validate_value({int: str}, {'1': '1', 5: '5'})
 
         try:
             types.validate_value({int: str}, {1: 1, 5: '5'})
@@ -273,6 +269,21 @@ class TestTypes(unittest.TestCase):
         self.assertEqual(types.validate_value(float, 1), 1.0)
         self.assertEqual(types.validate_value(float, '1'), 1.0)
         self.assertEqual(types.validate_value(float, 1.1), 1.1)
+        try:
+            types.validate_value(float, [])
+            assert False, "No ValueError raised"
+        except ValueError:
+            pass
+
+    def test_validate_int(self):
+        self.assertEqual(types.validate_value(int, 1), 1)
+        self.assertEqual(types.validate_value(int, '1'), 1)
+        self.assertEqual(types.validate_value(int, six.u('1')), 1)
+        try:
+            types.validate_value(int, 1.1)
+            assert False, "No ValueError raised"
+        except ValueError:
+            pass
 
     def test_register_invalid_array(self):
         self.assertRaises(ValueError, types.register_type, [])

@@ -6,7 +6,8 @@ syntax: glob
 *.swp
 *.orig
 ~*
-.coverage
+*~
+.coverage*
 coverage.xml
 .noseids
 .tox
