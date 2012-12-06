@@ -334,10 +334,14 @@ class FunctionDocumenter(autodoc.MethodDocumenter):
     objtype = 'function'
     priority = 1
 
+    option_spec = {
+        'path': directives.unchanged,
+        'method': directives.unchanged
+    }
+
     @classmethod
     def can_document_member(cls, member, membername, isattr, parent):
-        return isinstance(parent, ServiceDocumenter) \
-            and wsme.api.iswsmefunction(member)
+        return wsme.api.iswsmefunction(member)
 
     def import_object(self):
         ret = super(FunctionDocumenter, self).import_object()
