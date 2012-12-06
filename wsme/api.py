@@ -1,5 +1,11 @@
+import traceback
 import functools
 import inspect
+import logging
+
+import wsme.exc
+
+log = logging.getLogger(__name__)
 
 
 def iswsmefunction(f):
@@ -130,3 +136,27 @@ class signature(object):
         return func
 
 sig = signature
+
+
+def format_exception(excinfo, debug=False):
+    """Extract informations that can be sent to the client."""
+    error = excinfo[1]
+    if isinstance(error, wsme.exc.ClientSideError):
+        r = dict(faultcode="Client",
+                 faultstring=error.faultstring)
+        log.warning("Client-side error: %s" % r['faultstring'])
+        r['debuginfo'] = None
+        return r
+    else:
+        faultstring = str(error)
+        debuginfo = "\n".join(traceback.format_exception(*excinfo))
+
+        log.error('Server-side error: "%s". Detail: \n%s' % (
+            faultstring, debuginfo))
+
+        r = dict(faultcode="Server", faultstring=faultstring)
+        if debug:
+            r['debuginfo'] = debuginfo
+        else:
+            r['debuginfo'] = None
+        return r

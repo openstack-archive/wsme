@@ -1,6 +1,5 @@
 import logging
 import sys
-import traceback
 import weakref
 
 from six import u, b
@@ -12,6 +11,7 @@ from wsme.exc import ClientSideError, MissingArgument, UnknownFunction
 from wsme.protocol import getprotocol
 from wsme.rest import scan_api
 from wsme import spore
+import wsme.api
 import wsme.types
 
 log = logging.getLogger(__name__)
@@ -200,7 +200,7 @@ class WSRoot(object):
 
         except Exception:
             e = sys.exc_info()[1]
-            infos = self._format_exception(sys.exc_info())
+            infos = wsme.api.format_exception(sys.exc_info(), self._debug)
             if isinstance(e, ClientSideError):
                 request.client_errorcount += 1
             else:
@@ -292,7 +292,7 @@ class WSRoot(object):
                 res.status = protocol.get_response_status(request)
                 res_content_type = protocol.get_response_contenttype(request)
         except Exception:
-            infos = self._format_exception(sys.exc_info())
+            infos = wsme.api.format_exception(sys.exc_info(), self._debug)
             request.server_errorcount += 1
             res.text = protocol.encode_error(context, infos)
             res.status = 500
@@ -324,29 +324,6 @@ class WSRoot(object):
             if path == fpath:
                 return f, fdef, args
         raise UnknownFunction('/'.join(path))
-
-    def _format_exception(self, excinfo):
-        """Extract informations that can be sent to the client."""
-        error = excinfo[1]
-        if isinstance(error, ClientSideError):
-            r = dict(faultcode="Client",
-                     faultstring=error.faultstring)
-            log.warning("Client-side error: %s" % r['faultstring'])
-            r['debuginfo'] = None
-            return r
-        else:
-            faultstring = str(error)
-            debuginfo = "\n".join(traceback.format_exception(*excinfo))
-
-            log.error('Server-side error: "%s". Detail: \n%s' % (
-                faultstring, debuginfo))
-
-            r = dict(faultcode="Server", faultstring=faultstring)
-            if self._debug:
-                r['debuginfo'] = debuginfo
-            else:
-                r['debuginfo'] = None
-            return r
 
     def _html_format(self, content, content_types):
         try:

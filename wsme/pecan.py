@@ -1,3 +1,5 @@
+from __future__ import absolute_import
+
 import inspect
 import sys
 
@@ -6,7 +8,7 @@ import wsme.rest.args
 import wsme.rest.json
 import wsme.rest.xml
 
-pecan = sys.modules['pecan']
+import pecan
 
 
 class JSonRenderer(object):
@@ -14,6 +16,8 @@ class JSonRenderer(object):
         pass
 
     def render(self, template_path, namespace):
+        if 'faultcode' in namespace:
+            return wsme.rest.json.encode_error(None, namespace)
         return wsme.rest.json.encode_result(
             namespace['result'],
             namespace['datatype']
@@ -25,6 +29,8 @@ class XMLRenderer(object):
         pass
 
     def render(self, template_path, namespace):
+        if 'faultcode' in namespace:
+            return wsme.rest.xml.encode_error(None, namespace)
         return wsme.rest.xml.encode_result(
             namespace['result'],
             namespace['datatype']
@@ -52,11 +58,20 @@ def wsexpose(*args, **kwargs):
         funcdef.resolve_types(wsme.types.registry)
 
         def callfunction(self, *args, **kwargs):
-            args, kwargs = wsme.rest.args.get_args(
-                funcdef, args, kwargs,
-                pecan.request.body, pecan.request.content_type
-            )
-            result = f(self, *args, **kwargs)
+            try:
+                args, kwargs = wsme.rest.args.get_args(
+                    funcdef, args, kwargs,
+                    pecan.request.body, pecan.request.content_type
+                )
+                result = f(self, *args, **kwargs)
+            except:
+                data = wsme.api.format_exception(sys.exc_info())
+                if data['faultcode'] == 'Client':
+                    pecan.response.status = 400
+                else:
+                    pecan.response.status = 500
+                return data
+
             return dict(
                 datatype=funcdef.return_type,
                 result=result
