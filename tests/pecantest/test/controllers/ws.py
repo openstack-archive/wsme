@@ -49,6 +49,8 @@ class AuthorsController(RestController):
 
     @wsme.pecan.wsexpose(Author, int)
     def get(self, id):
+        if id == 999:
+            raise wsme.exc.ClientSideError('Wrong ID')
         author = Author()
         author.id = id
         author.firstname = u"aname"

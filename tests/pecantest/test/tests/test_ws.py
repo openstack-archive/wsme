@@ -24,3 +24,14 @@ class TestWS(FunctionalTest):
         print a
         assert '<id>1</id>' in a.body
         assert '<firstname>aname</firstname>' in a.body
+
+    def test_clientsideerror(self):
+        res = self.app.get(
+            '/authors/999.json',
+            expect_errors=True
+        )
+        print res
+        assert res.status == 400
+        a = json.loads(res.body)
+        print a
+        assert a['faultcode'] == 'Client'
