@@ -138,7 +138,9 @@ class TypeDirective(PyClasslike):
         return _('%s (webservice type)') % name_cls[0]
 
     def add_target_and_index(self, name_cls, sig, signode):
-        ret = super(TypeDirective, self).add_target_and_index(name_cls, sig, signode)
+        ret = super(TypeDirective, self).add_target_and_index(
+            name_cls, sig, signode
+        )
         name = name_cls[0]
         types = self.env.domaindata['wsme']['types']
         if name in types:
@@ -492,7 +494,6 @@ class WSMEDomain(Domain):
         for name, value in self.data['types'].items():
             if value == docname:
                 del self.data['types'][name]
-
 
     def resolve_xref(self, env, fromdocname, builder,
                      type, target, node, contnode):
