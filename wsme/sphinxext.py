@@ -27,6 +27,11 @@ field_re = re.compile(r':(?P<field>\w+)(\s+(?P<name>\w+))?:')
 def datatypename(datatype):
     if isinstance(datatype, wsme.types.UserType):
         return datatype.name
+    if isinstance(datatype, wsme.types.DictType):
+        return 'dict(%s: %s)' % (datatypename(datatype.key_type),
+                                 datatypename(datatype.value_type))
+    if isinstance(datatype, wsme.types.ArrayType):
+        return 'list(%s)' % datatypename(datatype.item_type)
     return datatype.__name__
 
 
