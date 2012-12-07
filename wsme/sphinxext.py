@@ -162,16 +162,37 @@ class AttributeDirective(PyClassmember):
     ]
 
 
+def check_samples_slot(value):
+    """Validate the samples_slot option to the TypeDocumenter.
+
+    Valid positions are 'before-docstring' and
+    'after-docstring'. Using the explicit 'none' disables sample
+    output. The default is after-docstring.
+    """
+    if not value:
+        return 'after-docstring'
+    val = directives.choice(
+        value,
+        ('none',              # do not include
+         'before-docstring',  # show samples then docstring
+         'after-docstring',   # show docstring then samples
+         ))
+    return val
+
+
 class TypeDocumenter(autodoc.ClassDocumenter):
     objtype = 'type'
     directivetype = 'type'
     domain = 'wsme'
 
     required_arguments = 1
+    default_samples_slot = 'after-docstring'
 
-    option_spec = dict(autodoc.ClassDocumenter.option_spec, **{
-        'protocols': lambda l: [v.strip() for v in l.split(',')]
-    })
+    option_spec = dict(
+        autodoc.ClassDocumenter.option_spec,
+        **{'protocols': lambda l: [v.strip() for v in l.split(',')],
+           'samples-slot': check_samples_slot,
+           })
 
     @classmethod
     def can_document_member(cls, member, membername, isattr, parent):
@@ -199,34 +220,51 @@ class TypeDocumenter(autodoc.ClassDocumenter):
             return False
 
     def add_content(self, more_content, no_docstring=False):
-        super(TypeDocumenter, self).add_content(
-            more_content, no_docstring)
-        protocols = get_protocols(
-            self.options.protocols or self.env.app.config.wsme_protocols
-        )
-        content = []
-        if protocols:
-            sample_obj = make_sample_object(self.object)
-            content.extend([
-                l_(u'Data samples:'),
-                u'',
-                u'.. cssclass:: toggle',
-                u''
-            ])
-            for name, protocol in protocols:
-                language, sample = protocol.encode_sample_value(
-                    self.object, sample_obj, format=True)
-                content.extend([
-                    name,
-                    u'    .. code-block:: ' + language,
-                    u'',
-                ])
-                content.extend((
-                    u' ' * 8 + line for line in sample.split('\n')))
-        for line in content:
-            self.add_line(line, u'<wsme.sphinxext')
+        # Check where to include the samples
+        samples_slot = self.options.samples_slot or self.default_samples_slot
 
-        self.add_line(u'', '<wsme.sphinxext>')
+        print 'SAMPLES SLOT:', self.options.samples_slot
+
+        def add_docstring():
+            super(TypeDocumenter, self).add_content(
+                more_content, no_docstring)
+
+        def add_samples():
+            protocols = get_protocols(
+                self.options.protocols or self.env.app.config.wsme_protocols
+            )
+            content = []
+            if protocols:
+                sample_obj = make_sample_object(self.object)
+                content.extend([
+                    l_(u'Data samples:'),
+                    u'',
+                    u'.. cssclass:: toggle',
+                    u''
+                ])
+                for name, protocol in protocols:
+                    language, sample = protocol.encode_sample_value(
+                        self.object, sample_obj, format=True)
+                    content.extend([
+                        name,
+                        u'    .. code-block:: ' + language,
+                        u'',
+                    ])
+                    content.extend((
+                        u' ' * 8 + line for line in sample.split('\n')))
+            for line in content:
+                self.add_line(line, u'<wsme.sphinxext')
+
+            self.add_line(u'', '<wsme.sphinxext>')
+
+        if samples_slot == 'after-docstring':
+            add_docstring()
+            add_samples()
+        elif samples_slot == 'before-docstring':
+            add_samples()
+            add_docstring()
+        else:
+            add_docstring()
 
 
 class AttributeDocumenter(autodoc.AttributeDocumenter):
