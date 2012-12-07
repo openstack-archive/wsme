@@ -346,13 +346,14 @@ class FunctionDocumenter(autodoc.MethodDocumenter):
 
     @classmethod
     def can_document_member(cls, member, membername, isattr, parent):
-        return wsme.api.iswsmefunction(member)
+        return (isinstance(parent, ServiceDocumenter)
+                and wsme.api.iswsmefunction(member))
 
     def import_object(self):
         ret = super(FunctionDocumenter, self).import_object()
         self.directivetype = 'function'
         self.wsme_fd = wsme.api.FunctionDefinition.get(self.object)
-        self.retann = self.wsme_fd.return_type.__name__
+        self.retann = datatypename(self.wsme_fd.return_type)
         return ret
 
     def format_args(self):
@@ -365,6 +366,10 @@ class FunctionDocumenter(autodoc.MethodDocumenter):
         """Inject the type and param fields into the docstrings so that the
         user can add its own param fields to document the parameters"""
         docstrings = super(FunctionDocumenter, self).get_doc(encoding)
+        # If the function doesn't have a docstring, add an empty list
+        # so the default behaviors below work correctly.
+        if not docstrings:
+            docstrings.append([])
         found_params = set()
 
         protocols = get_protocols(
@@ -395,14 +400,13 @@ class FunctionDocumenter(autodoc.MethodDocumenter):
                                 and m.group('name') == arg.name:
                             pos = (si, i + 1)
                             break
-                            break
             docstring = docstrings[pos[0]]
             docstring[pos[1]:pos[1]] = content
             next_param_pos = (pos[0], pos[1] + len(content))
 
         if self.wsme_fd.return_type:
             content = [
-                u':rtype: %s' % self.wsme_fd.return_type.__name__
+                u':rtype: %s' % datatypename(self.wsme_fd.return_type)
             ]
             pos = None
             for si, docstring in enumerate(docstrings):
@@ -411,8 +415,7 @@ class FunctionDocumenter(autodoc.MethodDocumenter):
                     if m and m.group('field') == 'return':
                         pos = (si, i + 1)
                         break
-                        break
-            if pos is None:
+            else:
                 pos = next_param_pos
             docstring = docstrings[pos[0]]
             docstring[pos[1]:pos[1]] = content
