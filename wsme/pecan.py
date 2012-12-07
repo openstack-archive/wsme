@@ -1,5 +1,6 @@
 from __future__ import absolute_import
 
+import functools
 import inspect
 import sys
 
@@ -57,6 +58,7 @@ def wsexpose(*args, **kwargs):
         funcdef = wsme.api.FunctionDefinition.get(f)
         funcdef.resolve_types(wsme.types.registry)
 
+        @functools.wraps(f)
         def callfunction(self, *args, **kwargs):
             try:
                 args, kwargs = wsme.rest.args.get_args(
