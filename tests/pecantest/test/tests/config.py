@@ -8,9 +8,8 @@ server = {
 app = {
     'root'            : 'test.controllers.root.RootController',
     'modules'         : ['test'],
-    'static_root'     : '%(confdir)s/../../public', 
+    'static_root'     : '%(confdir)s/../../public',
     'template_path'   : '%(confdir)s/../templates',
-    'debug'           : True,
     'errors'          : {
         '404'            : '/error/404',
         '__force_dict__' : True
@@ -20,6 +19,6 @@ app = {
 # Custom Configurations must be in Python dictionary format::
 #
 # foo = {'bar':'baz'}
-# 
+#
 # All configurations are accessible at::
 # pecan.conf

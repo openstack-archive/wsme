@@ -31,7 +31,7 @@ class TestWS(FunctionalTest):
             expect_errors=True
         )
         print res
-        assert res.status == 400
+        self.assertEqual(res.status, '400 Bad Request')
         a = json.loads(res.body)
         print a
         assert a['faultcode'] == 'Client'
