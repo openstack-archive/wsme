@@ -27,6 +27,11 @@ field_re = re.compile(r':(?P<field>\w+)(\s+(?P<name>\w+))?:')
 def datatypename(datatype):
     if isinstance(datatype, wsme.types.UserType):
         return datatype.name
+    if isinstance(datatype, wsme.types.DictType):
+        return 'dict(%s: %s)' % (datatypename(datatype.key_type),
+                                 datatypename(datatype.value_type))
+    if isinstance(datatype, wsme.types.ArrayType):
+        return 'list(%s)' % datatypename(datatype.item_type)
     return datatype.__name__
 
 
@@ -157,16 +162,37 @@ class AttributeDirective(PyClassmember):
     ]
 
 
+def check_samples_slot(value):
+    """Validate the samples_slot option to the TypeDocumenter.
+
+    Valid positions are 'before-docstring' and
+    'after-docstring'. Using the explicit 'none' disables sample
+    output. The default is after-docstring.
+    """
+    if not value:
+        return 'after-docstring'
+    val = directives.choice(
+        value,
+        ('none',              # do not include
+         'before-docstring',  # show samples then docstring
+         'after-docstring',   # show docstring then samples
+         ))
+    return val
+
+
 class TypeDocumenter(autodoc.ClassDocumenter):
     objtype = 'type'
     directivetype = 'type'
     domain = 'wsme'
 
     required_arguments = 1
+    default_samples_slot = 'after-docstring'
 
-    option_spec = dict(autodoc.ClassDocumenter.option_spec, **{
-        'protocols': lambda l: [v.strip() for v in l.split(',')]
-    })
+    option_spec = dict(
+        autodoc.ClassDocumenter.option_spec,
+        **{'protocols': lambda l: [v.strip() for v in l.split(',')],
+           'samples-slot': check_samples_slot,
+           })
 
     @classmethod
     def can_document_member(cls, member, membername, isattr, parent):
@@ -194,34 +220,51 @@ class TypeDocumenter(autodoc.ClassDocumenter):
             return False
 
     def add_content(self, more_content, no_docstring=False):
-        protocols = get_protocols(
-            self.options.protocols or self.env.app.config.wsme_protocols
-        )
-        content = []
-        if protocols:
-            sample_obj = make_sample_object(self.object)
-            content.extend([
-                l_(u'Data samples:'),
-                u'',
-                u'.. cssclass:: toggle',
-                u''
-            ])
-            for name, protocol in protocols:
-                language, sample = protocol.encode_sample_value(
-                    self.object, sample_obj, format=True)
-                content.extend([
-                    name,
-                    u'    .. code-block:: ' + language,
-                    u'',
-                ])
-                content.extend((
-                    u' ' * 8 + line for line in sample.split('\n')))
-        for line in content:
-            self.add_line(line, u'<wsme.sphinxext')
+        # Check where to include the samples
+        samples_slot = self.options.samples_slot or self.default_samples_slot
 
-        self.add_line(u'', '<wsme.sphinxext>')
-        super(TypeDocumenter, self).add_content(
-            more_content, no_docstring)
+        print 'SAMPLES SLOT:', self.options.samples_slot
+
+        def add_docstring():
+            super(TypeDocumenter, self).add_content(
+                more_content, no_docstring)
+
+        def add_samples():
+            protocols = get_protocols(
+                self.options.protocols or self.env.app.config.wsme_protocols
+            )
+            content = []
+            if protocols:
+                sample_obj = make_sample_object(self.object)
+                content.extend([
+                    l_(u'Data samples:'),
+                    u'',
+                    u'.. cssclass:: toggle',
+                    u''
+                ])
+                for name, protocol in protocols:
+                    language, sample = protocol.encode_sample_value(
+                        self.object, sample_obj, format=True)
+                    content.extend([
+                        name,
+                        u'    .. code-block:: ' + language,
+                        u'',
+                    ])
+                    content.extend((
+                        u' ' * 8 + line for line in sample.split('\n')))
+            for line in content:
+                self.add_line(line, u'<wsme.sphinxext')
+
+            self.add_line(u'', '<wsme.sphinxext>')
+
+        if samples_slot == 'after-docstring':
+            add_docstring()
+            add_samples()
+        elif samples_slot == 'before-docstring':
+            add_samples()
+            add_docstring()
+        else:
+            add_docstring()
 
 
 class AttributeDocumenter(autodoc.AttributeDocumenter):
@@ -341,13 +384,14 @@ class FunctionDocumenter(autodoc.MethodDocumenter):
 
     @classmethod
     def can_document_member(cls, member, membername, isattr, parent):
-        return wsme.api.iswsmefunction(member)
+        return (isinstance(parent, ServiceDocumenter)
+                and wsme.api.iswsmefunction(member))
 
     def import_object(self):
         ret = super(FunctionDocumenter, self).import_object()
         self.directivetype = 'function'
         self.wsme_fd = wsme.api.FunctionDefinition.get(self.object)
-        self.retann = self.wsme_fd.return_type.__name__
+        self.retann = datatypename(self.wsme_fd.return_type)
         return ret
 
     def format_args(self):
@@ -360,6 +404,10 @@ class FunctionDocumenter(autodoc.MethodDocumenter):
         """Inject the type and param fields into the docstrings so that the
         user can add its own param fields to document the parameters"""
         docstrings = super(FunctionDocumenter, self).get_doc(encoding)
+        # If the function doesn't have a docstring, add an empty list
+        # so the default behaviors below work correctly.
+        if not docstrings:
+            docstrings.append([])
         found_params = set()
 
         protocols = get_protocols(
@@ -390,14 +438,13 @@ class FunctionDocumenter(autodoc.MethodDocumenter):
                                 and m.group('name') == arg.name:
                             pos = (si, i + 1)
                             break
-                            break
             docstring = docstrings[pos[0]]
             docstring[pos[1]:pos[1]] = content
             next_param_pos = (pos[0], pos[1] + len(content))
 
         if self.wsme_fd.return_type:
             content = [
-                u':rtype: %s' % self.wsme_fd.return_type.__name__
+                u':rtype: %s' % datatypename(self.wsme_fd.return_type)
             ]
             pos = None
             for si, docstring in enumerate(docstrings):
@@ -406,8 +453,7 @@ class FunctionDocumenter(autodoc.MethodDocumenter):
                     if m and m.group('field') == 'return':
                         pos = (si, i + 1)
                         break
-                        break
-            if pos is None:
+            else:
                 pos = next_param_pos
             docstring = docstrings[pos[0]]
             docstring[pos[1]:pos[1]] = content

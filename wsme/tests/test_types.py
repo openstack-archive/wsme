@@ -355,3 +355,15 @@ class TestTypes(unittest.TestCase):
     def test_array_eq(self):
         l = [types.ArrayType(str)]
         assert types.ArrayType(str) in l
+
+    def test_array_sample(self):
+        s = types.ArrayType(str).sample()
+        assert isinstance(s, list)
+        assert s
+        assert s[0] == ''
+
+    def test_dict_sample(self):
+        s = types.DictType(str, str).sample()
+        assert isinstance(s, dict)
+        assert s
+        assert s == {'': ''}

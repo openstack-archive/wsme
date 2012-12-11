@@ -34,6 +34,9 @@ class ArrayType(object):
         return isinstance(other, ArrayType) \
             and self.item_type == other.item_type
 
+    def sample(self):
+        return [getattr(self.item_type, 'sample', self.item_type)()]
+
     @property
     def item_type(self):
         if isinstance(self._item_type, weakref.ref):
@@ -66,6 +69,11 @@ class DictType(object):
 
     def __hash__(self):
         return hash((self.key_type, self.value_type))
+
+    def sample(self):
+        key = getattr(self.key_type, 'sample', self.key_type)()
+        value = getattr(self.value_type, 'sample', self.value_type)()
+        return {key: value}
 
     @property
     def value_type(self):

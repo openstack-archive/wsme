@@ -3,6 +3,7 @@ import sphinx
 import os.path
 
 import wsme.types
+from wsme import sphinxext
 
 docpath = os.path.join(
     os.path.dirname(__file__),
@@ -24,3 +25,21 @@ class TestSphinxExt(unittest.TestCase):
             '-d', '.test_sphinxext/doctree',
             docpath,
             '.test_sphinxext/html']) == 0
+
+
+class TestDataTypeName(unittest.TestCase):
+    def test_user_type(self):
+        self.assertEqual(sphinxext.datatypename(ASampleType),
+                         'ASampleType')
+
+    def test_dict_type(self):
+        d = wsme.types.DictType(str, str)
+        self.assertEqual(sphinxext.datatypename(d), 'dict(str: str)')
+        d = wsme.types.DictType(str, ASampleType)
+        self.assertEqual(sphinxext.datatypename(d), 'dict(str: ASampleType)')
+
+    def test_array_type(self):
+        d = wsme.types.ArrayType(str)
+        self.assertEqual(sphinxext.datatypename(d), 'list(str)')
+        d = wsme.types.ArrayType(ASampleType)
+        self.assertEqual(sphinxext.datatypename(d), 'list(ASampleType)')
