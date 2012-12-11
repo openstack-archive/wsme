@@ -1,6 +1,33 @@
 Changes
 =======
 
+0.5 (next)
+----------
+
+*   Introduce a new kind of adapters that rely on the framework routing.
+    Adapters are provided for Pecan, TurboGears and cornice.
+
+*   Reorganised the rest protocol implementation to ease the implementation of
+    adapters that rely only on the host framework routing system.
+
+*   The default rest ``@expose`` decorator does not wrap the decorated function
+    anymore. If needed to expose a same function several times, a parameter
+    ``multiple_expose=True`` has been introduced.
+
+*   Remove the wsme.release module
+
+*   Fix == operator on ArrayType
+
+*   Adapted the wsme.sphinxext module to work with the function exposed by the
+    ``wsme.pecan`` adapter.
+   
+*   Allow promotion of ``int`` to ``float`` on float attributes (Doug Hellman)
+
+*   Add a ``samples_slot`` option to the ``.. autotype`` directive to
+    choose where the data samples whould be inserted (Doug Hellman).
+
+*   Add ``sample()`` to ArrayType and DictType (Doug Hellman).
+
 0.4 (2012-10-15)
 ----------------
 
