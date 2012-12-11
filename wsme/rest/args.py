@@ -149,12 +149,12 @@ def args_from_body(funcdef, body, mimetype):
     else:
         datatypes = dict(((a.name, a.datatype) for a in funcdef.arguments))
 
+    if not body:
+        return (), {}
     if mimetype in restjson.accept_content_types:
         dataformat = restjson
     elif mimetype in restxml.accept_content_types:
         dataformat = restxml
-    elif not body:
-        return (), {}
     else:
         raise ValueError("Unknow mimetype: %s" % mimetype)
 
