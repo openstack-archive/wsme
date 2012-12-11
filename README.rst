@@ -6,7 +6,7 @@ Introduction
 
 Web Service Made Easy (WSME) is a very easy way to implement webservices
 in your python web application, and to add strong type checking to your favorite
-REST library/framework.
+REST library/framework, as well as additional protocols.
 
 It is originally a rewrite of TGWebServices
 with focus on extensibility, framework-independance and better type handling.
