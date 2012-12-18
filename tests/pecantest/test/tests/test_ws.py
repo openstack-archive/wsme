@@ -7,6 +7,38 @@ class TestWS(FunctionalTest):
     def test_get_all(self):
         self.app.get('/authors')
 
+    def test_optional_array_param(self):
+        r = self.app.get('/authors?q=a&q=b')
+        l = json.loads(r.body)
+        print l
+        assert len(l) == 2
+        assert l[0]['firstname'] == 'a'
+        assert l[1]['firstname'] == 'b'
+
+    def test_optional_indexed_array_param(self):
+        r = self.app.get('/authors?q[0]=a&q[1]=b')
+        l = json.loads(r.body)
+        print l
+        assert len(l) == 2
+        assert l[0]['firstname'] == 'a'
+        assert l[1]['firstname'] == 'b'
+
+    def test_options_object_array_param(self):
+        r = self.app.get('/authors?r.value=a&r.value=b')
+        l = json.loads(r.body)
+        print l
+        assert len(l) == 2
+        assert l[0]['firstname'] == 'a'
+        assert l[1]['firstname'] == 'b'
+
+    def test_options_indexed_object_array_param(self):
+        r = self.app.get('/authors?r[0].value=a&r[1].value=b')
+        l = json.loads(r.body)
+        print l
+        assert len(l) == 2
+        assert l[0]['firstname'] == 'a'
+        assert l[1]['firstname'] == 'b'
+
     def test_get_author(self):
         a = self.app.get(
             '/authors/1.json',

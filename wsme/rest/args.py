@@ -46,6 +46,16 @@ def usertype_from_param(datatype, value):
         from_param(datatype.basetype, value))
 
 
+@from_param.when_type(ArrayType)
+def array_from_param(datatype, value):
+    if value is None:
+        return value
+    return [
+        from_param(datatype.item_type, item)
+        for item in value
+    ]
+
+
 @generic
 def from_params(datatype, params, path, hit_paths):
     if iscomplex(datatype) and datatype is not File:
@@ -72,6 +82,7 @@ def from_params(datatype, params, path, hit_paths):
 @from_params.when_type(ArrayType)
 def array_from_params(datatype, params, path, hit_paths):
     if path in params:
+        hit_paths.add(path)
         return [
             from_param(datatype.item_type, value)
             for value in params.getall(path)]
@@ -175,9 +186,10 @@ def combine_args(funcdef, *akw):
     return newargs, newkwargs
 
 
-def get_args(funcdef, args, kwargs, body, mimetype):
+def get_args(funcdef, args, kwargs, params, body, mimetype):
     return combine_args(
         funcdef,
         args_from_args(funcdef, args, kwargs),
-        args_from_body(funcdef, body, mimetype)
+        args_from_params(funcdef, params),
+        args_from_body(funcdef, body, mimetype),
     )

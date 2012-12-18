@@ -62,7 +62,7 @@ def wsexpose(*args, **kwargs):
         def callfunction(self, *args, **kwargs):
             try:
                 args, kwargs = wsme.rest.args.get_args(
-                    funcdef, args, kwargs,
+                    funcdef, args, kwargs, pecan.request.params,
                     pecan.request.body, pecan.request.content_type
                 )
                 result = f(self, *args, **kwargs)

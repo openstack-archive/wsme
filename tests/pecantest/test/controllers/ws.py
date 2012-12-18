@@ -37,12 +37,28 @@ class BooksController(RestController):
         return book
 
 
+class Criterion(Base):
+    op = text
+    attrname = text
+    value = text
+
+
 class AuthorsController(RestController):
 
     books = BooksController()
 
-    @wsme.pecan.wsexpose([Author])
-    def get_all(self):
+    @wsme.pecan.wsexpose([Author], [unicode], [Criterion])
+    def get_all(self, q=None, r=None):
+        if q:
+            return [
+                Author(id=i, firstname=value)
+                for i, value in enumerate(q)
+            ]
+        if r:
+            return [
+                Author(id=i, firstname=c.value)
+                for i, c in enumerate(r)
+            ]
         return [
             Author(id=1, firstname=u'FirstName')
         ]
