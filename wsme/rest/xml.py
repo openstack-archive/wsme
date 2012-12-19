@@ -232,10 +232,13 @@ def parse(s, datatypes, bodyarg):
         return fromxml(datatypes[name], tree)
     else:
         kw = {}
+        extra_args = []
         for sub in tree:
             if sub.tag not in datatypes:
-                raise UnknownArgument(sub.tag)
+                extra_args.append(sub.tag)
             kw[sub.tag] = fromxml(datatypes[sub.tag], sub)
+        if extra_args:
+            raise UnknownArgument(', '.join(extra_args))
         return kw
 
 

@@ -172,7 +172,7 @@ def args_from_params(funcdef, params):
             kw[argdef.name] = value
     paths = set(params.keys())
     unknown_paths = paths - hit_paths
-    if unknown_paths:
+    if not funcdef.ignore_extra_args and unknown_paths:
         raise UnknownArgument(', '.join(unknown_paths))
     return [], kw
 
@@ -195,9 +195,13 @@ def args_from_body(funcdef, body, mimetype):
     else:
         raise ValueError("Unknow mimetype: %s" % mimetype)
 
-    kw = dataformat.parse(
-        body, datatypes, bodyarg=funcdef.body_type is not None
-    )
+    try:
+        kw = dataformat.parse(
+            body, datatypes, bodyarg=funcdef.body_type is not None
+        )
+    except UnknownArgument:
+        if not funcdef.ignore_extra_args:
+            raise
 
     return (), kw
 

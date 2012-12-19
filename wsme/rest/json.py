@@ -202,10 +202,14 @@ def parse(s, datatypes, bodyarg):
         kw = {argname: fromjson(datatypes[argname], jdata)}
     else:
         kw = {}
+        extra_args = []
         for key in jdata:
             if key not in datatypes:
-                raise UnknownArgument(key)
-            kw[key] = fromjson(datatypes[key], jdata[key])
+                extra_args.append(key)
+            else:
+                kw[key] = fromjson(datatypes[key], jdata[key])
+        if extra_args:
+            raise UnknownArgument(', '.join(extra_args))
     return kw
 
 

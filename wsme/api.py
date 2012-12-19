@@ -66,6 +66,11 @@ class FunctionDefinition(object):
         #: If the body carry the datas of a single argument, its type
         self.body_type = None
 
+        #: True if extra arguments should be ignored, NOT inserted in
+        #: the kwargs of the function and not raise UnknownArgument
+        #: exceptions
+        self.ignore_extra_args = False
+
         #: Dictionnary of protocol-specific options.
         self.extra_options = None
 
@@ -94,8 +99,9 @@ class FunctionDefinition(object):
         for arg in self.arguments:
             arg.resolve_type(registry)
 
-    def set_options(self, body=None, **extra_options):
+    def set_options(self, body=None, ignore_extra_args=False, **extra_options):
         self.body_type = body
+        self.ignore_extra_args = ignore_extra_args
         self.extra_options = extra_options
 
     def set_arg_types(self, argspec, arg_types):

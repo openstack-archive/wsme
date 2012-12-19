@@ -108,7 +108,7 @@ class MiniCrud(object):
         print(repr(data))
         return CRUDResult(data, u('create'))
 
-    @expose(CRUDResult, method='GET')
+    @expose(CRUDResult, method='GET', ignore_extra_args=True)
     @validate(Obj)
     def read(self, ref):
         print(repr(ref))
@@ -382,3 +382,18 @@ class TestRestJson(wsme.tests.protocol.ProtocolTestCase):
         assert result['data']['id'] == 1
         assert result['data']['name'] == u("test")
         assert result['message'] == "delete"
+
+    def test_extra_arguments(self):
+        headers = {
+            'Content-Type': 'application/json',
+        }
+        res = self.app.get(
+            '/crud?ref.id=1&extraarg=foo',
+            headers=headers,
+            expect_errors=False)
+        print("Received:", res.body)
+        result = json.loads(res.text)
+        print(result)
+        assert result['data']['id'] == 1
+        assert result['data']['name'] == u("test")
+        assert result['message'] == "read"
