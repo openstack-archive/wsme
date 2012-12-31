@@ -186,6 +186,13 @@ def array_fromxml(datatype, element):
     ]
 
 
+@fromxml.when_object(bool)
+def bool_fromxml(datatype, element):
+    if element.get('nil') == 'true':
+        return None
+    return element.text.lower() != 'false'
+
+
 @fromxml.when_type(wsme.types.DictType)
 def dict_fromxml(datatype, element):
     if element.get('nil') == 'true':
