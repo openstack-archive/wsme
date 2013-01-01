@@ -100,6 +100,14 @@ class ReturnTypes(object):
     def getdate(self):
         return datetime.date(1994, 1, 26)
 
+    @expose(bool)
+    def getbooltrue(self):
+        return True
+
+    @expose(bool)
+    def getboolfalse(self):
+        return False
+
     @expose(datetime.time)
     def gettime(self):
         return datetime.time(12, 0, 0)
@@ -388,6 +396,14 @@ class ProtocolTestCase(unittest.TestCase):
         r = self.call('returntypes/getdecimal')
         assert r in (decimal.Decimal('3.14159265'), '3.14159265'), r
 
+    def test_return_bool_true(self):
+        r = self.call('returntypes/getbooltrue', _rt=bool)
+        assert r
+
+    def test_return_bool_false(self):
+        r = self.call('returntypes/getboolfalse', _rt=bool)
+        assert not r
+
     def test_return_date(self):
         r = self.call('returntypes/getdate')
         assert r == datetime.date(1994, 1, 26) or r == '1994-01-26', r
@@ -466,6 +482,14 @@ class ProtocolTestCase(unittest.TestCase):
     def test_setfloat(self):
         assert self.call('argtypes/setfloat', value=3.54,
                          _rt=float) == 3.54
+
+    def test_setbool_true(self):
+        r = self.call('argtypes/setbool', value=True, _rt=bool)
+        assert r
+
+    def test_setbool_false(self):
+        r = self.call('argtypes/setbool', value=False, _rt=bool)
+        assert not r
 
     def test_setdecimal(self):
         value = decimal.Decimal('3.14')

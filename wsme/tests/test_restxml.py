@@ -36,7 +36,7 @@ def dumpxml(key, obj, datatype=None):
         el.text = obj.decode('ascii')
     elif isinstance(obj, wsme.types.text):
         el.text = obj
-    elif type(obj) in (int, float, decimal.Decimal):
+    elif type(obj) in (int, float, bool, decimal.Decimal):
         el.text = six.text_type(obj)
     elif type(obj) in (datetime.date, datetime.time, datetime.datetime):
         el.text = obj.isoformat()
@@ -98,6 +98,8 @@ def loadxml(el, datatype):
             return parse_isotime(el.text)
         if datatype == datetime.datetime:
             return parse_isodatetime(el.text)
+        if datatype == bool:
+            return el.text.lower() != 'false'
         if datatype is None:
             return el.text
         if datatype is wsme.types.bytes:
