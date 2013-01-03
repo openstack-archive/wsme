@@ -35,7 +35,12 @@ class RestProtocol(Protocol):
         for dataformat in self.dataformats:
             if request.path.endswith('.' + dataformat):
                 return True
-        return request.headers.get('Content-Type') in self.content_types
+        if request.headers.get('Accept') in self.content_types:
+            return True
+        for ct in self.content_types:
+            if request.headers['Content-Type'].startswith(ct):
+                return True
+        return False
 
     def iter_calls(self, request):
         context = CallContext(request)
