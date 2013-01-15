@@ -100,8 +100,8 @@ def loadxml(el, datatype):
             return parse_isotime(el.text)
         if datatype == datetime.datetime:
             return parse_isodatetime(el.text)
-        if datatype == unicode:
-            return datatype(el.text if el.text else '')
+        if datatype == wsme.types.text:
+            return datatype(el.text if el.text else u(''))
         if datatype == bool:
             return el.text.lower() != 'false'
         if datatype is None:
