@@ -203,6 +203,13 @@ def dict_fromxml(datatype, element):
         for item in element.findall('item')))
 
 
+@fromxml.when_object(wsme.types.text)
+def unicode_fromxml(datatype, element):
+    if element.get('nil') == 'true':
+        return None
+    return wsme.types.text(element.text) if element.text else six.u('')
+
+
 @fromxml.when_object(datetime.date)
 def date_fromxml(datatype, element):
     if element.get('nil') == 'true':

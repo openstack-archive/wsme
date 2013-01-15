@@ -176,6 +176,13 @@ class ArgTypes(object):
         assert type(value) == wsme.types.text
         return value
 
+    @expose(wsme.types.text)
+    @validate(wsme.types.text)
+    def settextnone(self, value):
+        print(repr(value))
+        assert type(value) == type(None)
+        return value
+
     @expose(bool)
     @validate(bool)
     def setbool(self, value):
@@ -474,6 +481,14 @@ class ProtocolTestCase(unittest.TestCase):
     def test_settext(self):
         assert self.call('argtypes/settext', value=u('\xe3\x81\xae'),
                         _rt=wsme.types.text) == u('\xe3\x81\xae')
+
+    def test_settext_empty(self):
+        assert self.call('argtypes/settext', value=u(''),
+                        _rt=wsme.types.text) == u('')
+
+    def test_settext_none(self):
+        assert self.call('argtypes/settextnone', value=None,
+                        _rt=wsme.types.text) == None
 
     def test_setint(self):
         r = self.call('argtypes/setint', value=3, _rt=int)

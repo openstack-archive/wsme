@@ -40,6 +40,8 @@ def dumpxml(key, obj, datatype=None):
         el.text = six.text_type(obj)
     elif type(obj) in (datetime.date, datetime.time, datetime.datetime):
         el.text = obj.isoformat()
+    elif type(obj) == type(None):
+        el.set('nil', 'true')
     elif hasattr(datatype, '_wsme_attributes'):
         for attr in datatype._wsme_attributes:
             name = attr.name
@@ -98,6 +100,8 @@ def loadxml(el, datatype):
             return parse_isotime(el.text)
         if datatype == datetime.datetime:
             return parse_isodatetime(el.text)
+        if datatype == wsme.types.text:
+            return datatype(el.text if el.text else u(''))
         if datatype == bool:
             return el.text.lower() != 'false'
         if datatype is None:
