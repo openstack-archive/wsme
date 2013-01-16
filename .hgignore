@@ -8,11 +8,11 @@ syntax: glob
 ~*
 *~
 .coverage*
-coverage.xml
+coverage*.xml
 .noseids
 .tox
 .test_sphinxext
-nosetests.xml
+nosetests*.xml
 
 syntax: regexp
 
