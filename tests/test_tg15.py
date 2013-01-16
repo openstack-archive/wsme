@@ -12,7 +12,8 @@ class Root(RootController):
     ws = WSRoot(webpath='/ws')
     ws.addprotocol('soap',
         tns=test_soap.tns,
-        typenamespace=test_soap.typenamespace
+        typenamespace=test_soap.typenamespace,
+        baseURL='/ws/'
     )
     ws = wsme.tg15.adapt(ws)
 
@@ -85,7 +86,7 @@ class TestController(testutil.TGTest):
     def test_soap_call(self):
         ts = test_soap.TestSOAP('test_wsdl')
         ts.app = self.app
-        ts.ws_path = '/ws'
+        ts.ws_path = '/ws/'
 
         print ts.ws_path
         assert ts.call('multiply', a=5, b=10, _rt=int) == 50

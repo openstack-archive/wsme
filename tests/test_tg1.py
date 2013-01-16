@@ -21,7 +21,8 @@ class Root(RootController):
     ws.addprotocol(
         'soap',
         tns=test_soap.tns,
-        typenamespace=test_soap.typenamespace
+        typenamespace=test_soap.typenamespace,
+        baseURL='/ws/'
     )
     ws = wsme.tg11.adapt(ws)
 
@@ -89,14 +90,18 @@ class TestController(unittest.TestCase):
         assert response.body == "<result>50</result>"
 
     def test_soap_wsdl(self):
-        wsdl = self.app.get('/ws/api.wsdl').body
-        print wsdl
-        assert 'multiply' in wsdl
+        ts = test_soap.TestSOAP('test_wsdl')
+        ts.app = self.app
+        ts.ws_path = '/ws/'
+        ts.run()
+        #wsdl = self.app.get('/ws/api.wsdl').body
+        #print wsdl
+        #assert 'multiply' in wsdl
 
     def test_soap_call(self):
         ts = test_soap.TestSOAP('test_wsdl')
         ts.app = self.app
-        ts.ws_path = '/ws'
+        ts.ws_path = '/ws/'
 
         print ts.ws_path
         assert ts.call('multiply', a=5, b=10, _rt=int) == 50
