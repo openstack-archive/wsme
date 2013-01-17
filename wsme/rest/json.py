@@ -164,6 +164,13 @@ def str_fromjson(datatype, value):
     return value.encode('utf8')
 
 
+@fromjson.when_object(wsme.types.text)
+def text_fromjson(datatype, value):
+    if value is not None and isinstance(value, wsme.types.bytes):
+        return wsme.types.text(value)
+    return value
+
+
 @fromjson.when_object(decimal.Decimal)
 def decimal_fromjson(datatype, value):
     if value is None:
