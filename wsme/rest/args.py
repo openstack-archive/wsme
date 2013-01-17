@@ -4,7 +4,7 @@ import re
 
 from simplegeneric import generic
 
-from wsme.exc import UnknownArgument
+from wsme.exc import ClientSideError, UnknownArgument
 
 from wsme.types import iscomplex, list_attributes, Unset
 from wsme.types import UserType, ArrayType, DictType, File
@@ -152,17 +152,22 @@ def dict_from_params(datatype, params, path, hit_paths):
         for key in keys))
 
 
-def args_from_args(funcdef, args, kwargs):
+def args_from_args(funcdef, args, kwargs, mimetype=None):
     newargs = []
     for argdef, arg in zip(funcdef.arguments[:len(args)], args):
         newargs.append(from_param(argdef.datatype, arg))
     newkwargs = {}
     for argname, value in kwargs.items():
         newkwargs[argname] = from_param(funcdef.get_arg(argname), value)
+    if '__body__' in kwargs:
+        newargs, newkwargs = combine_args(funcdef, (newargs, newkwargs),
+            args_from_body(funcdef, kwargs['__body__'], mimetype)
+        )
+        assert not args
     return newargs, newkwargs
 
 
-def args_from_params(funcdef, params):
+def args_from_params(funcdef, params, mimetype=None):
     kw = {}
     hit_paths = set()
     for argdef in funcdef.arguments:
@@ -172,6 +177,12 @@ def args_from_params(funcdef, params):
             kw[argdef.name] = value
     paths = set(params.keys())
     unknown_paths = paths - hit_paths
+    if '__body__' in unknown_paths:
+        args, kw = combine_args(funcdef, ([], kw),
+            args_from_body(funcdef, params['__body__'], mimetype)
+        )
+        assert not args
+        unknown_paths.remove('__body__')
     if not funcdef.ignore_extra_args and unknown_paths:
         raise UnknownArgument(', '.join(unknown_paths))
     return [], kw
@@ -188,7 +199,10 @@ def args_from_body(funcdef, body, mimetype):
 
     if not body:
         return (), {}
-    if mimetype in restjson.accept_content_types:
+    if mimetype == "application/x-www-form-urlencoded":
+        # the parameters should have been parsed in params
+        return (), {}
+    elif mimetype in restjson.accept_content_types:
         dataformat = restjson
     elif mimetype in restxml.accept_content_types:
         dataformat = restxml
@@ -210,16 +224,24 @@ def combine_args(funcdef, *akw):
     newargs, newkwargs = [], {}
     for args, kwargs in akw:
         for i, arg in enumerate(args):
-            newkwargs[funcdef.arguments[i].name] = arg
+            n = funcdef.arguments[i].name
+            if n in newkwargs:
+                raise ClientSideError(
+                    "Parameter %s was given several times" % n)
+            newkwargs[n] = arg
         for name, value in kwargs.items():
-            newkwargs[str(name)] = value
+            n = str(name)
+            if n in newkwargs:
+                raise ClientSideError(
+                    "Parameter %s was given several times" % n)
+            newkwargs[n] = value
     return newargs, newkwargs
 
 
 def get_args(funcdef, args, kwargs, params, body, mimetype):
     return combine_args(
         funcdef,
-        args_from_args(funcdef, args, kwargs),
-        args_from_params(funcdef, params),
+        args_from_args(funcdef, args, kwargs, mimetype),
+        args_from_params(funcdef, params, mimetype),
         args_from_body(funcdef, body, mimetype),
     )
