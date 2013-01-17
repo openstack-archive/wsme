@@ -185,6 +185,43 @@ class TestController(unittest.TestCase):
         except ValueError:
             pass
 
+    def test_multiple_expose(self):
+        class MyRoot(WSRoot):
+            def multiply(self, a, b):
+                return a * b
+
+            mul_int = expose(int, int, int, wrap=True)(multiply)
+
+            mul_float = expose(
+                float, float, float,
+                wrap=True)(multiply)
+
+            mul_string = expose(
+                wsme.types.text, wsme.types.text, int,
+                wrap=True)(multiply)
+
+        r = MyRoot(['restjson'])
+
+        app = webtest.TestApp(r.wsgiapp())
+
+        res = app.get('/mul_int?a=2&b=5', headers={
+            'Accept': 'application/json'
+        })
+
+        self.assertEquals(res.body, '10')
+
+        res = app.get('/mul_float?a=2.2&b=4', headers={
+            'Accept': 'application/json'
+        })
+
+        self.assertEquals(res.body, '8.8')
+
+        res = app.get('/mul_string?a=hello&b=2', headers={
+            'Accept': 'application/json'
+        })
+
+        self.assertEquals(res.body, '"hellohello"')
+
 
 class TestFunctionDefinition(unittest.TestCase):
 
