@@ -8,7 +8,20 @@ from wsmeext.soap.tests import test_soap
 import simplejson
 
 
+class Subcontroller(object):
+    @wsme.tg15.wsexpose(int, int, int)
+    def add(self, a, b):
+        return a + b
+
+
 class Root(RootController):
+    class UselessSubClass:
+        # This class is here only to make sure wsme.tg1.scan_api
+        # does its job properly
+        pass
+
+    sub = Subcontroller()
+
     ws = WSRoot(webpath='/ws')
     ws.addprotocol('soap',
         tns=test_soap.tns,
@@ -90,3 +103,42 @@ class TestController(testutil.TGTest):
 
         print ts.ws_path
         assert ts.call('multiply', a=5, b=10, _rt=int) == 50
+
+    def test_scan_api_loops(self):
+        class MyRoot(object):
+            pass
+
+        MyRoot.loop = MyRoot()
+
+        root = MyRoot()
+
+        api = list(wsme.tg1._scan_api(root))
+        print(api)
+
+        self.assertEquals(len(api), 0)
+
+    def test_scan_api_maxlen(self):
+        class ARoot(object):
+            pass
+
+        def make_subcontrollers(n):
+            c = type('Controller%s' % n, (object,), {})
+            return c
+
+        c = ARoot
+        for n in xrange(55):
+            subc = make_subcontrollers(n)
+            c.sub = subc()
+            c = subc
+        root = ARoot()
+        self.assertRaises(ValueError, list, wsme.tg1._scan_api(root))
+
+    def test_templates_content_type(self):
+        self.assertEquals(
+            "application/json",
+            wsme.tg1.AutoJSONTemplate().get_content_type('dummy')
+        )
+        self.assertEquals(
+            "text/xml",
+            wsme.tg1.AutoXMLTemplate().get_content_type('dummy')
+        )
