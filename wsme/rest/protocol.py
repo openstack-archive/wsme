@@ -1,9 +1,7 @@
 import os.path
 import logging
-import six
 
 from wsme.utils import OrderedDict
-from wsme.exc import ClientSideError, UnknownArgument, MissingArgument
 from wsme.protocol import CallContext, Protocol
 
 import wsme.rest
@@ -50,14 +48,19 @@ class RestProtocol(Protocol):
         outmime = request.accept.best_match(self.content_types)
 
         outformat = None
+        informat = None
         for dfname, df in self.dataformats.items():
             if ext == '.' + dfname:
                 outformat = df
+                if not inmime:
+                    informat = df
 
         if outformat is None and request.accept:
             for dfname, df in self.dataformats.items():
                 if outmime in df.accept_content_types:
                     outformat = df
+                    if not inmime:
+                        informat = df
 
         if outformat is None:
             for dfname, df in self.dataformats.items():
@@ -68,6 +71,10 @@ class RestProtocol(Protocol):
         context.outformat_options = {
             'nest_result': getattr(self, 'nest_result', False)
         }
+        if not inmime and informat:
+            inmime = informat.content_type
+            log.debug("Inferred input type: %s" % inmime)
+        context.inmime = inmime
         yield context
 
     def extract_path(self, context):
@@ -102,61 +109,15 @@ class RestProtocol(Protocol):
         request = context.request
         funcdef = context.funcdef
 
-        if 'Content-Type' in request.headers \
-                and ("application/x-www-form-urlencoded"
-                        in request.headers['Content-Type']
-                    or "multipart/form-data"
-                        in request.headers['Content-Type']):
-            # The params were read from the body, ignoring the body then
-            pass
-        elif len(request.params) and request.content_length:
-            log.warning("The request has both a body and params.")
-            log.debug("Params: %s" % request.params)
-            log.debug("Body: %s" % request.body)
-            raise ClientSideError(
-                "Cannot read parameters from both a body and GET/POST params")
-
-        param_args = (), {}
-
-        body = None
-
-        if 'body' in request.params:
-            body = request.params['body']
-            body_mimetype = context.outformat.content_type
-        else:
-            param_args = wsme.rest.args.args_from_params(
-                funcdef, request.params
-            )
-            if request.content_length:
-                body = request.body
-                body_mimetype = request.content_type
-        if isinstance(body, six.binary_type):
-            body = body.decode('utf8')
-
-        if body and body_mimetype in self.content_types:
-            body_args = wsme.rest.args.args_from_body(
-                funcdef, body, body_mimetype
-            )
-        else:
-            body_args = ((), {})
-
-        args, kw = wsme.rest.args.combine_args(
+        args, kwargs = wsme.rest.args.combine_args(
             funcdef,
-            param_args,
-            body_args
+            wsme.rest.args.args_from_params(funcdef, request.params,
+                context.inmime),
+            wsme.rest.args.args_from_body(
+                funcdef, request.body, request.content_type)
         )
-
-        for a in funcdef.arguments:
-            if a.mandatory and a.name not in kw:
-                raise MissingArgument(a.name)
-
-        argnames = set((a.name for a in funcdef.arguments))
-
-        for k in kw:
-            if k not in argnames:
-                raise UnknownArgument(k)
-
-        return kw
+        assert len(args) == 0
+        return kwargs
 
     def encode_result(self, context, result):
         out = context.outformat.encode_result(
