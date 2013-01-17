@@ -210,11 +210,11 @@ class TestController(unittest.TestCase):
 
         self.assertEquals(res.body, b('10'))
 
-        res = app.get('/mul_float?a=2.2&b=4', headers={
+        res = app.get('/mul_float?a=1.2&b=2.9', headers={
             'Accept': 'application/json'
         })
 
-        self.assertEquals(res.body, b('8.8'))
+        self.assertEquals(res.body, b('3.48'))
 
         res = app.get('/mul_string?a=hello&b=2', headers={
             'Accept': 'application/json'
