@@ -191,8 +191,13 @@ class TestController(unittest.TestCase):
                 return a * b
 
             mul_int = expose(int, int, int, wrap=True)(multiply)
+
             mul_float = expose(
                 float, float, float,
+                wrap=True)(multiply)
+
+            mul_string = expose(
+                wsme.types.text, wsme.types.text, int,
                 wrap=True)(multiply)
 
         r = MyRoot(['restjson'])
@@ -210,6 +215,12 @@ class TestController(unittest.TestCase):
         })
 
         self.assertEquals(res.body, '8.8')
+
+        res = app.get('/mul_string?a=hello&b=2', headers={
+            'Accept': 'application/json'
+        })
+
+        self.assertEquals(res.body, '"hellohello"')
 
 
 class TestFunctionDefinition(unittest.TestCase):
