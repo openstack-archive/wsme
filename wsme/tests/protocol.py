@@ -354,7 +354,7 @@ class ProtocolTestCase(unittest.TestCase):
         self.assertTypedEquals(a, b, wsme.utils.parse_isotime)
 
     def assertDateTimeEquals(self, a, b):
-        self.assertTypedEquals(a, b, wsme.utils.parse_isotime)
+        self.assertTypedEquals(a, b, wsme.utils.parse_isodatetime)
 
     def assertIntEquals(self, a, b):
         self.assertTypedEquals(a, b, int)
@@ -451,9 +451,7 @@ class ProtocolTestCase(unittest.TestCase):
 
     def test_return_datetime(self):
         r = self.call('returntypes/getdatetime')
-        self.assertIn(r,
-            (datetime.datetime(1994, 1, 26, 12), '1994-01-26T12:00:00')
-        )
+        self.assertDateTimeEquals(r, datetime.datetime(1994, 1, 26, 12))
 
     def test_return_binary(self):
         r = self.call('returntypes/getbinary', _rt=wsme.types.binary)
