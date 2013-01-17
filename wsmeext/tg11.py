@@ -2,8 +2,8 @@ from turbogears import config
 import cherrypy
 from cherrypy.filters.basefilter import BaseFilter
 from turbogears.startup import call_on_startup, call_on_shutdown
-from wsme.tg1 import wsexpose, wsvalidate
-import wsme.tg1
+from wsmeext.tg1 import wsexpose, wsvalidate
+import wsmeext.tg1
 
 __all__ = ['adapt', 'wsexpose', 'wsvalidate']
 
@@ -20,8 +20,8 @@ class WSMECherrypyFilter(BaseFilter):
 
 
 def adapt(wsroot):
-    wsroot._scan_api = wsme.tg1.scan_api
-    controller = wsme.tg1.Controller(wsroot)
+    wsroot._scan_api = wsmeext.tg1.scan_api
+    controller = wsmeext.tg1.Controller(wsroot)
     filter_ = WSMECherrypyFilter(controller)
 
     def install_filter():

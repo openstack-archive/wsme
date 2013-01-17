@@ -1,7 +1,7 @@
-import wsme.tg11
+import wsmeext.tg11
 from wsme import WSRoot
-from wsme.tg11 import wsexpose, wsvalidate
-import wsme.tg1
+from wsmeext.tg11 import wsexpose, wsvalidate
+import wsmeext.tg1
 
 from turbogears.controllers import RootController
 
@@ -25,7 +25,7 @@ class Subcontroller(object):
 
 class Root(RootController):
     class UselessSubClass:
-        # This class is here only to make sure wsme.tg1.scan_api
+        # This class is here only to make sure wsmeext.tg1.scan_api
         # does its job properly
         pass
 
@@ -36,7 +36,7 @@ class Root(RootController):
         typenamespace=test_soap.typenamespace,
         baseURL='/ws/'
     )
-    ws = wsme.tg11.adapt(ws)
+    ws = wsmeext.tg11.adapt(ws)
 
     @wsexpose(int)
     @wsvalidate(int, int)
@@ -61,7 +61,7 @@ class TestController(unittest.TestCase):
     def tearDown(self):
         # implementation copied from turbogears.testutil.stop_server.
         # The only change is that cherrypy.root is set to None
-        # AFTER stopTurbogears has been called so that wsme.tg11
+        # AFTER stopTurbogears has been called so that wsmeext.tg11
         # can correctly uninstall its filter.
         if config.get("cp_started"):
             cherrypy.server.stop()
@@ -133,7 +133,7 @@ class TestController(unittest.TestCase):
 
         root = MyRoot()
 
-        api = list(wsme.tg1._scan_api(root))
+        api = list(wsmeext.tg1._scan_api(root))
         print(api)
 
         self.assertEquals(len(api), 0)
@@ -152,14 +152,14 @@ class TestController(unittest.TestCase):
             c.sub = subc()
             c = subc
         root = ARoot()
-        self.assertRaises(ValueError, list, wsme.tg1._scan_api(root))
+        self.assertRaises(ValueError, list, wsmeext.tg1._scan_api(root))
 
     def test_templates_content_type(self):
         self.assertEquals(
             "application/json",
-            wsme.tg1.AutoJSONTemplate().get_content_type('dummy')
+            wsmeext.tg1.AutoJSONTemplate().get_content_type('dummy')
         )
         self.assertEquals(
             "text/xml",
-            wsme.tg1.AutoXMLTemplate().get_content_type('dummy')
+            wsmeext.tg1.AutoXMLTemplate().get_content_type('dummy')
         )

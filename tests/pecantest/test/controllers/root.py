@@ -1,7 +1,7 @@
 from pecan import expose
 from webob.exc import status_map
 from .ws import AuthorsController
-from wsme.pecan import wsexpose
+from wsmeext.pecan import wsexpose
 
 
 class RootController(object):

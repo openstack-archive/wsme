@@ -25,7 +25,7 @@ sys.path.insert(0, os.path.abspath('..'))
 
 # Add any Sphinx extension module names here, as strings. They can be extensions
 # coming with Sphinx (named 'sphinx.ext.*') or your custom ones.
-extensions = ['sphinx.ext.autodoc', 'wsme.sphinxext']
+extensions = ['sphinx.ext.autodoc', 'wsmeext.sphinxext']
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
@@ -40,7 +40,7 @@ source_suffix = '.rst'
 master_doc = 'index'
 
 # General information about the project.
-project = u'wsme.sphinxext Test'
+project = u'wsmeext.sphinxext Test'
 copyright = u'2011, Christophe de Vienne'
 
 # The version info for the project you're documenting, acts as replacement for

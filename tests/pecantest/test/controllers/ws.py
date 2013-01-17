@@ -4,7 +4,7 @@ from pecan.rest import RestController
 from wsme.types import Base, text, wsattr
 
 import wsme
-import wsme.pecan
+import wsmeext.pecan
 
 
 class Author(Base):
@@ -21,7 +21,7 @@ class Book(Base):
 
 class BooksController(RestController):
 
-    @wsme.pecan.wsexpose(Book, int, int)
+    @wsmeext.pecan.wsexpose(Book, int, int)
     def get(self, author_id, id):
         print repr(author_id), repr(id)
         book = Book(
@@ -30,7 +30,7 @@ class BooksController(RestController):
             author=Author(lastname=u"Proudhon"))
         return book
 
-    @wsme.pecan.wsexpose(Book, int, int, body=Book)
+    @wsmeext.pecan.wsexpose(Book, int, int, body=Book)
     def put(self, author_id, id, book=None):
         print author_id, id
         print book
@@ -47,7 +47,7 @@ class AuthorsController(RestController):
 
     books = BooksController()
 
-    @wsme.pecan.wsexpose([Author], [unicode], [Criterion])
+    @wsmeext.pecan.wsexpose([Author], [unicode], [Criterion])
     def get_all(self, q=None, r=None):
         if q:
             return [
@@ -63,7 +63,7 @@ class AuthorsController(RestController):
             Author(id=1, firstname=u'FirstName')
         ]
 
-    @wsme.pecan.wsexpose(Author, int)
+    @wsmeext.pecan.wsexpose(Author, int)
     def get(self, id):
         if id == 999:
             raise wsme.exc.ClientSideError('Wrong ID')

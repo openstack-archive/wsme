@@ -3,7 +3,7 @@ import sphinx
 import os.path
 
 import wsme.types
-from wsme import sphinxext
+from wsmeext import sphinxext
 
 docpath = os.path.join(
     os.path.dirname(__file__),
