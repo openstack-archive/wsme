@@ -1,6 +1,7 @@
 from pecan import expose
 from webob.exc import status_map
 from .ws import AuthorsController
+from wsme.pecan import wsexpose
 
 
 class RootController(object):
@@ -14,3 +15,7 @@ class RootController(object):
             status = 500
         message = getattr(status_map.get(status), 'explanation', '')
         return dict(status=status, message=message)
+
+    @wsexpose()
+    def divide_by_zero(self):
+        1 / 0

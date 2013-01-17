@@ -67,3 +67,18 @@ class TestWS(FunctionalTest):
         a = json.loads(res.body)
         print a
         assert a['faultcode'] == 'Client'
+
+        res = self.app.get(
+            '/authors/999.xml',
+            expect_errors=True
+        )
+        print res
+        self.assertEqual(res.status, '400 Bad Request')
+        assert '<faultcode>Client</faultcode>' in res.body
+
+    def test_serversideerror(self):
+        res = self.app.get('/divide_by_zero.json', expect_errors=True)
+        self.assertEqual(res.status, '500 Internal Server Error')
+        a = json.loads(res.body)
+        print a
+        assert a['faultcode'] == 'Server'
