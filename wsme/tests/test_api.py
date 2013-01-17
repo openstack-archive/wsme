@@ -208,19 +208,19 @@ class TestController(unittest.TestCase):
             'Accept': 'application/json'
         })
 
-        self.assertEquals(res.body, '10')
+        self.assertEquals(res.body, b('10'))
 
         res = app.get('/mul_float?a=2.2&b=4', headers={
             'Accept': 'application/json'
         })
 
-        self.assertEquals(res.body, '8.8')
+        self.assertEquals(res.body, b('8.8'))
 
         res = app.get('/mul_string?a=hello&b=2', headers={
             'Accept': 'application/json'
         })
 
-        self.assertEquals(res.body, '"hellohello"')
+        self.assertEquals(res.body, b('"hellohello"'))
 
 
 class TestFunctionDefinition(unittest.TestCase):

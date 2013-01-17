@@ -192,10 +192,12 @@ def datetime_fromjson(datatype, value):
     return datetime.datetime.strptime(value, '%Y-%m-%dT%H:%M:%S')
 
 
-def parse(s, datatypes, bodyarg):
+def parse(s, datatypes, bodyarg, encoding='utf8'):
     if hasattr(s, 'read'):
         jdata = json.load(s)
     else:
+        if six.PY3 and isinstance(s, six.binary_type):
+            s = s.decode(encoding)
         jdata = json.loads(s)
     if bodyarg:
         argname = list(datatypes.keys())[0]
