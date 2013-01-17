@@ -18,7 +18,7 @@ import inspect
 
 APIPATH_MAXLEN = 50
 
-__all__ = ['adapt', 'wsexpose', 'wsvalidate']
+__all__ = ['wsexpose', 'wsvalidate']
 
 
 def wsexpose(*args, **kwargs):
@@ -72,10 +72,6 @@ class AutoJSONTemplate(object):
     def __init__(self, extra_vars_func=None, options=None):
         pass
 
-    def load_template(self, templatename):
-        "There are no actual templates with this engine"
-        pass
-
     def render(self, info, format="json", fragment=False, template=None):
         "Renders the template to a string using the provided info."
         return wsme.rest.json.encode_result(
@@ -88,10 +84,6 @@ class AutoJSONTemplate(object):
 
 class AutoXMLTemplate(object):
     def __init__(self, extra_vars_func=None, options=None):
-        pass
-
-    def load_template(self, templatename):
-        "There are no actual templates with this engine"
         pass
 
     def render(self, info, format="json", fragment=False, template=None):

@@ -1,6 +1,7 @@
 import wsme.tg11
 from wsme import WSRoot
 from wsme.tg11 import wsexpose, wsvalidate
+import wsme.tg1
 
 from turbogears.controllers import RootController
 
@@ -16,7 +17,18 @@ class WSController(WSRoot):
     pass
 
 
+class Subcontroller(object):
+    @wsexpose(int, int, int)
+    def add(self, a, b):
+        return a + b
+
+
 class Root(RootController):
+    class UselessSubClass:
+        # This class is here only to make sure wsme.tg1.scan_api
+        # does its job properly
+        pass
+
     ws = WSController(webpath='/ws')
     ws.addprotocol(
         'soap',
@@ -31,6 +43,7 @@ class Root(RootController):
     def multiply(self, a, b):
         return a * b
 
+    sub = Subcontroller()
 
 import cherrypy
 
@@ -43,7 +56,6 @@ class TestController(unittest.TestCase):
     def setUp(self):
         "Tests the output of the index method"
         self.app = testutil.make_app(self.root)
-        print cherrypy.root
         testutil.start_server()
 
     def tearDown(self):
@@ -66,6 +78,13 @@ class TestController(unittest.TestCase):
         )
         print response
         assert simplejson.loads(response.body) == 50
+
+        response = self.app.post("/sub/add",
+            simplejson.dumps({'a': 5, 'b': 10}),
+            {'Content-Type': 'application/json'}
+        )
+        print response
+        assert simplejson.loads(response.body) == 15
 
         response = self.app.post("/multiply",
             simplejson.dumps({'a': 5, 'b': 10}),
@@ -105,3 +124,42 @@ class TestController(unittest.TestCase):
 
         print ts.ws_path
         assert ts.call('multiply', a=5, b=10, _rt=int) == 50
+
+    def test_scan_api_loops(self):
+        class MyRoot(object):
+            pass
+
+        MyRoot.loop = MyRoot()
+
+        root = MyRoot()
+
+        api = list(wsme.tg1._scan_api(root))
+        print(api)
+
+        self.assertEquals(len(api), 0)
+
+    def test_scan_api_maxlen(self):
+        class ARoot(object):
+            pass
+
+        def make_subcontrollers(n):
+            c = type('Controller%s' % n, (object,), {})
+            return c
+
+        c = ARoot
+        for n in xrange(55):
+            subc = make_subcontrollers(n)
+            c.sub = subc()
+            c = subc
+        root = ARoot()
+        self.assertRaises(ValueError, list, wsme.tg1._scan_api(root))
+
+    def test_templates_content_type(self):
+        self.assertEquals(
+            "application/json",
+            wsme.tg1.AutoJSONTemplate().get_content_type('dummy')
+        )
+        self.assertEquals(
+            "text/xml",
+            wsme.tg1.AutoXMLTemplate().get_content_type('dummy')
+        )
