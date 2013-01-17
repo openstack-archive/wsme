@@ -122,6 +122,11 @@ class MiniCrud(object):
         print(repr(data))
         return CRUDResult(data, u('update'))
 
+    @expose(CRUDResult, wsme.types.text, body=Obj)
+    def update_with_body(self, msg, data):
+        print(repr(data))
+        return CRUDResult(data, msg)
+
     @expose(CRUDResult, method='DELETE')
     @validate(Obj)
     def delete(self, ref):
@@ -211,16 +216,16 @@ class TestRestJson(wsme.tests.protocol.ProtocolTestCase):
         print(r)
         assert r.status_int == 400
         assert json.loads(r.text)['faultstring'] == \
-            "Cannot read parameters from both a body and GET/POST params"
+            "Parameter value was given several times"
 
     def test_inline_body(self):
-        params = urlencode({'body': '{"value": 4}'})
+        params = urlencode({'__body__': '{"value": 4}'})
         r = self.app.get('/argtypes/setint.json?' + params)
         print(r)
         assert json.loads(r.text) == 4
 
     def test_empty_body(self):
-        params = urlencode({'body': ''})
+        params = urlencode({'__body__': ''})
         r = self.app.get('/returntypes/getint.json?' + params)
         print(r)
         assert json.loads(r.text) == 2
@@ -397,3 +402,19 @@ class TestRestJson(wsme.tests.protocol.ProtocolTestCase):
         assert result['data']['id'] == 1
         assert result['data']['name'] == u("test")
         assert result['message'] == "read"
+
+    def test_body_arg(self):
+        headers = {
+            'Content-Type': 'application/json',
+        }
+        res = self.app.post(
+            '/crud/update_with_body?msg=hello',
+            json.dumps(dict(id=1, name=u('test'))),
+            headers=headers,
+            expect_errors=False)
+        print("Received:", res.body)
+        result = json.loads(res.text)
+        print(result)
+        assert result['data']['id'] == 1
+        assert result['data']['name'] == u("test")
+        assert result['message'] == "hello"
