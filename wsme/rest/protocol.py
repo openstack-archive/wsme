@@ -112,13 +112,13 @@ class RestProtocol(Protocol):
         body = None
         if request.content_length not in (None, 0, '0'):
             body = request.body
+        if not body and '__body__' in request.params:
+            body = request.params['__body__']
 
         args, kwargs = wsme.rest.args.combine_args(
             funcdef,
-            wsme.rest.args.args_from_params(funcdef, request.params,
-                context.inmime),
-            wsme.rest.args.args_from_body(
-                funcdef, body, request.content_type)
+            (wsme.rest.args.args_from_params(funcdef, request.params),
+             wsme.rest.args.args_from_body(funcdef, body, context.inmime))
         )
         assert len(args) == 0
         return kwargs

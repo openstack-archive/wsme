@@ -152,22 +152,17 @@ def dict_from_params(datatype, params, path, hit_paths):
         for key in keys))
 
 
-def args_from_args(funcdef, args, kwargs, mimetype=None):
+def args_from_args(funcdef, args, kwargs):
     newargs = []
     for argdef, arg in zip(funcdef.arguments[:len(args)], args):
         newargs.append(from_param(argdef.datatype, arg))
     newkwargs = {}
     for argname, value in kwargs.items():
         newkwargs[argname] = from_param(funcdef.get_arg(argname), value)
-    if '__body__' in kwargs:
-        newargs, newkwargs = combine_args(funcdef, (newargs, newkwargs),
-            args_from_body(funcdef, kwargs['__body__'], mimetype)
-        )
-        assert not args
     return newargs, newkwargs
 
 
-def args_from_params(funcdef, params, mimetype=None):
+def args_from_params(funcdef, params):
     kw = {}
     hit_paths = set()
     for argdef in funcdef.arguments:
@@ -178,10 +173,6 @@ def args_from_params(funcdef, params, mimetype=None):
     paths = set(params.keys())
     unknown_paths = paths - hit_paths
     if '__body__' in unknown_paths:
-        args, kw = combine_args(funcdef, ([], kw),
-            args_from_body(funcdef, params['__body__'], mimetype)
-        )
-        assert not args
         unknown_paths.remove('__body__')
     if not funcdef.ignore_extra_args and unknown_paths:
         raise UnknownArgument(', '.join(unknown_paths))
@@ -220,18 +211,18 @@ def args_from_body(funcdef, body, mimetype):
     return (), kw
 
 
-def combine_args(funcdef, *akw):
+def combine_args(funcdef, akw, allow_override=False):
     newargs, newkwargs = [], {}
     for args, kwargs in akw:
         for i, arg in enumerate(args):
             n = funcdef.arguments[i].name
-            if n in newkwargs:
+            if not allow_override and n in newkwargs:
                 raise ClientSideError(
                     "Parameter %s was given several times" % n)
             newkwargs[n] = arg
         for name, value in kwargs.items():
             n = str(name)
-            if n in newkwargs:
+            if not allow_override and n in newkwargs:
                 raise ClientSideError(
                     "Parameter %s was given several times" % n)
             newkwargs[n] = value
@@ -239,9 +230,35 @@ def combine_args(funcdef, *akw):
 
 
 def get_args(funcdef, args, kwargs, params, body, mimetype):
+    """Combine arguments from :
+    * the host framework args and kwargs
+    * the request params
+    * the request body
+
+    Note that the host framework args and kwargs can be overridden
+    by arguements from params of body
+    """
+    # get the body from params if not given directly
+    if not body and '__body__' in params:
+        body = params['__body__']
+
+    # extract args from the host args and kwargs
+    from_args = args_from_args(funcdef, args, kwargs)
+
+    # extract args from the request parameters
+    from_params = args_from_params(funcdef, params)
+
+    # extract args from the request body
+    from_body = args_from_body(funcdef, body, mimetype)
+
+    # combine params and body arguments
+    from_params_and_body = combine_args(
+        funcdef,
+        (from_params, from_body)
+    )
+
     return combine_args(
         funcdef,
-        args_from_args(funcdef, args, kwargs, mimetype),
-        args_from_params(funcdef, params, mimetype),
-        args_from_body(funcdef, body, mimetype),
+        (from_args, from_params_and_body),
+        allow_override=True
     )
