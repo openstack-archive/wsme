@@ -81,8 +81,8 @@ or needs to validate data integrity.
 
 To define a user type, you just have to inherit from
 :class:`wsme.types.UserType` and instanciate your new class. This instance
-will be your new type and can be used as @:class:`wsme.expose` or
-@:class:`wsme.validate` parameters.
+will be your new type and can be used as @\ :class:`wsme.expose` or
+@\ :class:`wsme.validate` parameters.
 
 Note that protocols can choose to specifically handle a user type or
 a base class of user types. This is case with the two pre-defined

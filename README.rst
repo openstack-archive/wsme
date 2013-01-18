@@ -57,7 +57,7 @@ Main features
 -   Very few runtime dependencies: webob, simplegeneric
     (+ Genshi if you use SOAP).
 -   Integration in `Sphinx`_ for making clean documentation with
-    wsme.sphinxext (work in progress).
+    ``wsmeext.sphinxext``.
 
 .. _Pecan: http://pecanpy.org/
 .. _TurboGears: http://www.turbogears.org/
