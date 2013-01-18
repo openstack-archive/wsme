@@ -461,3 +461,30 @@ class TestTypes(unittest.TestCase):
             type = 'application/json'
         f = types.File(fieldstorage=fieldstorage)
         assert f.content == 'from-file'
+
+    def test_file_field_storage_value(self):
+        class buffer:
+            def read(self):
+                return 'from-file'
+        class fieldstorage:
+            filename = 'static.json'
+            file = None
+            type = 'application/json'
+            value = 'from-value'
+        f = types.File(fieldstorage=fieldstorage)
+        assert f.content == 'from-value'
+
+    def test_file_property_file(self):
+        class buffer:
+            def read(self):
+                return 'from-file'
+        buf = buffer()
+        f = types.File(file=buf)
+        assert f.file is buf
+
+    def test_file_property_content(self):
+        class buffer:
+            def read(self):
+                return 'from-file'
+        f = types.File(content=six.b('from-content'))
+        assert f.file.read() == six.b('from-content')
