@@ -46,6 +46,9 @@ Changes
 
 *   Moved non-core features (adapters, sphinx extension) to the ``wsmeext`` module.
 
+*   Change the GET parameter name for passing the request body as a parameter
+    is now from 'body' to '__body__'
+
 0.4 (2012-10-15)
 ----------------
 
