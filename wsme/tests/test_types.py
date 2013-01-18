@@ -392,3 +392,14 @@ class TestTypes(unittest.TestCase):
         assert isinstance(s, dict)
         assert s
         assert s == {'': ''}
+
+    def test_binary_to_base(self):
+        import base64
+        assert types.binary.tobasetype(None) is None
+        assert types.binary.tobasetype('abcdef') == base64.encodestring('abcdef')
+
+    def test_binary_from_base(self):
+        import base64
+        assert types.binary.frombasetype(None) is None
+        encoded = base64.encodestring('abcdef')
+        assert types.binary.frombasetype(encoded) == 'abcdef'
