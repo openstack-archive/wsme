@@ -299,6 +299,11 @@ class TestTypes(unittest.TestCase):
             assert False, "No ValueError raised"
         except ValueError:
             pass
+        try:
+            types.validate_value(float, 'not-a-float')
+            assert False, "No ValueError raised"
+        except ValueError:
+            pass
 
     def test_validate_int(self):
         self.assertEqual(types.validate_value(int, 1), 1)
