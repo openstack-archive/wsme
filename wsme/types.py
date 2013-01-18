@@ -583,7 +583,7 @@ class File(Base):
             if fieldstorage.file:
                 self._file = fieldstorage.file
                 self.filename = fieldstorage.filename
-                self.contenttype = unicode(fieldstorage.type)
+                self.contenttype = text(fieldstorage.type)
             else:
                 self._content = fieldstorage.value
 
