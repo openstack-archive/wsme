@@ -401,13 +401,14 @@ class TestTypes(unittest.TestCase):
     def test_binary_to_base(self):
         import base64
         assert types.binary.tobasetype(None) is None
-        assert types.binary.tobasetype('abcdef') == base64.encodestring('abcdef')
+        expected = base64.encodestring(six.b('abcdef'))
+        assert types.binary.tobasetype(six.b('abcdef')) == expected
 
     def test_binary_from_base(self):
         import base64
         assert types.binary.frombasetype(None) is None
-        encoded = base64.encodestring('abcdef')
-        assert types.binary.frombasetype(encoded) == 'abcdef'
+        encoded = base64.encodestring(six.b('abcdef'))
+        assert types.binary.frombasetype(encoded) == six.b('abcdef')
 
     def test_wsattr_weakref_datatype(self):
         # If the datatype inside the wsattr ends up a weakref, it
