@@ -408,3 +408,22 @@ class TestTypes(unittest.TestCase):
         assert types.binary.frombasetype(None) is None
         encoded = base64.encodestring('abcdef')
         assert types.binary.frombasetype(encoded) == 'abcdef'
+
+    def test_wsattr_weakref_datatype(self):
+        # If the datatype inside the wsattr ends up a weakref, it
+        # should be converted to the real type when accessed again by
+        # the property getter.
+        import weakref
+        a = types.wsattr(int)
+        a.datatype = weakref.ref(int)
+        assert a.datatype is int
+
+    def test_wsattr_list_datatype(self):
+        # If the datatype inside the wsattr ends up a list of weakrefs
+        # to types, it should be converted to the real types when
+        # accessed again by the property getter.
+        import weakref
+        a = types.wsattr(int)
+        a.datatype = [weakref.ref(int)]
+        assert isinstance(a.datatype, list)
+        assert a.datatype[0] is int
