@@ -265,6 +265,31 @@ class TestTypes(unittest.TestCase):
         except ValueError:
             pass
 
+    def test_validate_list_valid(self):
+        assert types.validate_value([int], [1, 2])
+        assert types.validate_value([int], ['5'])
+
+    def test_validate_list_empty(self):
+        assert types.validate_value([int], []) == []
+
+    def test_validate_list_none(self):
+        v = types.ArrayType(int)
+        assert v.validate(None) is None
+
+    def test_validate_list_invalid_member(self):
+        try:
+            assert types.validate_value([int], ['not-a-number'])
+            assert False, "No ValueError raised"
+        except ValueError:
+            pass
+
+    def test_validate_list_invalid_type(self):
+        try:
+            assert types.validate_value([int], 1)
+            assert False, "No ValueError raised"
+        except ValueError:
+            pass
+
     def test_validate_float(self):
         self.assertEqual(types.validate_value(float, 1), 1.0)
         self.assertEqual(types.validate_value(float, '1'), 1.0)
