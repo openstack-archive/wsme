@@ -1,8 +1,8 @@
 Changes
 =======
 
-0.5 (next)
-----------
+0.5b1 (next)
+------------
 
 *   Introduce a new kind of adapters that rely on the framework routing.
     Adapters are provided for Pecan, TurboGears and cornice.
@@ -27,6 +27,24 @@ Changes
     choose where the data samples whould be inserted (Doug Hellman).
 
 *   Add ``sample()`` to ArrayType and DictType (Doug Hellman).
+
+*   New syntax for object arrays as GET parameters, without brackets. Ex:
+    ``?o.f1=a&o.f1=b&o.f2=c&o.f2=d`` is an array of two objects:
+    [{'f1': 'a', 'f2': 'c']}, {'f1': 'b', 'f2': 'd']}.
+
+*   @signature (and its @wsexpose frontends) has a new parameter:
+    ``ignore_extra_args``.
+
+*   Fix boolean as input type support in the soap implementation (Craig
+    McDaniel).
+
+*   Fix empty/nil strings distinction in soap (Craig McDaniel).
+
+*   Improved unittests code coverage.
+
+*   Ported the soap implementation to python 3.
+
+*   Moved non-core features (adapters, sphinx extension) to the ``wsmeext`` module.
 
 0.4 (2012-10-15)
 ----------------
