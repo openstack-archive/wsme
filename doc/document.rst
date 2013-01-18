@@ -10,12 +10,12 @@ Install the extension
 
 Here we consider that you already quick-started a sphinx project.
 
-#.  In your ``conf.py`` file, add ``'wsme.sphinxext'`` to you extensions,
+#.  In your ``conf.py`` file, add ``'ext'`` to you extensions,
     and optionally set the enabled protocols.
 
     .. code-block:: python
 
-        extensions = ['wsme.sphinxext']
+        extensions = ['ext']
 
         wsme_protocols = ['restjson', 'restxml', 'extdirect']
 
@@ -93,7 +93,7 @@ Example
 
     * - .. code-block:: rst
 
-            .. wsme:root:: wsme.sphinxext.SampleService
+            .. wsme:root:: wsmeext.sphinxext.SampleService
                 :webpath: /api
 
             .. wsme:type:: MyType
@@ -106,7 +106,7 @@ Example
                 
                 .. wsme:function:: doit
                     
-      - .. wsme:root:: wsme.sphinxext.SampleService
+      - .. wsme:root:: wsmeext.sphinxext.SampleService
             :webpath: /api
 
         .. wsme:type:: MyType
@@ -150,7 +150,7 @@ Full Example
 Python source
 ~~~~~~~~~~~~~
 
-.. literalinclude:: ../wsme/sphinxext.py
+.. literalinclude:: ../wsmeext/sphinxext.py
     :lines: 42-67
     :language: python
 
@@ -159,27 +159,27 @@ Documentation source
 
 .. code-block:: rst
 
-    .. default-domain:: wsme
+    .. default-domain:: wsmeext
 
-    .. autotype:: wsme.sphinxext.SampleType
+    .. autotype:: wsmeext.sphinxext.SampleType
         :members:
 
-    .. autoservice:: wsme.sphinxext.SampleService
+    .. autoservice:: wsmeext.sphinxext.SampleService
         :members:
 
 Result
 ~~~~~~
 
-.. default-domain:: wsme
+.. default-domain:: wsmeext
 
 .. type:: int
 
     An integer
 
-.. autotype:: wsme.sphinxext.SampleType
+.. autotype:: wsmeext.sphinxext.SampleType
     :members:
 
-.. autoservice:: wsme.sphinxext.SampleService
+.. autoservice:: wsmeext.sphinxext.SampleService
     :members:
 
 

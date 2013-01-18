@@ -253,9 +253,9 @@ class TypeDocumenter(autodoc.ClassDocumenter):
                     content.extend((
                         u' ' * 8 + line for line in sample.split('\n')))
             for line in content:
-                self.add_line(line, u'<wsme.sphinxext')
+                self.add_line(line, u'<wsmeext.sphinxext')
 
-            self.add_line(u'', '<wsme.sphinxext>')
+            self.add_line(u'', '<wsmeext.sphinxext>')
 
         if samples_slot == 'after-docstring':
             add_docstring()
@@ -284,9 +284,9 @@ class AttributeDocumenter(autodoc.AttributeDocumenter):
     def add_content(self, more_content, no_docstring=False):
         self.add_line(
             u':type: %s' % datatypename(self.datatype),
-            '<wsme.sphinxext>'
+            '<wsmeext.sphinxext>'
         )
-        self.add_line(u'', '<wsme.sphinxext>')
+        self.add_line(u'', '<wsmeext.sphinxext>')
         super(AttributeDocumenter, self).add_content(
             more_content, no_docstring)
 
