@@ -10,7 +10,7 @@ import unittest
 import simplejson
 
 
-from wsmeext.soap.tests import test_soap
+from wsmeext.tests import test_soap
 
 
 class WSController(WSRoot):

@@ -49,6 +49,9 @@ Changes
 *   Change the GET parameter name for passing the request body as a parameter
     is now from 'body' to '__body__'
 
+*   The soap, extdirect and sqlalchemy packages have been merged into the main
+    package.
+
 0.4 (2012-10-15)
 ----------------
 

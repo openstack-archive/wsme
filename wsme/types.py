@@ -450,9 +450,13 @@ def list_attributes(class_):
 
 class Registry(object):
     def __init__(self):
-        self.complex_types = []
+        self._complex_types = []
         self.array_types = set()
         self.dict_types = set()
+
+    @property
+    def complex_types(self):
+        return [t() for t in self._complex_types if t()]
 
     def register(self, class_):
         """
@@ -489,7 +493,7 @@ class Registry(object):
         class_._wsme_attributes = inspect_class(class_)
 
         class_.__registry__ = self
-        self.complex_types.append(weakref.ref(class_))
+        self._complex_types.append(weakref.ref(class_))
         return class_
 
     def lookup(self, typename):
@@ -497,7 +501,7 @@ class Registry(object):
         modname = None
         if '.' in typename:
             modname, typename = typename.rsplit('.', 1)
-        for ct in self.complex_types:
+        for ct in self._complex_types:
             ct = ct()
             if ct is not None and typename == ct.__name__ and (
                     modname is None or modname == ct.__module__):

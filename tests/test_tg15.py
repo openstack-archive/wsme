@@ -3,7 +3,7 @@ from wsme import WSRoot
 
 from turbogears.controllers import RootController
 
-from wsmeext.soap.tests import test_soap
+from wsmeext.tests import test_soap
 
 import simplejson
 
