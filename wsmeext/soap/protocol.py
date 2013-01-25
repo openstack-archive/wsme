@@ -199,6 +199,8 @@ class SoapEncoder(object):
     def binary_tosoap(self, datatype, tag, value):
         print(datatype, tag, value)
         value = base64.encodestring(value) if value is not None else None
+        if six.PY3:
+            value = value.decode('ascii')
         return self.make_soap_element(
             datatype.basetype, tag, value, 'xs:base64Binary'
         )
