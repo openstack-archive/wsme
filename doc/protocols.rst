@@ -234,7 +234,6 @@ SOAP
 ----
 
 :name: ``'soap'``
-:package: WSME-Soap
 
 Implements the SOAP protocol.
 
@@ -255,7 +254,6 @@ ExtDirect
 ---------
 
 :name: ``extdirect``
-:package: WSME-ExtDirect
 
 Implements the `Ext Direct`_ protocol.
 

@@ -54,8 +54,8 @@ Main features
 -   Framework independance : adapters are provided to easily integrate
     your API in any web framework, for example a wsgi container,
     Pecan_, TurboGears_, cornice_...
--   Very few runtime dependencies: webob, simplegeneric
-    (+ Genshi if you use SOAP).
+-   Very few runtime dependencies: webob, simplegeneric. Optionnaly lxml and
+    simplejson if you need better performances.
 -   Integration in `Sphinx`_ for making clean documentation with
     ``wsmeext.sphinxext``.
 
