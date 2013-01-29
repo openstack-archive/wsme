@@ -4,17 +4,24 @@ Web Services Made Easy
 Introduction
 ------------
 
-Web Service Made Easy (WSME) is a very easy way to implement webservices
-in your python web application, and to add strong type checking to your favorite
-REST library/framework, as well as additional protocols.
+Web Service Made Easy (WSME) simplify the writing of REST web services
+by providing simple yet powerful typing which removes the need to directly
+manipulate the request and the response objects.
 
-It is originally a rewrite of TGWebServices
+WSME can work standalone or on top of your favorite python web
+(micro)framework, so you can use both your prefered way of routing your REST
+requests and most of the features of WSME that rely on the typing system like:
+
+-   Alternate protocols, including ones supporting batch-calls
+-   Easy documentation through a Sphinx_ extension
+
+WSME is originally a rewrite of TGWebServices
 with focus on extensibility, framework-independance and better type handling.
 
 How Easy ?
 ~~~~~~~~~~
 
-::
+Here is a standalone wsgi example::
     
     from wsme import WSRoot, expose, validate
 
@@ -24,6 +31,8 @@ How Easy ?
         def hello(self, who=u'World'):
             return u"Hello {0} !".format(who)
 
+    ws = MyService(protocols=['restjson', 'restxml', 'soap'])
+    application = ws.wsgiapp()
 
 With this published at the ``/ws`` path of your application, you can access
 your hello function in various protocols:
