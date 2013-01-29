@@ -1,6 +1,38 @@
 Integrating with a Framework
 ============================
 
+General considerations
+----------------------
+
+Using WSME within another framework providing its own REST capabilities is
+generally done by using a specific decorator to declare the function signature,
+in addition to the framework own way of declaring exposed functions.
+
+This decorator can have two different names depending on the adapter.
+
+``@wsexpose``
+    This decorator will declare the function signature *and*
+    take care of calling the adequate decorators of the framework.
+
+    Generally this decorator is provided for frameworks that use
+    object-dispatch controllers, like Pecan_ or Turbogears_. 
+
+``@signature``
+    This decorator only set the function signature and returns a function
+    that can be used by the host framework as a REST request target.
+
+    Generally this decorator is provided for frameworks that expects functions
+    taking a request object as a single parameter and returning a response
+    object. This is the case of cornice_.
+
+Additionnaly, if you want to enable additionnal protocols, you will need to
+mount a :class:`WSRoot` instance somewhere in the application, generally
+``/ws``. This subpath will then handle the additional protocols.
+
+.. note::
+
+    Not all the adapters are at the same level of maturity.
+
 WSGI Application
 ----------------
 
@@ -9,6 +41,9 @@ application.
 
 Example
 ~~~~~~~
+
+The following example assume the REST protocol will be entirely handled by
+WSME, which is the case if you write a WSME standalone application.
 
 .. code-block:: python
 
@@ -26,6 +61,11 @@ Example
 
 Bottle
 ------
+
+No adapter is provided yet but it should not be hard to write one, by taking
+example on the cornice adapter.
+
+This example only show how to mount a WSRoot inside a bottle application.
 
 .. code-block:: python
 
@@ -45,31 +85,52 @@ Bottle
 Pyramid
 -------
 
-The WSRoot._handle_request method is a valid pyramid view:
+The recommended way of using WSME inside Pyramid is to use cornice.
+
+Cornice
+-------
+
+Pecan
+-----
+
+.. warning::
+
+    A pecan application is not able to mount another wsgi application on a
+    subpath. For that reason, additional protocols are not supported for now.
+
+Api
+~~~
+
+.. module:: wsmeext.pecan
+
+.. function:: wsexpose(return_type, \*arg_types, **options)
+
+    See @\ :func:`signature` for parameters documentation.
+
+    Can be used on any function of a pecan
+    `RestController <http://pecan.readthedocs.org/en/latest/rest.html>`_
+    instead of the expose decorator from Pecan.
+
+Example
+~~~~~~~
+
+The `example <http://pecan.readthedocs.org/en/latest/rest.html#nesting-restcontroller>`_ from the Pecan documentation becomes:
 
 .. code-block:: python
 
-    from paste.httpserver import serve
-    from pyramid.config import Configurator
+    from wsmeext.pecan import wsexpose
+        
+    class BooksController(RestController):
+        @wsexpose(Book, int, int)
+        def get(self, author_id, id):
+            # ..
 
-    from wsme import *
+        @wsexpose(Book, int, int, body=Book)
+        def put(self, author_id, id, book):
+            # ..
 
-    class WSController(WSRoot):
-        @expose(int)
-        @validate(int, int)
-        def multiply(self, a, b):
-            return a * b
-
-    myroot = WSRoot()
-    myroot.addprotocol('restjson')
-    myroot.addprotocol('extdirect')
-
-    if __name__ == '__main__':
-        config = Configurator()
-        config.add_route('ws', '')
-        config.add_view(wsroot._handle_request, route_name='ws')
-        app = config.make_wsgi_app()
-        serve(app, host='0.0.0.0')
+    class AuthorsController(RestController):
+            books = BooksController()
 
 Turbogears 1.x
 --------------
@@ -134,3 +195,7 @@ Insert the ws controller in the controller tree, (file controllers.py):
             WSController(webpath='/ws', protocols=['restjson']))
 
         # ...
+
+.. _Pecan: http://pecanpy.org/
+.. _TurboGears: http://www.turbogears.org/
+.. _cornice: http://pypi.python.org/pypi/cornice
