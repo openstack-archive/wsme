@@ -79,6 +79,12 @@ def loadxml(el, datatype):
                 loadxml(item.find('value'), datatype.value_type))
             for item in el.findall('item')
         ))
+    elif isdict(datatype):
+        return dict((
+            (loadxml(item.find('key'), datatype.key_type),
+                loadxml(item.find('value'), datatype.value_type))
+            for item in el.findall('item')
+        ))
     elif len(el):
         d = {}
         for attr in datatype._wsme_attributes:
