@@ -1,8 +1,8 @@
 Changes
 =======
 
-0.5b1 (next)
-------------
+0.5b1 (2013-01-30)
+------------------
 
 *   Introduce a new kind of adapters that rely on the framework routing.
     Adapters are provided for Pecan, TurboGears and cornice.
@@ -51,6 +51,8 @@ Changes
 
 *   The soap, extdirect and sqlalchemy packages have been merged into the main
     package.
+
+*   Changed the documentation theme to "Cloud".
 
 0.4 (2012-10-15)
 ----------------
