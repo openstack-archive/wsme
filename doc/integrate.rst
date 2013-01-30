@@ -60,38 +60,17 @@ WSME, which is the case if you write a WSME standalone application.
     application = root.wsgiapp()
 
 
-Bottle
-------
-
-No adapter is provided yet but it should not be hard to write one, by taking
-example on the cornice adapter.
-
-This example only show how to mount a WSRoot inside a bottle application.
-
-.. code-block:: python
-
-    import bottle
-    import wsme
-
-    class MyRoot(wsme.WSRoot):
-        @wsme.expose(unicode)
-        def helloworld(self):
-            return u"Hello World !"
-
-    root = MyRoot(webpath='/ws', protocols=['restjson'])
-
-    bottle.mount('/ws', root.wsgiapp())
-    bottle.run()
-
-Pyramid
--------
-
-The recommended way of using WSME inside Pyramid is to use cornice.
-
 .. _adapter-cornice:
 
 Cornice
 -------
+
+.. _cornice: http://cornice.readthedocs.org/en/latest/
+
+    *"* Cornice_ *provides helpers to build & document REST-ish Web Services with
+    Pyramid, with decent default behaviors. It takes care of following the HTTP
+    specification in an automated way where possible."*
+
 
 :mod:`wsmeext.cornice` -- Cornice adapter
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -136,10 +115,18 @@ Example
 Pecan
 -----
 
+    *"*\ Pecan_ *was created to fill a void in the Python web-framework world –
+    a very lightweight framework that provides object-dispatch style routing.
+    Pecan does not aim to be a "full stack" framework, and therefore includes
+    no out of the box support for things like sessions or databases. Pecan
+    instead focuses on HTTP itself."*
+
 .. warning::
 
     A pecan application is not able to mount another wsgi application on a
-    subpath. For that reason, additional protocols are not supported for now.
+    subpath. For that reason, additional protocols are not supported for now,
+    ie until wsme provides a middleware that can do the same as a mounted
+    WSRoot.
 
 :mod:`wsmeext.pecan` -- Pecan adapter
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -175,6 +162,8 @@ The `example <http://pecan.readthedocs.org/en/latest/rest.html#nesting-restcontr
     class AuthorsController(RestController):
             books = BooksController()
 
+.. _Pecan: http://pecanpy.org/
+
 .. _adapter-tg1:
 
 Turbogears 1.x
@@ -200,7 +189,7 @@ will be written as soon as possible).
 
     Set the argument types of an exposed function. This decorator is provided
     so that WSME is an almost drop-in replacement for TGWebServices. If
-    starting from scratch you can use \ :func:`expose` only
+    starting from scratch you can use \ :func:`wsexpose` only
 
 .. function:: adapt(wsroot)
 
@@ -243,6 +232,38 @@ in controllers.py:
         def multiply(self, a, b):
             return a * b
 
-.. _Pecan: http://pecanpy.org/
 .. _TurboGears: http://www.turbogears.org/
-.. _cornice: http://pypi.python.org/pypi/cornice
+
+Other frameworks
+----------------
+
+Bottle
+~~~~~~
+
+No adapter is provided yet but it should not be hard to write one, by taking
+example on the cornice adapter.
+
+This example only show how to mount a WSRoot inside a bottle application.
+
+.. code-block:: python
+
+    import bottle
+    import wsme
+
+    class MyRoot(wsme.WSRoot):
+        @wsme.expose(unicode)
+        def helloworld(self):
+            return u"Hello World !"
+
+    root = MyRoot(webpath='/ws', protocols=['restjson'])
+
+    bottle.mount('/ws', root.wsgiapp())
+    bottle.run()
+
+Pyramid
+~~~~~~~
+
+The recommended way of using WSME inside Pyramid is to use
+:ref:`adapter-cornice`.
+
+
