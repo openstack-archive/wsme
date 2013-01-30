@@ -59,7 +59,7 @@ class WSMEXmlRenderer(object):
         return et.tostring(data)
 
 
-def wsexpose(*args, **kwargs):
+def signature(*args, **kwargs):
     sig = wsme.sig(*args, **kwargs)
 
     def decorate(f):

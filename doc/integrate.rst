@@ -15,7 +15,8 @@ This decorator can have two different names depending on the adapter.
     take care of calling the adequate decorators of the framework.
 
     Generally this decorator is provided for frameworks that use
-    object-dispatch controllers, like Pecan_ or Turbogears_. 
+    object-dispatch controllers, such as :ref:`adapter-pecan` and
+    :ref:`adapter-tg1`. 
 
 ``@signature``
     This decorator only set the function signature and returns a function
@@ -23,7 +24,7 @@ This decorator can have two different names depending on the adapter.
 
     Generally this decorator is provided for frameworks that expects functions
     taking a request object as a single parameter and returning a response
-    object. This is the case of cornice_.
+    object. This is the case of :ref:`adapter-cornice`.
 
 Additionnaly, if you want to enable additionnal protocols, you will need to
 mount a :class:`WSRoot` instance somewhere in the application, generally
@@ -59,51 +60,80 @@ WSME, which is the case if you write a WSME standalone application.
     application = root.wsgiapp()
 
 
-Bottle
-------
-
-No adapter is provided yet but it should not be hard to write one, by taking
-example on the cornice adapter.
-
-This example only show how to mount a WSRoot inside a bottle application.
-
-.. code-block:: python
-
-    import bottle
-    import wsme
-
-    class MyRoot(wsme.WSRoot):
-        @wsme.expose(unicode)
-        def helloworld(self):
-            return u"Hello World !"
-
-    root = MyRoot(webpath='/ws', protocols=['restjson'])
-
-    bottle.mount('/ws', root.wsgiapp())
-    bottle.run()
-
-Pyramid
--------
-
-The recommended way of using WSME inside Pyramid is to use cornice.
+.. _adapter-cornice:
 
 Cornice
 -------
 
+.. _cornice: http://cornice.readthedocs.org/en/latest/
+
+    *"* Cornice_ *provides helpers to build & document REST-ish Web Services with
+    Pyramid, with decent default behaviors. It takes care of following the HTTP
+    specification in an automated way where possible."*
+
+
+:mod:`wsmeext.cornice` -- Cornice adapter
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. module:: wsmeext.cornice
+
+.. function:: signature
+    
+    Declare the parameters of a function and returns a function suitable for
+    cornice (ie that takes a request and returns a response).
+
+Example
+~~~~~~~
+
+.. code-block:: python
+
+    from cornice import Service
+    from wsmeext.cornice import signature
+    import wsme.types
+
+    hello = Service(name='hello', path='/', description="Simplest app")
+
+    class Info(wsme.types.Base):
+        message = wsme.types.text
+
+
+    @hello.get()
+    @signature(Info)
+    def get_info():
+        """Returns Hello in JSON or XML."""
+        return Info(message='Hello World')
+
+
+    @hello.post()
+    @signature(None, Info)
+    def set_info(info):
+        print("Got a message: %s" % info.message)
+    
+
+.. _adapter-pecan:
+
 Pecan
 -----
+
+    *"*\ Pecan_ *was created to fill a void in the Python web-framework world –
+    a very lightweight framework that provides object-dispatch style routing.
+    Pecan does not aim to be a "full stack" framework, and therefore includes
+    no out of the box support for things like sessions or databases. Pecan
+    instead focuses on HTTP itself."*
 
 .. warning::
 
     A pecan application is not able to mount another wsgi application on a
-    subpath. For that reason, additional protocols are not supported for now.
+    subpath. For that reason, additional protocols are not supported for now,
+    ie until wsme provides a middleware that can do the same as a mounted
+    WSRoot.
 
-Api
-~~~
+:mod:`wsmeext.pecan` -- Pecan adapter
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 .. module:: wsmeext.pecan
 
-.. function:: wsexpose(return_type, \*arg_types, **options)
+.. function:: wsexpose(return_type, \*arg_types, \*\*options)
 
     See @\ :func:`signature` for parameters documentation.
 
@@ -132,70 +162,108 @@ The `example <http://pecan.readthedocs.org/en/latest/rest.html#nesting-restcontr
     class AuthorsController(RestController):
             books = BooksController()
 
+.. _Pecan: http://pecanpy.org/
+
+.. _adapter-tg1:
+
 Turbogears 1.x
 --------------
 
-:mod:`wsme.tg1` -- TG1 adapter
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+The TG adapters have an api very similar to TGWebServices. Migrating from it
+should be straightforward (a little howto migrate would not hurt though, and it
+will be written as soon as possible).
 
-.. module:: wsme.tg1
+:mod:`wsmeext.tg11` -- TG 1.1 adapter
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-.. class:: Controller(wsroot)
+.. module:: wsmeext.tg11
 
-    A TG1 Controller that publish a :class:`wsme.WSRoot`.
+.. function:: wsexpose(return_type, \*arg_types, \*\*options)
 
-.. function:: adapt
+    See @\ :func:`signature` for parameters documentation.
 
-    Returns a :class:`Controller` that publish a :class:`wsme.WSRoot`.
+    Can be used on any function of a controller
+    instead of the expose decorator from TG.
 
-:mod:`wsme.tg15` -- TG 1.5 adapter
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.. function:: wsvalidate(\*arg_types)
 
-.. module:: wsme.tg15
+    Set the argument types of an exposed function. This decorator is provided
+    so that WSME is an almost drop-in replacement for TGWebServices. If
+    starting from scratch you can use \ :func:`wsexpose` only
 
-.. class:: Controller(wsroot)
+.. function:: adapt(wsroot)
 
-    A TG1 Controller that publish a :class:`wsme.WSRoot`.
+    Returns a TG1 controller instance that publish a :class:`wsme.WSRoot`.
+    It can then be mounted on a TG1 controller.
 
-.. function:: adapt
+    Because the adapt function modifies the cherrypy filters of the controller
+    the 'webpath' of the WSRoot instance must be consistent with the path it
+    will be mounted on.
 
-    Returns a :class:`Controller` that publish a :class:`wsme.WSRoot`.
+:mod:`wsmeext.tg15` -- TG 1.5 adapter
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. module:: wsmeext.tg15
+
+This adapter has the exact same api as :mod:`wsmeext.tg11`.
 
 Example
 ~~~~~~~
 
-In a freshly quickstarted tg1 application (let's say, wsmedemo),
-the prefered way is the following :
-
-Create a new file, "wsmedemo/ws.py" :
-
-.. code-block:: python
-
-    import wsme.tg1
-    from wsme import expose, validate, WSRoot
-
-    class WSController(WSRoot):
-        @expose(int)
-        @validate(int, int)
-        def multiply(self, a, b):
-            return a * b
-
-Insert the ws controller in the controller tree, (file controllers.py):
+In a freshly quickstarted tg1 application (let's say, wsmedemo), you can add
+REST-ish functions anywhere in your controller tree. Here directly on the root,
+in controllers.py:
 
 .. code-block:: python
 
     # ...
 
-    from wsmedemo.ws import WSController
-    
-    import wsme.tg1
+    # For tg 1.5, import from wsmeext.tg15 instead :
+    from wsmeext.tg11 import wsexpose, WSRoot
 
     class Root(controllers.RootController):
-        ws = wsme.tg1.adapt(
-            WSController(webpath='/ws', protocols=['restjson']))
+        # Having a WSRoot on /ws is only required to enable additional
+        # protocols. For REST-only services, it can be ignored.
+        ws = adapt(
+            WSRoot(webpath='/ws', protocols=['soap'])
+        )
 
-        # ...
+        @wsexpose(int, int, int)
+        def multiply(self, a, b):
+            return a * b
 
-.. _Pecan: http://pecanpy.org/
 .. _TurboGears: http://www.turbogears.org/
-.. _cornice: http://pypi.python.org/pypi/cornice
+
+Other frameworks
+----------------
+
+Bottle
+~~~~~~
+
+No adapter is provided yet but it should not be hard to write one, by taking
+example on the cornice adapter.
+
+This example only show how to mount a WSRoot inside a bottle application.
+
+.. code-block:: python
+
+    import bottle
+    import wsme
+
+    class MyRoot(wsme.WSRoot):
+        @wsme.expose(unicode)
+        def helloworld(self):
+            return u"Hello World !"
+
+    root = MyRoot(webpath='/ws', protocols=['restjson'])
+
+    bottle.mount('/ws', root.wsgiapp())
+    bottle.run()
+
+Pyramid
+~~~~~~~
+
+The recommended way of using WSME inside Pyramid is to use
+:ref:`adapter-cornice`.
+
+
