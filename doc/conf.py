@@ -110,7 +110,8 @@ html_theme = 'cloud'
 html_theme_path = [csp.get_theme_dir()]
 
 html_theme_options = {
-    "roottarget": "index"
+    "roottarget": "index",
+    "googleanalytics_id": "UA-8510502-6"
 }
 
 # Theme options are theme-specific and customize the look and feel of a theme
