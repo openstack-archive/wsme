@@ -26,8 +26,8 @@ Here is a standalone wsgi example::
     from wsme import WSRoot, expose, validate
 
     class MyService(WSRoot):
-        @expose(unicode)
-        @validate(unicode)
+        @expose(unicode, unicode)  # First parameter is the return type,
+                                   # then the function argument types
         def hello(self, who=u'World'):
             return u"Hello {0} !".format(who)
 
