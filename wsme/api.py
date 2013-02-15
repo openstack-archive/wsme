@@ -118,13 +118,17 @@ class FunctionDefinition(object):
             if not mandatory:
                 default = defaults[i - (len(args) - len(defaults))]
             self.arguments.append(FunctionArgument(argname, datatype,
-                                                 mandatory, default))
+                                                   mandatory, default))
 
 
 class signature(object):
     def __init__(self, *types, **options):
         self.return_type = types[0] if types else None
-        self.arg_types = types[1:] if len(types) > 1 else None
+        self.arg_types = []
+        if len(types) > 1:
+            self.arg_types.extend(types[1:])
+        if 'body' in options:
+            self.arg_types.append(options['body'])
         self.wrap = options.pop('wrap', False)
         self.options = options
 
