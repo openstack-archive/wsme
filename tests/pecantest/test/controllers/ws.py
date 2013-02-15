@@ -27,13 +27,16 @@ class BooksController(RestController):
         book = Book(
             name=u"Les Confessions d’un révolutionnaire pour servir à "
                  u"l’histoire de la révolution de février",
-            author=Author(lastname=u"Proudhon"))
+            author=Author(lastname=u"Proudhon")
+        )
         return book
 
     @wsmeext.pecan.wsexpose(Book, int, int, body=Book)
     def put(self, author_id, id, book=None):
         print author_id, id
         print book
+        book.id = id
+        book.author = Author(id=author_id)
         return book
 
 
@@ -73,7 +76,7 @@ class AuthorsController(RestController):
         author.books = [
             Book(
                 name=u"Les Confessions d’un révolutionnaire pour servir à "
-                    u"l’histoire de la révolution de février",
+                     u"l’histoire de la révolution de février",
             )
         ]
         return author

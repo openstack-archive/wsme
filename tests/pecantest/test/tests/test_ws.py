@@ -82,3 +82,14 @@ class TestWS(FunctionalTest):
         a = json.loads(res.body)
         print a
         assert a['faultcode'] == 'Server'
+
+    def test_body_parameter(self):
+        res = self.app.put(
+            '/authors/1/books/2.json',
+            '{"name": "Alice au pays des merveilles"}',
+            headers={"Content-Type": "application/json"}
+        )
+        book = json.loads(res.body)
+        print book
+        assert book['id'] == 2
+        assert book['author']['id'] == 1
