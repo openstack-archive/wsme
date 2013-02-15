@@ -1,6 +1,16 @@
 Changes
 =======
 
+next
+----
+
+*   Fix: Submodules of wsmeext were missing in the packages.
+
+*   Fix: The demo app was still depending on the WSME-Soap package (which has
+    been merged into WSME in 0.5b1).
+
+*   Fix: A function with only on 'body' parameter would fail when being called.
+
 0.5b1 (2013-01-30)
 ------------------
 
