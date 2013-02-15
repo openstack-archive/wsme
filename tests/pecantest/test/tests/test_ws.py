@@ -57,6 +57,16 @@ class TestWS(FunctionalTest):
         assert '<id>1</id>' in a.body
         assert '<firstname>aname</firstname>' in a.body
 
+    def test_post_body_parameter(self):
+        res = self.app.post(
+            '/authors', '{"firstname": "test"}',
+            headers={"Content-Type": "application/json"}
+        )
+        a = json.loads(res.body)
+        print a
+        assert a['id'] == 10
+        assert a['firstname'] == 'test'
+
     def test_clientsideerror(self):
         res = self.app.get(
             '/authors/999.json',

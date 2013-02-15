@@ -80,3 +80,8 @@ class AuthorsController(RestController):
             )
         ]
         return author
+
+    @wsmeext.pecan.wsexpose(Author, body=Author)
+    def post(self, author):
+        author.id = 10
+        return author
