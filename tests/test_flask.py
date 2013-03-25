@@ -35,7 +35,7 @@ class FlaskrTestCase(unittest.TestCase):
         assert r.status_code == 500
         self.assertEquals(
             r.data,
-            ''
+            '{"debuginfo": null, "faultcode": "Server", "faultstring": "integer division or modulo by zero"}'
         )
 
 if __name__ == '__main__':
