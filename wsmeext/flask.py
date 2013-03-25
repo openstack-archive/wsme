@@ -19,8 +19,6 @@ def signature(*args, **kw):
 
         @functools.wraps(f)
         def wrapper(*args, **kw):
-            import ipdb
-            ipdb.set_trace()
             args, kwargs = combine_args(
                 funcdef,
                 args_from_params(funcdef, flask.request.args),
