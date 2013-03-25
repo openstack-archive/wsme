@@ -11,6 +11,12 @@ def multiply(a, b):
     return a * b
 
 
+@test_app.route('/divide_by_zero')
+@signature(None)
+def divide_by_zero():
+    return 1 / 0
+
+
 class FlaskrTestCase(unittest.TestCase):
 
     def setUp(self):
@@ -23,6 +29,14 @@ class FlaskrTestCase(unittest.TestCase):
     def test_multiply(self):
         r = self.app.get('/multiply?a=2&b=5')
         assert r.data == '10'
+
+    def test_serversideerror(self):
+        r = self.app.get('/divide_by_zero')
+        assert r.status_code == 500
+        self.assertEquals(
+            r.data,
+            ''
+        )
 
 if __name__ == '__main__':
     test_app.run()

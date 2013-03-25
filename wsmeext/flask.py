@@ -8,9 +8,7 @@ import wsme
 import wsme.api
 import wsme.rest.json
 import wsme.rest.xml
-from wsme.rest.args import (
-    args_from_params, args_from_body, combine_args
-)
+import wsme.rest.args
 
 import flask
 
@@ -30,7 +28,6 @@ def signature(*args, **kw):
                 funcdef, args, kwargs, flask.request.args, flask.request.data,
                 flask.request.content_type
             )
-            print args, kwargs
 
             dataformat = None
             if 'Accept' in flask.request.headers:
@@ -52,11 +49,11 @@ def signature(*args, **kw):
                 res.mimetype = dataformat.content_type
             except:
                 data = wsme.api.format_exception(sys.exc_info())
-                res = flask.make_response(dataformat.encode_error(data))
-                if data['faultcode']:
-                    res.status = 400
+                res = flask.make_response(dataformat.encode_error(None, data))
+                if data['faultcode'] == 'client':
+                    res.status_code = 400
                 else:
-                    res.status = 500
+                    res.status_code = 500
             return res
 
         wrapper.wsme_func = f
