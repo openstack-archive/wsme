@@ -49,7 +49,7 @@ def wsexpose(*args, **kwargs):
         def callfunction(self, *args, **kwargs):
             args, kwargs = wsme.rest.args.get_args(
                 funcdef, args, kwargs,
-                cherrypy.request.params,
+                cherrypy.request.params, None,
                 cherrypy.request.body,
                 cherrypy.request.headers['Content-Type']
             )
