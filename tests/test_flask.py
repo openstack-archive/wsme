@@ -1,10 +1,11 @@
 import unittest
-from flask import Flask
+from flask import Flask, json
 from wsmeext.flask import signature
 from wsme.types import Base, text
 
 
 class Model(Base):
+    id = int
     name = text
 
 
@@ -26,11 +27,11 @@ def divide_by_zero():
 @test_app.route('/models')
 @signature([Model])
 def list_models():
-    return [Model(name=1)]
+    return [Model(name='first')]
 
 
 @test_app.route('/models/<name>')
-@signature(Model)
+@signature(Model, text)
 def get_model(name):
     return Model(name=name)
 
@@ -63,9 +64,13 @@ class FlaskrTestCase(unittest.TestCase):
         assert resp.status_code == 200
 
     def test_post_model(self):
-        resp = self.app.post('/models', data={"name": "test"})
-        import ipdb
-        ipdb.set_trace()
+        resp = self.app.post('/models', data={"body.name": "test"})
+        assert resp.status_code == 200
+        resp = self.app.post(
+            '/models',
+            data=json.dumps({"name": "test"}),
+            content_type="application/json"
+        )
         assert resp.status_code == 200
 
     def test_serversideerror(self):

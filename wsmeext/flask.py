@@ -21,12 +21,15 @@ def signature(*args, **kw):
     def decorator(f):
         sig(f)
         funcdef = wsme.api.FunctionDefinition.get(f)
+        funcdef.resolve_types(wsme.types.registry)
 
         @functools.wraps(f)
         def wrapper(*args, **kwargs):
             args, kwargs = wsme.rest.args.get_args(
-                funcdef, args, kwargs, flask.request.args, flask.request.data,
-                flask.request.content_type
+                funcdef, args, kwargs,
+                flask.request.args, flask.request.form,
+                flask.request.data,
+                flask.request.mimetype
             )
 
             dataformat = None

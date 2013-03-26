@@ -158,7 +158,7 @@ def args_from_args(funcdef, args, kwargs):
         newargs.append(from_param(argdef.datatype, arg))
     newkwargs = {}
     for argname, value in kwargs.items():
-        newkwargs[argname] = from_param(funcdef.get_arg(argname), value)
+        newkwargs[argname] = from_param(funcdef.get_arg(argname).datatype, value)
     return newargs, newkwargs
 
 
@@ -229,7 +229,7 @@ def combine_args(funcdef, akw, allow_override=False):
     return newargs, newkwargs
 
 
-def get_args(funcdef, args, kwargs, params, body, mimetype):
+def get_args(funcdef, args, kwargs, params, form, body, mimetype):
     """Combine arguments from :
     * the host framework args and kwargs
     * the request params
@@ -248,13 +248,19 @@ def get_args(funcdef, args, kwargs, params, body, mimetype):
     # extract args from the request parameters
     from_params = args_from_params(funcdef, params)
 
+    # extract args from the form parameters
+    if form:
+        from_form_params = args_from_params(funcdef, form)
+    else:
+        from_form_params = (), {}
+
     # extract args from the request body
     from_body = args_from_body(funcdef, body, mimetype)
 
     # combine params and body arguments
     from_params_and_body = combine_args(
         funcdef,
-        (from_params, from_body)
+        (from_params, from_form_params, from_body)
     )
 
     return combine_args(
