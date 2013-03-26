@@ -43,13 +43,25 @@ def signature(*args, **kw):
                 caller, falling back to json''')
                 dataformat = wsme.rest.json
             try:
+                status_code = None
+                result = f(*args, **kwargs)
+
+                # Status code in result
+                if isinstance(result, (list, tuple)) and len(result) == 2:
+                    result, status_code = result
+
+                # Status code is attached to request
+                if not status_code and hasattr(flask.request, 'status_code'):
+                    status_code = flask.request.status_code
+
                 res = flask.make_response(
                     dataformat.encode_result(
-                        f(*args, **kwargs),
+                        result,
                         funcdef.return_type
                     )
                 )
                 res.mimetype = dataformat.content_type
+                res.status_code = status_code or 200
             except:
                 data = wsme.api.format_exception(sys.exc_info())
                 res = flask.make_response(dataformat.encode_error(None, data))
