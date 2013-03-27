@@ -4,8 +4,6 @@ import functools
 import logging
 import sys
 
-import mimetypes
-
 import wsme
 import wsme.api
 import wsme.rest.json
@@ -17,23 +15,27 @@ import flask
 log = logging.getLogger(__name__)
 
 
-def get_data_format():
-    dataformat = None
+TYPES = {
+    'application/json': wsme.rest.json,
+    'application/xml': wsme.rest.xml,
+    'text/xml': wsme.rest.xml
+}
+
+
+def get_dataformat():
     if 'Accept' in flask.request.headers:
-        if 'application/json' in flask.request.headers['Accept']:
-            dataformat = wsme.rest.json
-        elif 'text/xml' in flask.request.headers['Accept']:
-            dataformat = wsme.rest.xml
+        for t in TYPES:
+            if t in flask.request.headers['Accept']:
+                return TYPES[t]
 
     # Look for the wanted data format in the request.
-    if hasattr(flask.request, 'dataformat'):
-        mimetypes.guess_type(flask.request)
-    if dataformat is None:
-        log.info('''Could not determine what format is wanted by the
-                 caller, falling back to json''')
-        dataformat = wsme.rest.json
+    req_dataformat = getattr(flask.request, 'response_type', None)
+    if req_dataformat in TYPES:
+        return TYPES[req_dataformat]
 
-    return dataformat
+    log.info('''Could not determine what format is wanted by the
+             caller, falling back to json''')
+    return wsme.rest.json
 
 
 def signature(*args, **kw):
@@ -53,7 +55,7 @@ def signature(*args, **kw):
                 flask.request.mimetype
             )
 
-            dataformat = get_data_format()
+            dataformat = get_dataformat()
 
             try:
                 status_code = None
