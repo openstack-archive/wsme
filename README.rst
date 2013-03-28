@@ -62,7 +62,7 @@ Main features
 -   Extensible : easy to add more protocols or more base types.
 -   Framework independance : adapters are provided to easily integrate
     your API in any web framework, for example a wsgi container,
-    Pecan_, TurboGears_, cornice_...
+    Pecan_, TurboGears_, Flask_, cornice_...
 -   Very few runtime dependencies: webob, simplegeneric. Optionnaly lxml and
     simplejson if you need better performances.
 -   Integration in `Sphinx`_ for making clean documentation with
@@ -70,6 +70,7 @@ Main features
 
 .. _Pecan: http://pecanpy.org/
 .. _TurboGears: http://www.turbogears.org/
+.. _Flask: http://flask.pocoo.org/
 .. _cornice: http://pypi.python.org/pypi/cornice
 
 Install
