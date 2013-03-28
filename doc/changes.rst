@@ -4,6 +4,8 @@ Changes
 next
 ----
 
+*   New Flask adapter: wsmeext.flask
+
 *   Fix: Submodules of wsmeext were missing in the packages.
 
 *   Fix: The demo app was still depending on the WSME-Soap package (which has

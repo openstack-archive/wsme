@@ -110,6 +110,44 @@ Example
         print("Got a message: %s" % info.message)
     
 
+.. _adapter-flask:
+
+Flask
+-----
+
+    *"Flask is a microframework for Python based on Werkzeug, Jinja 2 and good intentions. And before you ask: It's BSD licensed! "*
+
+
+.. warning::
+
+    Flask support is limited to function signature handling. It does not
+    support additional protocols. This is a temporary limitation, if you have
+    needs on that matter please tell us at python-wsme@googlegroups.com.
+
+
+:mod:`wsmeext.flask` -- Flask adapter
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. module:: wsmeext.flask
+
+.. function:: signature(return_type, \*arg_types, \*\*options)
+
+    See @\ :func:`signature` for parameters documentation.
+
+    Can be used on a function before routing it with flask.
+
+Example
+~~~~~~~
+
+.. code-block:: python
+
+    from wsmeext.flask import signature
+
+    @app.route('/multiply')
+    @signature(int, int, int)
+    def multiply(a, b):
+        return a * b
+
 .. _adapter-pecan:
 
 Pecan
