@@ -63,7 +63,7 @@ def signature(*args, **kw):
                 # NOTE: Support setting of status_code with default 200
                 status_code = 200
                 if isinstance(result, wsme.api.Response):
-                    result = result.result
+                    result = result.obj
                     status_code = result.status_code
 
                 if funcdef.status_code:
