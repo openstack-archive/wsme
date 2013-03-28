@@ -60,14 +60,11 @@ def signature(*args, **kw):
             try:
                 result = f(*args, **kwargs)
 
-                # NOTE: Support setting of status_code with default 200
-                status_code = 200
+                # NOTE: Support setting of status_code with default 20
+                status_code = funcdef.status_code
                 if isinstance(result, wsme.api.Response):
-                    result = result.obj
                     status_code = result.status_code
-
-                if funcdef.status_code:
-                    status_code = funcdef.status_code
+                    result = result.obj
 
                 res = flask.make_response(
                     dataformat.encode_result(

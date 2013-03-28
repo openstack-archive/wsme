@@ -1,6 +1,7 @@
 import unittest
 from flask import Flask, json
 from wsmeext.flask import signature
+from wsme.api import Response
 from wsme.types import Base, text
 
 
@@ -51,6 +52,18 @@ def post_model(body):
     return Model(name=body.name)
 
 
+@test_app.route('/status_sig')
+@signature(int, status_code=201)
+def get_status_sig():
+    return 1
+
+
+@test_app.route('/status_response')
+@signature(int)
+def get_status_response():
+    return Response(1, status_code=201)
+
+
 class FlaskrTestCase(unittest.TestCase):
 
     def setUp(self):
@@ -89,6 +102,14 @@ class FlaskrTestCase(unittest.TestCase):
             content_type="application/json"
         )
         assert resp.status_code == 200
+
+    def test_get_status_sig(self):
+        resp = self.app.get('/status_sig')
+        assert resp.status_code == 201
+
+    def test_get_status_response(self):
+        resp = self.app.get('/status_response')
+        assert resp.status_code == 201
 
     def test_serversideerror(self):
         r = self.app.get('/divide_by_zero')
