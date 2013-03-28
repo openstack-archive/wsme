@@ -9,6 +9,11 @@ class Model(Base):
     name = text
 
 
+class Criterion(Base):
+    op = text
+    attr = text
+    value = text
+
 test_app = Flask(__name__)
 
 
@@ -25,9 +30,13 @@ def divide_by_zero():
 
 
 @test_app.route('/models')
-@signature([Model])
-def list_models():
-    return [Model(name='first')]
+@signature([Model], [Criterion])
+def list_models(q=None):
+    if q:
+        name = q[0].value
+    else:
+        name = 'first'
+    return [Model(name=name)]
 
 
 @test_app.route('/models/<name>')
@@ -62,6 +71,14 @@ class FlaskrTestCase(unittest.TestCase):
     def test_list_models(self):
         resp = self.app.get('/models')
         assert resp.status_code == 200
+
+    def test_array_parameter(self):
+        resp = self.app.get('/models?q.op=%3D&q.attr=name&q.value=second')
+        assert resp.status_code == 200
+        print resp.data
+        self.assertEquals(
+            resp.data, '[{"name": "second"}]'
+        )
 
     def test_post_model(self):
         resp = self.app.post('/models', data={"body.name": "test"})

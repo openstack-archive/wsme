@@ -81,11 +81,19 @@ def from_params(datatype, params, path, hit_paths):
 
 @from_params.when_type(ArrayType)
 def array_from_params(datatype, params, path, hit_paths):
+    if hasattr(params, 'getall'):
+        # webob multidict
+        def getall(params, path):
+            return params.getall(path)
+    elif hasattr(params, 'getlist'):
+        # werkzeug multidict
+        def getall(params, path):  # noqa
+            return params.getlist(path)
     if path in params:
         hit_paths.add(path)
         return [
             from_param(datatype.item_type, value)
-            for value in params.getall(path)]
+            for value in getall(params, path)]
 
     if iscomplex(datatype.item_type):
         attributes = set()
@@ -99,7 +107,7 @@ def array_from_params(datatype, params, path, hit_paths):
             for attrdef in list_attributes(datatype.item_type):
                 attrpath = '%s.%s' % (path, attrdef.key)
                 hit_paths.add(attrpath)
-                attrvalues = params.getall(attrpath)
+                attrvalues = getall(params, attrpath)
                 if len(value) < len(attrvalues):
                     value[-1:] = [
                         datatype.item_type()
@@ -158,7 +166,9 @@ def args_from_args(funcdef, args, kwargs):
         newargs.append(from_param(argdef.datatype, arg))
     newkwargs = {}
     for argname, value in kwargs.items():
-        newkwargs[argname] = from_param(funcdef.get_arg(argname).datatype, value)
+        newkwargs[argname] = from_param(
+            funcdef.get_arg(argname).datatype, value
+        )
     return newargs, newkwargs
 
 
