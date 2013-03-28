@@ -66,6 +66,9 @@ class FunctionDefinition(object):
         #: If the body carry the datas of a single argument, its type
         self.body_type = None
 
+        #: Status code
+        self.status_code = 200
+
         #: True if extra arguments should be ignored, NOT inserted in
         #: the kwargs of the function and not raise UnknownArgument
         #: exceptions
@@ -99,8 +102,10 @@ class FunctionDefinition(object):
         for arg in self.arguments:
             arg.resolve_type(registry)
 
-    def set_options(self, body=None, ignore_extra_args=False, **extra_options):
+    def set_options(self, body=None, ignore_extra_args=False, status_code=200,
+                    **extra_options):
         self.body_type = body
+        self.status_code = status_code
         self.ignore_extra_args = ignore_extra_args
         self.extra_options = extra_options
 
@@ -146,6 +151,18 @@ class signature(object):
         return func
 
 sig = signature
+
+
+class Response(object):
+    """
+    Object to hold the "response" from a view function
+    """
+    def __init__(self, obj, status_code=None):
+        #: Store the result object from the view
+        self.obj = obj
+
+        #: Store an optional status_code
+        self.status_code = status_code
 
 
 def format_exception(excinfo, debug=False):

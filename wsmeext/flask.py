@@ -58,16 +58,16 @@ def signature(*args, **kw):
             dataformat = get_dataformat()
 
             try:
-                status_code = None
                 result = f(*args, **kwargs)
 
-                # Status code in result
-                if isinstance(result, (list, tuple)) and len(result) == 2:
-                    result, status_code = result
+                # NOTE: Support setting of status_code with default 200
+                status_code = 200
+                if isinstance(result, wsme.api.Response):
+                    result = result.result
+                    status_code = result.status_code
 
-                # Status code is attached to request
-                if not status_code and hasattr(flask.request, 'status_code'):
-                    status_code = flask.request.status_code
+                if funcdef.status_code:
+                    status_code = funcdef.status_code
 
                 res = flask.make_response(
                     dataformat.encode_result(
@@ -76,7 +76,7 @@ def signature(*args, **kw):
                     )
                 )
                 res.mimetype = dataformat.content_type
-                res.status_code = status_code or 200
+                res.status_code = status_code
             except:
                 data = wsme.api.format_exception(sys.exc_info())
                 res = flask.make_response(dataformat.encode_error(None, data))
