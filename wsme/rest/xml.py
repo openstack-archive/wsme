@@ -61,7 +61,7 @@ def toxml(datatype, key, value):
     else:
         if wsme.types.isusertype(datatype):
             return toxml(datatype.basetype,
-                            key, datatype.tobasetype(value))
+                         key, datatype.tobasetype(value))
         elif wsme.types.iscomplex(datatype):
             for attrdef in datatype._wsme_attributes:
                 attrvalue = getattr(value, attrdef.key)
@@ -95,8 +95,7 @@ def fromxml(datatype, element):
     if element.get('nil', False):
         return None
     if wsme.types.isusertype(datatype):
-        return datatype.frombasetype(
-                fromxml(datatype.basetype, element))
+        return datatype.frombasetype(fromxml(datatype.basetype, element))
     if wsme.types.iscomplex(datatype):
         obj = datatype()
         for attrdef in datatype._wsme_attributes:
@@ -243,7 +242,7 @@ def parse(s, datatypes, bodyarg):
         tree = et.fromstring(s)
     if bodyarg:
         name = list(datatypes.keys())[0]
-        return fromxml(datatypes[name], tree)
+        return {name: fromxml(datatypes[name], tree)}
     else:
         kw = {}
         extra_args = []
