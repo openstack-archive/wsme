@@ -53,6 +53,8 @@ def wsexpose(*args, **kwargs):
                 cherrypy.request.body,
                 cherrypy.request.headers['Content-Type']
             )
+            if funcdef.pass_request:
+                kwargs[funcdef.pass_request] = cherrypy.request
             result = f(self, *args, **kwargs)
             return dict(
                 datatype=funcdef.return_type,

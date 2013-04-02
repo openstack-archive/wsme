@@ -4,6 +4,7 @@ import inspect
 import logging
 
 import wsme.exc
+import wsme.types
 
 log = logging.getLogger(__name__)
 
@@ -74,6 +75,11 @@ class FunctionDefinition(object):
         #: exceptions
         self.ignore_extra_args = False
 
+        #: name of the function argument to pass the host request object.
+        #: Should be set by using the :class:`wsme.types.HostRequest` type
+        #: in the function @\ :function:`signature`
+        self.pass_request = False
+
         #: Dictionnary of protocol-specific options.
         self.extra_options = None
 
@@ -122,8 +128,11 @@ class FunctionDefinition(object):
             default = None
             if not mandatory:
                 default = defaults[i - (len(args) - len(defaults))]
-            self.arguments.append(FunctionArgument(argname, datatype,
-                                                   mandatory, default))
+            if datatype is wsme.types.HostRequest:
+                self.pass_request = argname
+            else:
+                self.arguments.append(FunctionArgument(argname, datatype,
+                                                       mandatory, default))
 
 
 class signature(object):

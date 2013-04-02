@@ -55,6 +55,9 @@ def signature(*args, **kw):
                 flask.request.mimetype
             )
 
+            if funcdef.pass_request:
+                kwargs[funcdef.pass_request] = flask.request
+
             dataformat = get_dataformat()
 
             try:

@@ -77,6 +77,8 @@ def signature(*args, **kwargs):
                  args_from_body(funcdef, request.body, request.content_type))
             )
             request.override_renderer = 'wsme' + get_outputformat(request)
+            if funcdef.pass_request:
+                kwargs[funcdef.pass_request] = request
             return {
                 'datatype': funcdef.return_type,
                 'result': f(*args, **kwargs)

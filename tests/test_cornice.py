@@ -6,7 +6,7 @@ import webtest
 from cornice import Service
 from pyramid.config import Configurator
 
-from wsme.types import text, Base
+from wsme.types import text, Base, HostRequest
 from wsmeext.cornice import signature
 
 
@@ -28,6 +28,16 @@ def users_get():
 def users_create(data):
     data.id = 2
     return data
+
+
+needrequest = Service(name='needrequest', path='/needrequest')
+
+
+@needrequest.get()
+@signature(bool, HostRequest)
+def needrequest_get(request):
+    assert request.path == '/needrequest', request.path
+    return True
 
 
 def make_app():
@@ -77,3 +87,7 @@ class WSMECorniceTestCase(unittest.TestCase):
             resp.body,
             '<result><id>2</id><name>new</name></result>'
         )
+
+    def test_pass_request(self):
+        resp = self.app.get('/needrequest')
+        assert resp.json is True

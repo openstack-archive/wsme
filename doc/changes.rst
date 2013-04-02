@@ -4,7 +4,12 @@ Changes
 next
 ----
 
+*   Add a special type 'HostRequest' that allow a function to ask for the host
+    framework request object in its arguments.
+
 *   New Flask adapter: wsmeext.flask
+
+*   Fix: the cornice adapter was not usable.
 
 *   Fix: Submodules of wsmeext were missing in the packages.
 

@@ -180,6 +180,11 @@ class UnsetType(object):
 
 Unset = UnsetType()
 
+#: A special type that corresponds to the host framework request object.
+#: It can only be used in the function parameters, and if so the request object
+#: of the host framework will be passed to the function.
+HostRequest = object()
+
 
 pod_types = six.integer_types + (
     bytes, text, float, bool)

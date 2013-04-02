@@ -65,6 +65,8 @@ def wsexpose(*args, **kwargs):
                     funcdef, args, kwargs, pecan.request.params, None,
                     pecan.request.body, pecan.request.content_type
                 )
+                if funcdef.pass_request:
+                    kwargs[funcdef.pass_request] = pecan.request
                 result = f(self, *args, **kwargs)
             except:
                 data = wsme.api.format_exception(sys.exc_info())
