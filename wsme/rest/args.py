@@ -9,6 +9,7 @@ from wsme.exc import ClientSideError, UnknownArgument
 from wsme.types import iscomplex, list_attributes, Unset
 from wsme.types import UserType, ArrayType, DictType, File
 from wsme.utils import parse_isodate, parse_isotime, parse_isodatetime
+import wsme.runtime
 
 ARRAY_MAX_SIZE = 1000
 
@@ -273,8 +274,10 @@ def get_args(funcdef, args, kwargs, params, form, body, mimetype):
         (from_params, from_form_params, from_body)
     )
 
-    return combine_args(
+    args, kwargs = combine_args(
         funcdef,
         (from_args, from_params_and_body),
         allow_override=True
     )
+    wsme.runtime.check_arguments(funcdef, args, kwargs)
+    return args, kwargs

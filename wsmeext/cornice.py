@@ -19,6 +19,7 @@ from __future__ import absolute_import
 import wsme
 from wsme.rest import json as restjson
 from wsme.rest import xml as restxml
+import wsme.runtime
 import functools
 
 from wsme.rest.args import (
@@ -76,6 +77,7 @@ def signature(*args, **kwargs):
                 (args_from_params(funcdef, request.params),
                  args_from_body(funcdef, request.body, request.content_type))
             )
+            wsme.runtime.check_arguments(funcdef, args, kwargs)
             request.override_renderer = 'wsme' + get_outputformat(request)
             if funcdef.pass_request:
                 kwargs[funcdef.pass_request] = request

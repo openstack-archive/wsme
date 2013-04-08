@@ -363,9 +363,11 @@ class ExtDirectProtocol(Protocol):
 
     def read_arguments(self, context):
         if isinstance(context, ExtCallContext):
-            return self.read_std_arguments(context)
+            kwargs = self.read_std_arguments(context)
         elif isinstance(context, FormExtCallContext):
-            return self.read_form_arguments(context)
+            kwargs = self.read_form_arguments(context)
+        wsme.runtime.check_arguments(context.funcdef, (), kwargs)
+        return kwargs
 
     def encode_result(self, context, result):
         return json.dumps({

@@ -6,6 +6,7 @@ from wsme.protocol import CallContext, Protocol
 
 import wsme.rest
 import wsme.rest.args
+import wsme.runtime
 
 log = logging.getLogger(__name__)
 
@@ -120,7 +121,7 @@ class RestProtocol(Protocol):
             (wsme.rest.args.args_from_params(funcdef, request.params),
              wsme.rest.args.args_from_body(funcdef, body, context.inmime))
         )
-        assert len(args) == 0
+        wsme.runtime.check_arguments(funcdef, args, kwargs)
         return kwargs
 
     def encode_result(self, context, result):

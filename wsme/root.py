@@ -7,7 +7,7 @@ import six
 
 import webob
 
-from wsme.exc import ClientSideError, MissingArgument, UnknownFunction
+from wsme.exc import ClientSideError, UnknownFunction
 from wsme.protocol import getprotocol
 from wsme.rest import scan_api
 from wsme import spore
@@ -179,10 +179,6 @@ class WSRoot(object):
                 self._lookup_function(context.path)
             kw = protocol.read_arguments(context)
             args = list(args)
-
-            for arg in context.funcdef.arguments:
-                if arg.mandatory and arg.name not in kw:
-                    raise MissingArgument(arg.name)
 
             txn = self.begin()
             try:

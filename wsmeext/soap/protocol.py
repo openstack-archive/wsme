@@ -25,6 +25,8 @@ except ImportError:
 from wsme.protocol import CallContext, Protocol, expose
 
 import wsme.types
+import wsme.runtime
+
 from wsme import exc
 from wsme.utils import parse_isodate, parse_isotime, parse_isodatetime
 
@@ -384,7 +386,7 @@ class SoapProtocol(Protocol):
                 'type': self.typenamespace,
             })
             kw[name] = value
-
+        wsme.runtime.check_arguments(context.funcdef, (), kw)
         return kw
 
     def soap_response(self, path, funcdef, result):
