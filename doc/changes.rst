@@ -7,7 +7,9 @@ next
 *   Add a special type 'HostRequest' that allow a function to ask for the host
     framework request object in its arguments.
 
-*   New Flask adapter: wsmeext.flask
+*   New adapter: wsmeext.flask, for the Flask_ framework.
+
+.. _Flask: http://flask.pocoo.org/
 
 *   Fix: the cornice adapter was not usable.
 

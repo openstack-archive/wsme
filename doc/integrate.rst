@@ -24,11 +24,13 @@ This decorator can have two different names depending on the adapter.
 
     Generally this decorator is provided for frameworks that expects functions
     taking a request object as a single parameter and returning a response
-    object. This is the case of :ref:`adapter-cornice`.
+    object. This is the case of :ref:`adapter-cornice` and
+    :ref:`adapter-flask`.
 
 Additionnaly, if you want to enable additionnal protocols, you will need to
 mount a :class:`WSRoot` instance somewhere in the application, generally
-``/ws``. This subpath will then handle the additional protocols.
+``/ws``. This subpath will then handle the additional protocols. In a future
+version, a wsgi middleware will probably play this role.
 
 .. note::
 
@@ -115,7 +117,8 @@ Example
 Flask
 -----
 
-    *"Flask is a microframework for Python based on Werkzeug, Jinja 2 and good intentions. And before you ask: It's BSD licensed! "*
+    *"Flask is a microframework for Python based on Werkzeug, Jinja 2 and good
+    intentions. And before you ask: It's BSD licensed! "*
 
 
 .. warning::

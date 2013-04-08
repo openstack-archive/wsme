@@ -8,6 +8,11 @@ last chapter (:ref:`protocols-the-example`).
 REST
 ----
 
+.. note::
+
+    This chapter applies also for the different adapters, not only the native
+    REST implementation.
+
 The two REST protocols share common characterics.
 
 Each function corresponds to distinct webpath that starts with the

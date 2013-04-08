@@ -9,11 +9,7 @@ Public API
 
 .. module:: wsme
 
-.. autoclass:: WSRoot
-    :members:
-
-.. autoclass:: expose
-.. autoclass:: validate
+.. autoclass:: signature([return_type, [arg0_type, [arg1_type, ... ] ] ], body=None, status=None)
 
 .. autoclass:: wsproperty
 .. autoclass:: wsattr
@@ -21,6 +17,9 @@ Public API
 .. data:: Unset
 
     Default value of the complex type attributes.
+
+.. autoclass:: WSRoot
+    :members:
 
 Internals
 ---------

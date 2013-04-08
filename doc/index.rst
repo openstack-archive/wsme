@@ -10,6 +10,7 @@ Contents
    gettingstarted
    api
    types
+   functions
    protocols
    integrate
    document

@@ -136,6 +136,23 @@ class FunctionDefinition(object):
 
 
 class signature(object):
+    """
+    Decorator that specify the argument types of an exposed function.
+
+    :param return_type: Type of the value returned by the function
+    :param argN: Type of the Nth argument
+    :param body: If the function takes a final argument that is supposed to be
+                 the request body by itself, its type.
+    :param status: HTTP return status code of the function.
+    :param ignore_extra_args: Allow extra/unknow arguments (default to False)
+
+    Most of the time this decorator is not supposed to be used directly,
+    unless you are not using WSME on top of another framework.
+
+    If an adapter is used, it will provide either a specialised version of this
+    decororator, either a new decorator named @wsexpose that takes the same
+    parameters (it will in addition expose the function, hence its name).
+    """
     def __init__(self, *types, **options):
         self.return_type = types[0] if types else None
         self.arg_types = []
