@@ -18,6 +18,8 @@ next
 
 *   Fix: A function with only on 'body' parameter would fail when being called.
 
+*   Fix: Missing arguments were poorly reported by the frameworks adapters.
+
 0.5b1 (2013-01-30)
 ------------------
 
