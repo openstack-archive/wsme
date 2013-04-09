@@ -180,3 +180,26 @@ Adding 'ignore_extra_args=True' to @signature changes this behavior.
 
     If using this option seems to solution to your problem, please think twice
     before using it !
+
+Accessing the request
+~~~~~~~~~~~~~~~~~~~~~
+
+Most of the time direct access to the request object should not be needed, but
+in some cases it is.
+
+On frameworks that propose a global access to the current request it is not an
+issue, but on frameworks like pyramid it is not the way to go.
+
+To handle this use case, WSME has a special type, :class:`HostRequest`:
+
+.. code-block:: python
+
+    from wsme.types import HostRequest
+
+    @signature(Author, HostRequest, body=Author)
+    def create_author(request, newauthor):
+        # ...
+        return newauthor
+
+In this example, the request object of the host framework will be passed as the
+``request`` parameter of the create_author function.
