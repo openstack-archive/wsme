@@ -11,8 +11,9 @@ Public API
 
 .. autoclass:: signature([return_type, [arg0_type, [arg1_type, ... ] ] ], body=None, status=None)
 
-.. autoclass:: wsproperty
+.. autoclass:: wsme.types.Base
 .. autoclass:: wsattr
+.. autoclass:: wsproperty
 
 .. data:: Unset
 

@@ -178,6 +178,9 @@ class UnsetType(object):
         def __bool__(self):
             return False
 
+    def __repr__(self):
+        return 'Unset'
+
 Unset = UnsetType()
 
 #: A special type that corresponds to the host framework request object.
@@ -259,7 +262,7 @@ class wsproperty(property):
     A specialised :class:`property` to define typed-property on complex types.
     Example::
 
-        class MyComplexType(object):
+        class MyComplexType(wsme.types.Base):
             def get_aint(self):
                 return self._aint
 
@@ -289,7 +292,7 @@ class wsattr(object):
 
     Example::
 
-        class MyComplexType(object):
+        class MyComplexType(wsme.types.Base):
             optionalvalue = int
             mandatoryvalue = wsattr(int, mandatory=True)
             named_value = wsattr(int, name='named.value')
@@ -297,7 +300,7 @@ class wsattr(object):
     After inspection, the non-wsattr attributes will be replace, and
     the above class will be equivalent to::
 
-        class MyComplexType(object):
+        class MyComplexType(wsme.types.Base):
             optionalvalue = wsattr(int)
             mandatoryvalue = wsattr(int, mandatory=True)
 
@@ -551,6 +554,7 @@ class BaseMeta(type):
 
 
 class Base(six.with_metaclass(BaseMeta)):
+    """Base type for complex types"""
     def __init__(self, **kw):
         for key, value in kw.items():
             if hasattr(self, key):
