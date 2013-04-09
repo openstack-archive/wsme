@@ -49,7 +49,7 @@ class DemoRoot(WSRoot):
 
     @expose(unicode)
     def helloworld(self):
-        return u"こんにちは世界 (<- Hello World in Japanese !)"
+        return u"Здраво, свете (<- Hello World in Serbian !)"
 
     @expose(Person)
     def getperson(self):
