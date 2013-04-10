@@ -23,7 +23,7 @@ import wsme.runtime
 import functools
 
 from wsme.rest.args import (
-    args_from_params, args_from_body, combine_args
+    args_from_args, args_from_params, args_from_body, combine_args
 )
 
 
@@ -74,7 +74,8 @@ def signature(*args, **kwargs):
         def callfunction(request):
             args, kwargs = combine_args(
                 funcdef,
-                (args_from_params(funcdef, request.params),
+                (args_from_args(funcdef, (), request.matchdict),
+                 args_from_params(funcdef, request.params),
                  args_from_body(funcdef, request.body, request.content_type))
             )
             wsme.runtime.check_arguments(funcdef, args, kwargs)
