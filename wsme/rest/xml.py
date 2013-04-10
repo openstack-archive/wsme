@@ -213,26 +213,21 @@ def unicode_fromxml(datatype, element):
 def date_fromxml(datatype, element):
     if element.get('nil') == 'true':
         return None
-    return datetime.datetime.strptime(element.text, '%Y-%m-%d').date()
+    return wsme.utils.parse_isodate(element.text)
 
 
 @fromxml.when_object(datetime.time)
 def time_fromxml(datatype, element):
     if element.get('nil') == 'true':
         return None
-    m = time_re.match(element.text)
-    if m:
-        return datetime.time(
-            int(m.group('h')),
-            int(m.group('m')),
-            int(m.group('s')))
+    return wsme.utils.parse_isotime(element.text)
 
 
 @fromxml.when_object(datetime.datetime)
 def datetime_fromxml(datatype, element):
     if element.get('nil') == 'true':
         return None
-    return datetime.datetime.strptime(element.text, '%Y-%m-%dT%H:%M:%S')
+    return wsme.utils.parse_isodatetime(element.text)
 
 
 def parse(s, datatypes, bodyarg):

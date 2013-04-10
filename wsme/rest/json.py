@@ -11,7 +11,9 @@ from simplegeneric import generic
 
 from wsme.types import Unset
 import wsme.types
+import wsme.utils
 from wsme.exc import UnknownArgument
+
 
 try:
     import simplejson as json
@@ -182,21 +184,21 @@ def decimal_fromjson(datatype, value):
 def date_fromjson(datatype, value):
     if value is None:
         return None
-    return datetime.datetime.strptime(value, '%Y-%m-%d').date()
+    return wsme.utils.parse_isodate(value)
 
 
 @fromjson.when_object(datetime.time)
 def time_fromjson(datatype, value):
     if value is None:
         return None
-    return datetime.datetime.strptime(value, '%H:%M:%S').time()
+    return wsme.utils.parse_isotime(value)
 
 
 @fromjson.when_object(datetime.datetime)
 def datetime_fromjson(datatype, value):
     if value is None:
         return None
-    return datetime.datetime.strptime(value, '%Y-%m-%dT%H:%M:%S')
+    return wsme.utils.parse_isodatetime(value)
 
 
 def parse(s, datatypes, bodyarg, encoding='utf8'):
