@@ -3,6 +3,11 @@ import datetime
 import re
 from six.moves import builtins
 
+try:
+    import dateutil.parser
+except:
+    dateutil = None  # noqa
+
 date_re = r'(?P<year>-?\d{4,})-(?P<month>\d{2})-(?P<day>\d{2})'
 time_re = r'(?P<hour>\d{2}):(?P<min>\d{2}):(?P<sec>\d{2})' + \
           r'(\.(?P<sec_frac>\d+))?'
@@ -56,6 +61,8 @@ def parse_isotime(value):
 
 # TODO handle timezone
 def parse_isodatetime(value):
+    if dateutil:
+        return dateutil.parser.parse(value)
     m = datetime_re.match(value)
     if m is None:
         raise ValueError("'%s' is not a legal datetime value" % (value))
