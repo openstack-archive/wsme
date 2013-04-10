@@ -1,6 +1,7 @@
 import decimal
 import datetime
 import re
+from six.moves import builtins
 
 date_re = r'(?P<year>-?\d{4,})-(?P<month>\d{2})-(?P<day>\d{2})'
 time_re = r'(?P<hour>\d{2}):(?P<min>\d{2}):(?P<sec>\d{2})' + \
@@ -12,6 +13,13 @@ datetime_re = re.compile(
     '%sT%s(%s)?' % (date_re, time_re, tz_re))
 date_re = re.compile(date_re)
 time_re = re.compile(time_re)
+
+
+if hasattr(builtins, '_'):
+    _ = builtins._
+else:
+    def _(s):
+        return s
 
 
 def parse_isodate(value):
