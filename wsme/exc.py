@@ -4,8 +4,8 @@ from wsme.utils import _
 
 
 class ClientSideError(RuntimeError):
-    def __init__(self):
-        super(ClientSideError, self).__init__(self.faultstring)
+    def __init__(self, msg=None):
+        super(ClientSideError, self).__init__(msg if msg else self.faultstring)
 
     @property
     def faultstring(self):
