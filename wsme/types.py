@@ -434,7 +434,7 @@ def inspect_class(class_):
                     or isinstance(attr, list)
                     or isinstance(attr, dict)):
                 register_type(attr)
-            attrdef = wsattr(attr)
+            attrdef = getattr(class_, '__wsattrclass__', wsattr)(attr)
 
         attrdef.key = name
         if attrdef.name is None:
