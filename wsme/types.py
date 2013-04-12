@@ -469,8 +469,13 @@ def list_attributes(class_):
 
 
 def make_dataholder(class_):
+    # the slots are computed outside the class scope to avoid
+    # 'attr' to pullute the class namespace, which leads to weird
+    # things if one of the slots is named 'attr'.
+    slots = [attr.key for attr in class_._wsme_attributes]
+
     class DataHolder(object):
-        __slots__ = [attr.key for attr in class_._wsme_attributes]
+        __slots__ = slots
 
     DataHolder.__name__ = class_.__name__ + 'DataHolder'
     return DataHolder
