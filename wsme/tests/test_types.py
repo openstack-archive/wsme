@@ -88,7 +88,7 @@ class TestTypes(unittest.TestCase):
 
         types.register_type(c)
 
-        assert c._wsme_attributes[0].key == 'a1'
+        assert c._wsme_attributes[0].key == 'a1', c._wsme_attributes[0].key
         assert c._wsme_attributes[1].key == 'a2'
         assert c._wsme_attributes[2].key == 'a3'
 

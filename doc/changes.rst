@@ -4,6 +4,16 @@ Changes
 next
 ----
 
+*   Changed the way datas of complex types are stored. In previous versions, an
+    attribute was added to the type for each attribute, its name being the
+    attribute name prefixed with '_'.
+
+    Starting with this version, a single attribute _wsme_dataholder is added to
+    the instance.
+
+    The motivation behind this change is to avoid adding too many attributes to
+    the object.
+
 *   Add a special type 'HostRequest' that allow a function to ask for the host
     framework request object in its arguments.
 

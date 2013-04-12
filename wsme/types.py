@@ -297,7 +297,7 @@ class wsattr(object):
             mandatoryvalue = wsattr(int, mandatory=True)
             named_value = wsattr(int, name='named.value')
 
-    After inspection, the non-wsattr attributes will be replace, and
+    After inspection, the non-wsattr attributes will be replaced, and
     the above class will be equivalent to::
 
         class MyComplexType(wsme.types.Base):
@@ -321,10 +321,21 @@ class wsattr(object):
 
         self.complextype = None
 
+    def _get_dataholder(self, instance):
+        dataholder = getattr(instance, '_wsme_dataholder', None)
+        if dataholder is None:
+            dataholder = instance._wsme_DataHolderClass()
+            instance._wsme_dataholder = dataholder
+        return dataholder
+
     def __get__(self, instance, owner):
         if instance is None:
             return self
-        return getattr(instance, '_' + self.key, self.default)
+        return getattr(
+            self._get_dataholder(instance),
+            self.key,
+            self.default
+        )
 
     def __set__(self, instance, value):
         try:
@@ -332,11 +343,12 @@ class wsattr(object):
         except ValueError:
             e = sys.exc_info()[1]
             raise ValueError("%s: %s" % (self.name, e))
+        dataholder = self._get_dataholder(instance)
         if value is Unset:
-            if hasattr(instance, '_' + self.key):
-                delattr(instance, '_' + self.key)
+            if hasattr(dataholder, self.key):
+                delattr(dataholder, self.key)
         else:
-            setattr(instance, '_' + self.key, value)
+            setattr(dataholder, self.key, value)
 
     def __delete__(self, instance):
         self.__set__(instance, Unset)
@@ -456,6 +468,14 @@ def list_attributes(class_):
     return class_._wsme_attributes
 
 
+def make_dataholder(class_):
+    class DataHolder(object):
+        __slots__ = [attr.key for attr in class_._wsme_attributes]
+
+    DataHolder.__name__ = class_.__name__ + 'DataHolder'
+    return DataHolder
+
+
 class Registry(object):
     def __init__(self):
         self._complex_types = []
@@ -499,6 +519,7 @@ class Registry(object):
 
         class_._wsme_attributes = None
         class_._wsme_attributes = inspect_class(class_)
+        class_._wsme_DataHolderClass = make_dataholder(class_)
 
         class_.__registry__ = self
         self._complex_types.append(weakref.ref(class_))
