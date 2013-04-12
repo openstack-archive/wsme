@@ -49,7 +49,7 @@ class ArrayType(object):
             return
         if not isinstance(value, list):
             raise ValueError("Wrong type. Expected '[%s]', got '%s'" % (
-                    self.item_type, type(value)
+                self.item_type, type(value)
             ))
         return [
             validate_value(self.item_type, item)
@@ -85,8 +85,8 @@ class DictType(object):
     def validate(self, value):
         if not isinstance(value, dict):
             raise ValueError("Wrong type. Expected '{%s: %s}', got '%s'" % (
-                    self.key_type, self.value_type, type(value)
-                ))
+                self.key_type, self.value_type, type(value)
+            ))
         return dict((
             (
                 validate_value(self.key_type, key),
@@ -200,7 +200,7 @@ _promotable_types = six.integer_types + (text, bytes)
 
 def iscomplex(datatype):
     return inspect.isclass(datatype) \
-            and '_wsme_attributes' in datatype.__dict__
+        and '_wsme_attributes' in datatype.__dict__
 
 
 def isarray(datatype):
@@ -548,8 +548,9 @@ class Registry(object):
             self.array_types.add(type_)
         elif isinstance(type_, DictType):
             type_ = DictType(
-                    type_.key_type,
-                    self.resolve_type(type_.value_type))
+                type_.key_type,
+                self.resolve_type(type_.value_type)
+            )
             self.dict_types.add(type_)
         else:
             type_ = self.register(type_)
@@ -607,7 +608,7 @@ class File(Base):
     content = wsproperty(binary, _get_content, _set_content)
 
     def __init__(self, filename=None, file=None, content=None,
-            contenttype=None, fieldstorage=None):
+                 contenttype=None, fieldstorage=None):
         self.filename = filename
         self.contenttype = contenttype
         self._file = file
