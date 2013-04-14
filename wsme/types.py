@@ -435,6 +435,8 @@ def inspect_class(class_):
     for name, attr in inspect.getmembers(class_, iswsattr):
         if name.startswith('_'):
             continue
+        if inspect.isroutine(attr):
+            continue
 
         if isinstance(attr, wsattr):
             attrdef = attr
