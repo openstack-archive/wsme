@@ -17,6 +17,9 @@ next
 *   Add a special type 'HostRequest' that allow a function to ask for the host
     framework request object in its arguments.
 
+*   Pecan adapter: Debug mode (which returns the exception tracebacks to the
+    client) can be enabled by the pecan application configuration.
+
 *   New adapter: wsmeext.flask, for the Flask_ framework.
 
 .. _Flask: http://flask.pocoo.org/

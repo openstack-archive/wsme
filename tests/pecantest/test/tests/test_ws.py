@@ -1,5 +1,6 @@
 from test.tests import FunctionalTest
 import json
+import pecan
 
 
 class TestWS(FunctionalTest):
@@ -92,6 +93,16 @@ class TestWS(FunctionalTest):
         a = json.loads(res.body)
         print a
         assert a['faultcode'] == 'Server'
+        assert a['debuginfo'] is None
+
+    def test_serversideerror_with_debug(self):
+        pecan.set_config({'wsme': {'debug': True}})
+        res = self.app.get('/divide_by_zero.json', expect_errors=True)
+        self.assertEqual(res.status, '500 Internal Server Error')
+        a = json.loads(res.body)
+        print a
+        assert a['faultcode'] == 'Server'
+        assert a['debuginfo'].startswith('Traceback (most recent call last):')
 
     def test_body_parameter(self):
         res = self.app.put(

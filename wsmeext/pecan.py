@@ -69,7 +69,10 @@ def wsexpose(*args, **kwargs):
                     kwargs[funcdef.pass_request] = pecan.request
                 result = f(self, *args, **kwargs)
             except:
-                data = wsme.api.format_exception(sys.exc_info())
+                data = wsme.api.format_exception(
+                    sys.exc_info(),
+                    pecan.conf.get('wsme', {}).get('debug', False)
+                )
                 if data['faultcode'] == 'Client':
                     pecan.response.status = 400
                 else:

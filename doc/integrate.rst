@@ -182,6 +182,23 @@ Pecan
     `RestController <http://pecan.readthedocs.org/en/latest/rest.html>`_
     instead of the expose decorator from Pecan.
 
+Configuration
+~~~~~~~~~~~~~
+
+WSME can be configured through the application configation, by adding a 'wsme'
+configuration entry in ``config.py``:
+
+.. code-block:: python
+
+    wsme = {
+        'debug': True
+    }
+
+Valid configuration variables are :
+
+-   ``'debug'``: Wether or not to include exception tracebacks in the returned
+    server-side errors.
+
 Example
 ~~~~~~~
 
