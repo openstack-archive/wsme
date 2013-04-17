@@ -17,6 +17,7 @@ And use it::
 from __future__ import absolute_import
 
 import inspect
+import sys
 
 import wsme
 from wsme.rest import json as restjson
@@ -36,6 +37,12 @@ class WSMEJsonRenderer(object):
     def __call__(self, data, context):
         response = context['request'].response
         response.content_type = 'application/json'
+        if 'faultcode' in data:
+            if data['faultcode'] == 'Client':
+                response.status_code = 400
+            else:
+                response.status_code = 500
+            return restjson.encode_error(None, data)
         return restjson.encode_result(data['result'], data['datatype'])
 
 
@@ -45,6 +52,12 @@ class WSMEXmlRenderer(object):
 
     def __call__(self, data, context):
         response = context['request'].response
+        if 'faultcode' in data:
+            if data['faultcode'] == 'Client':
+                response.status_code = 400
+            else:
+                response.status_code = 500
+            return restxml.encode_error(None, data)
         response.content_type = 'text/xml'
         return restxml.encode_result(data['result'], data['datatype'])
 
@@ -86,22 +99,26 @@ def signature(*args, **kwargs):
                     raise ValueError("Cannot do anything with these arguments")
             else:
                 request = args[0]
-            args, kwargs = combine_args(
-                funcdef,
-                (args_from_args(funcdef, (), request.matchdict),
-                 args_from_params(funcdef, request.params),
-                 args_from_body(funcdef, request.body, request.content_type))
-            )
-            wsme.runtime.check_arguments(funcdef, args, kwargs)
             request.override_renderer = 'wsme' + get_outputformat(request)
-            if funcdef.pass_request:
-                kwargs[funcdef.pass_request] = request
-            if with_self:
-                args.insert(0, self)
-            return {
-                'datatype': funcdef.return_type,
-                'result': f(*args, **kwargs)
-            }
+            try:
+                args, kwargs = combine_args(funcdef, (
+                    args_from_args(funcdef, (), request.matchdict),
+                    args_from_params(funcdef, request.params),
+                    args_from_body(funcdef, request.body, request.content_type)
+                ))
+                wsme.runtime.check_arguments(funcdef, args, kwargs)
+                if funcdef.pass_request:
+                    kwargs[funcdef.pass_request] = request
+                if with_self:
+                    args.insert(0, self)
+
+                result = f(*args, **kwargs)
+                return {
+                    'datatype': funcdef.return_type,
+                    'result': result
+                }
+            except:
+                return wsme.api.format_exception(sys.exc_info())
 
         callfunction.wsme_func = f
         return callfunction

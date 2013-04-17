@@ -31,6 +31,14 @@ def users_create(data):
     return data
 
 
+divide = Service(name='divide', path='/divide')
+
+
+@divide.get()
+@signature(int, int, int)
+def do_divide(a, b):
+    return a / b
+
 needrequest = Service(name='needrequest', path='/needrequest')
 
 
@@ -140,3 +148,18 @@ class WSMECorniceTestCase(unittest.TestCase):
         )
         assert resp.json['authorId'] == 5
         assert resp.json['name'] == 'Author 5'
+
+    def test_server_error(self):
+        resp = self.app.get('/divide?a=1&b=0', expect_errors=True)
+        self.assertEquals(resp.json['faultcode'], 'Server')
+        self.assertEquals(resp.status_code, 500)
+
+    def test_client_error(self):
+        resp = self.app.get(
+            '/divide?a=1&c=0',
+            headers={'Accept': 'application/json'},
+            expect_errors=True
+        )
+        print resp.body
+        self.assertEquals(resp.json['faultcode'], 'Client')
+        self.assertEquals(resp.status_code, 400)
