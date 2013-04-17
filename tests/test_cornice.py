@@ -4,6 +4,7 @@ import json
 import webtest
 
 from cornice import Service
+from cornice import resource
 from pyramid.config import Configurator
 
 from wsme.types import text, Base, HostRequest
@@ -38,6 +39,34 @@ needrequest = Service(name='needrequest', path='/needrequest')
 def needrequest_get(request):
     assert request.path == '/needrequest', request.path
     return True
+
+
+class Author(Base):
+    authorId = int
+    name = text
+
+
+@resource.resource(collection_path='/author', path='/author/{authorId}')
+class AuthorResource(object):
+    def __init__(self, request):
+        self.request = request
+
+    @signature(Author, int)
+    def get(self, authorId):
+        return Author(authorId=authorId, name="Author %s" % authorId)
+
+    @signature(Author, int, body=Author)
+    def post(self, authorId, data):
+        data.authorId = authorId
+        return data
+
+    @signature([Author], text)
+    def collection_get(self, where=None):
+        return [
+            Author(authorId=1, name="Author 1"),
+            Author(authorId=2, name="Author 2"),
+            Author(authorId=3, name="Author 3")
+        ]
 
 
 def make_app():
@@ -91,3 +120,23 @@ class WSMECorniceTestCase(unittest.TestCase):
     def test_pass_request(self):
         resp = self.app.get('/needrequest')
         assert resp.json is True
+
+    def test_resource_collection_get(self):
+        resp = self.app.get('/author')
+        assert len(resp.json) == 3
+        assert resp.json[0]['name'] == 'Author 1'
+        assert resp.json[1]['name'] == 'Author 2'
+        assert resp.json[2]['name'] == 'Author 3'
+
+    def test_resource_get(self):
+        resp = self.app.get('/author/5')
+        assert resp.json['name'] == 'Author 5'
+
+    def test_resource_post(self):
+        resp = self.app.post(
+            '/author/5',
+            json.dumps({"name": "Author 5"}),
+            headers={"Content-Type": "application/json"}
+        )
+        assert resp.json['authorId'] == 5
+        assert resp.json['name'] == 'Author 5'
