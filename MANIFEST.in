@@ -1,3 +1,7 @@
+include toxgen.py
+include tox-tmpl.ini
+include tox.ini
 include README.rst
 include LICENSE
 recursive-include examples *.py *.cfg
+recursive-include tests *.py *.cfg *.ini *.rst
