@@ -16,6 +16,8 @@ And use it::
 """
 from __future__ import absolute_import
 
+import inspect
+
 import wsme
 from wsme.rest import json as restjson
 from wsme.rest import xml as restxml
@@ -66,12 +68,24 @@ def signature(*args, **kwargs):
     sig = wsme.signature(*args, **kwargs)
 
     def decorate(f):
-        sig(f)
+        args = inspect.getargspec(f)[0]
+        with_self = args[0] == 'self' if args else False
+        f = sig(f)
         funcdef = wsme.api.FunctionDefinition.get(f)
         funcdef.resolve_types(wsme.types.registry)
 
         @functools.wraps(f)
-        def callfunction(request):
+        def callfunction(*args):
+            if with_self:
+                if len(args) == 1:
+                    self = args[0]
+                    request = self.request
+                elif len(args) == 2:
+                    self, request = args
+                else:
+                    raise ValueError("Cannot do anything with these arguments")
+            else:
+                request = args[0]
             args, kwargs = combine_args(
                 funcdef,
                 (args_from_args(funcdef, (), request.matchdict),
@@ -82,6 +96,8 @@ def signature(*args, **kwargs):
             request.override_renderer = 'wsme' + get_outputformat(request)
             if funcdef.pass_request:
                 kwargs[funcdef.pass_request] = request
+            if with_self:
+                args.insert(0, self)
             return {
                 'datatype': funcdef.return_type,
                 'result': f(*args, **kwargs)
