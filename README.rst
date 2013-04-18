@@ -78,6 +78,12 @@ Install
 
 ::
 
+    pip install WSME
+
+or, if you do not have pip on your system or virtualenv
+
+::
+
     easy_install WSME
 
 Changes
