@@ -1,8 +1,8 @@
 Changes
 =======
 
-next
-----
+0.5b2 (2013-04-18)
+------------------
 
 *   Changed the way datas of complex types are stored. In previous versions, an
     attribute was added to the type for each attribute, its name being the
