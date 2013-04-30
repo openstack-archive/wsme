@@ -87,6 +87,14 @@ class TestWS(FunctionalTest):
         self.assertEqual(res.status, '400 Bad Request')
         assert '<faultcode>Client</faultcode>' in res.body
 
+    def test_non_default_response(self):
+        res = self.app.get(
+            '/authors/911.json',
+            expect_errors=True
+        )
+        self.assertEqual(res.status_int, 401)
+        self.assertEqual(res.status, '401 Unauthorized')
+
     def test_serversideerror(self):
         res = self.app.get('/divide_by_zero.json', expect_errors=True)
         self.assertEqual(res.status, '500 Internal Server Error')

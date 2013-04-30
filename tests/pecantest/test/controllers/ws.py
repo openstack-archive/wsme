@@ -70,6 +70,10 @@ class AuthorsController(RestController):
     def get(self, id):
         if id == 999:
             raise wsme.exc.ClientSideError('Wrong ID')
+
+        if id == 911:
+            return wsme.api.Response(Author(),
+                                     status_code=401)
         author = Author()
         author.id = id
         author.firstname = u"aname"
