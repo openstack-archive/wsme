@@ -63,6 +63,7 @@ class TestWS(FunctionalTest):
             '/authors', '{"firstname": "test"}',
             headers={"Content-Type": "application/json"}
         )
+        assert res.status_int == 201
         a = json.loads(res.body)
         print a
         assert a['id'] == 10
