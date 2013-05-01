@@ -68,6 +68,13 @@ def wsexpose(*args, **kwargs):
                 if funcdef.pass_request:
                     kwargs[funcdef.pass_request] = pecan.request
                 result = f(self, *args, **kwargs)
+
+                # NOTE: Support setting of status_code with default 201
+                pecan.response.status = funcdef.status_code
+                if isinstance(result, wsme.api.Response):
+                    pecan.response.status = result.status_code
+                    result = result.obj
+
             except:
                 data = wsme.api.format_exception(
                     sys.exc_info(),
