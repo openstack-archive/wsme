@@ -81,6 +81,8 @@ Ext.ns("%(fullns)s");
 
 @generic
 def fromjson(datatype, value):
+    if value is None:
+        return None
     if iscomplex(datatype):
         newvalue = datatype()
         for attrdef in list_attributes(datatype):
