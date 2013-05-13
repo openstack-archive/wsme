@@ -45,6 +45,8 @@ def tojson(datatype, value):
         def myspecialtype_tojson(datatype, value):
             return str(value)
     """
+    if value is None:
+        return None
     if wsme.types.iscomplex(datatype):
         d = dict()
         for attr in wsme.types.list_attributes(datatype):

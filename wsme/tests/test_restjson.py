@@ -47,6 +47,8 @@ def prepare_value(value, datatype):
 
 def prepare_result(value, datatype):
     print(value, datatype)
+    if value is None:
+        return None
     if datatype == wsme.types.binary:
         return base64.decodestring(value.encode('ascii'))
     if isusertype(datatype):

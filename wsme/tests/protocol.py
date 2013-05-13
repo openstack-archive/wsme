@@ -574,6 +574,15 @@ class ProtocolTestCase(unittest.TestCase):
                          _rt=NestedOuter)
         self.assertEquals(r, value)
 
+    def test_setnested_nullobj(self):
+        value = {'inner': None}
+        r = self.call(
+            'argtypes/setnested',
+            value=(value, NestedOuter),
+            _rt=NestedOuter
+        )
+        self.assertEquals(r, value)
+
     def test_setbytesarray(self):
         value = [b("1"), b("2"), b("three")]
         r = self.call('argtypes/setbytesarray',

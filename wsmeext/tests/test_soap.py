@@ -172,6 +172,8 @@ def tosuds(client, value):
         value, datatype = value
     else:
         datatype = type(value)
+    if value is None:
+        return None
     if isinstance(datatype, list):
         if datatype[0] in array_types:
             tname = array_types[datatype[0]]
@@ -416,3 +418,6 @@ class TestSOAP(wsme.tests.protocol.ProtocolTestCase):
 
     def test_return_objectdictattribute(self):
         pass
+
+    def test_setnested_nullobj(self):
+        pass  # TODO write a soap adapted version of this test.
