@@ -183,12 +183,17 @@ class Response(object):
     """
     Object to hold the "response" from a view function
     """
-    def __init__(self, obj, status_code=None):
+    def __init__(self, obj, status_code=None, error=None):
         #: Store the result object from the view
         self.obj = obj
 
         #: Store an optional status_code
         self.status_code = status_code
+
+        #: Return error details
+        #: Must be a dictionnary with the following keys: faultcode,
+        #: faultstring and an optional debuginfo
+        self.error = error
 
 
 def format_exception(excinfo, debug=False):

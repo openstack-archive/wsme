@@ -23,6 +23,7 @@ import wsme
 from wsme.rest import json as restjson
 from wsme.rest import xml as restxml
 import wsme.runtime
+import wsme.api
 import functools
 
 from wsme.rest.args import (
@@ -43,7 +44,13 @@ class WSMEJsonRenderer(object):
             else:
                 response.status_code = 500
             return restjson.encode_error(None, data)
-        return restjson.encode_result(data['result'], data['datatype'])
+        obj = data['result']
+        if isinstance(obj, wsme.api.Response):
+            response.status_code = obj.status_code
+            if obj.error:
+                return restjson.encode_error(None, obj.error)
+            obj = obj.obj
+        return restjson.encode_result(obj, data['datatype'])
 
 
 class WSMEXmlRenderer(object):
