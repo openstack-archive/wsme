@@ -126,4 +126,4 @@ class TestWS(FunctionalTest):
 
     def test_no_content_type_if_no_return_type(self):
         res = self.app.delete('/authors/4')
-        assert "Content-Type" not in res.headers
+        assert "Content-Type" not in res.headers, res.headers['Content-Type']

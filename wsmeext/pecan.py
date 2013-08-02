@@ -86,6 +86,11 @@ def wsexpose(*args, **kwargs):
                     pecan.response.status = 500
                 return data
 
+            if funcdef.return_type is None:
+                pecan.request.pecan['content_type'] = None
+                pecan.response.content_type = None
+                return ''
+
             return dict(
                 datatype=funcdef.return_type,
                 result=result
