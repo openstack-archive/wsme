@@ -89,3 +89,7 @@ class AuthorsController(RestController):
     def post(self, author):
         author.id = 10
         return author
+
+    @wsmeext.pecan.wsexpose(None, int)
+    def delete(self, author_id):
+        print "Deleting", author_id

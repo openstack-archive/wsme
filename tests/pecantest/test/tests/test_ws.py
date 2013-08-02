@@ -123,3 +123,7 @@ class TestWS(FunctionalTest):
         print book
         assert book['id'] == 2
         assert book['author']['id'] == 1
+
+    def test_no_content_type_if_no_return_type(self):
+        res = self.app.delete('/authors/4')
+        assert "Content-Type" not in res.headers
