@@ -7,7 +7,13 @@ from six import u
 def test_clientside_error():
     e = ClientSideError("Test")
 
-    assert e.faultstring == "Test"
+    assert e.faultstring == u("Test")
+
+
+def test_unicode_clientside_error():
+    e = ClientSideError(u("\u30d5\u30a1\u30b7\u30ea"))
+
+    assert e.faultstring == u("\u30d5\u30a1\u30b7\u30ea")
 
 
 def test_invalidinput():

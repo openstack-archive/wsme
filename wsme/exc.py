@@ -5,19 +5,24 @@ from wsme.utils import _
 
 class ClientSideError(RuntimeError):
     def __init__(self, msg=None):
-        super(ClientSideError, self).__init__(msg if msg else self.faultstring)
+        self.msg = msg
+        super(ClientSideError, self).__init__(self.faultstring)
 
     @property
     def faultstring(self):
-        return str(self)
+        if self.msg is None:
+            return str(self)
+        elif isinstance(self.msg, six.text_type):
+            return self.msg
+        else:
+            return six.u(self.msg)
 
 
 class InvalidInput(ClientSideError):
     def __init__(self, fieldname, value, msg=''):
         self.fieldname = fieldname
         self.value = value
-        self.msg = msg
-        super(InvalidInput, self).__init__()
+        super(InvalidInput, self).__init__(msg)
 
     @property
     def faultstring(self):
@@ -29,8 +34,7 @@ class InvalidInput(ClientSideError):
 class MissingArgument(ClientSideError):
     def __init__(self, argname, msg=''):
         self.argname = argname
-        self.msg = msg
-        super(MissingArgument, self).__init__()
+        super(MissingArgument, self).__init__(msg)
 
     @property
     def faultstring(self):
@@ -41,8 +45,7 @@ class MissingArgument(ClientSideError):
 class UnknownArgument(ClientSideError):
     def __init__(self, argname, msg=''):
         self.argname = argname
-        self.msg = msg
-        super(UnknownArgument, self).__init__()
+        super(UnknownArgument, self).__init__(msg)
 
     @property
     def faultstring(self):
