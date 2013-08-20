@@ -101,11 +101,11 @@ Contribute
 ~~~~~~~~~~
 
 :Report issues: `WSME issue tracker`_
-:Source code: hg clone https://bitbucket.org/cdevienne/wsme/
-:Jenkins: https://jenkins.shiningpanda.com/wsme/
+:Source code: git clone https://github.com/stackforge/wsme/
+:Gerrit https://review.openstack.org/#/q/project:stackforge/wsme,n,z/
 
 .. _Changelog: http://packages.python.org/WSME/changes.html
 .. _python-wsme mailinglist: http://groups.google.com/group/python-wsme
 .. _WSME Documentation: http://packages.python.org/WSME/
-.. _WSME issue tracker: https://bitbucket.org/cdevienne/wsme/issues?status=new&status=open
+.. _WSME issue tracker: https://bugs.launchpad.net/wsme/+bugs
 .. _Sphinx: http://sphinx.pocoo.org/
