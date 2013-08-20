@@ -102,7 +102,7 @@ Contribute
 
 :Report issues: `WSME issue tracker`_
 :Source code: git clone https://github.com/stackforge/wsme/
-:Gerrit https://review.openstack.org/#/q/project:stackforge/wsme,n,z/
+:Gerrit: https://review.openstack.org/#/q/project:stackforge/wsme,n,z/
 
 .. _Changelog: http://packages.python.org/WSME/changes.html
 .. _python-wsme mailinglist: http://groups.google.com/group/python-wsme
