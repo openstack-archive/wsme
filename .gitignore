@@ -1,5 +1,3 @@
-syntax: glob
-
 *.pyc
 *.pyo
 *.egg-info
@@ -14,10 +12,8 @@ coverage*.xml
 .test_sphinxext
 nosetests*.xml
 
-syntax: regexp
+build
+dist
 
-^build
-^dist
-
-^doc/_build
-^d2to1-.*\.egg
+doc/_build
+d2to1-*.egg
