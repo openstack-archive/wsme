@@ -88,6 +88,25 @@ class TestWS(FunctionalTest):
         self.assertEqual(res.status, '400 Bad Request')
         assert '<faultcode>Client</faultcode>' in res.body
 
+    def test_custom_clientsideerror(self):
+        res = self.app.get(
+            '/authors/998.json',
+            expect_errors=True
+        )
+        print res
+        self.assertEqual(res.status, '404 Not Found')
+        a = json.loads(res.body)
+        print a
+        assert a['faultcode'] == 'Server'
+
+        res = self.app.get(
+            '/authors/998.xml',
+            expect_errors=True
+        )
+        print res
+        self.assertEqual(res.status, '404 Not Found')
+        assert '<faultcode>Server</faultcode>' in res.body
+
     def test_non_default_response(self):
         res = self.app.get(
             '/authors/911.json',
