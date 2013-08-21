@@ -19,6 +19,24 @@ class Book(Base):
     author = wsattr('Author')
 
 
+class BookNotFound(Exception):
+    message = "Book with ID={id} Not Found"
+    code = 404
+
+    def __init__(self, id):
+        message = self.message.format(id=id)
+        super(BookNotFound, self).__init__(message)
+
+
+class NonHttpException(Exception):
+    message = "Internal Exception for Book ID={id}"
+    code = 684
+
+    def __init__(self, id):
+        message = self.message.format(id=id)
+        super(NonHttpException, self).__init__(message)
+
+
 class BooksController(RestController):
 
     @wsmeext.pecan.wsexpose(Book, int, int)
@@ -70,6 +88,12 @@ class AuthorsController(RestController):
     def get(self, id):
         if id == 999:
             raise wsme.exc.ClientSideError('Wrong ID')
+
+        if id == 998:
+            raise BookNotFound(id)
+
+        if id == 997:
+            raise NonHttpException(id)
 
         if id == 911:
             return wsme.api.Response(Author(),
