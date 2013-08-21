@@ -11,6 +11,8 @@ import wsme.rest.xml
 
 import pecan
 
+from wsmeext.utils import is_valid_code
+
 
 class JSonRenderer(object):
     def __init__(self, path, extra_vars):
@@ -76,14 +78,24 @@ def wsexpose(*args, **kwargs):
                     result = result.obj
 
             except:
-                data = wsme.api.format_exception(
-                    sys.exc_info(),
-                    pecan.conf.get('wsme', {}).get('debug', False)
-                )
+                exception_info = sys.exc_info()
+                orig_exception = exception_info[1]
+                orig_code = getattr(orig_exception, 'code', None)
+                try:
+                    data = wsme.api.format_exception(
+                        exception_info,
+                        pecan.conf.get('wsme', {}).get('debug', False)
+                    )
+                finally:
+                    del exception_info
+
                 if data['faultcode'] == 'Client':
                     pecan.response.status = 400
+                elif orig_code and is_valid_code(orig_code):
+                    pecan.response.status = orig_code
                 else:
                     pecan.response.status = 500
+
                 return data
 
             if funcdef.return_type is None:
