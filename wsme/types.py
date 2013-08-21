@@ -160,7 +160,7 @@ class Enum(UserType):
     def validate(self, value):
         if value not in self.values:
             raise ValueError("Value '%s' is invalid (should be one of: %s)" % (
-                value, ', '.join(self.values)))
+                value, ', '.join(sorted(self.values))))
         return value
 
     def tobasetype(self, value):
