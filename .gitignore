@@ -17,3 +17,5 @@ dist
 
 doc/_build
 d2to1-*.egg
+
+WSME.egg-info/
