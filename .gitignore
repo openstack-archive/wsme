@@ -1,0 +1,9 @@
+*.pyc
+.idea/*
+.tox/*
+.coverage*
+WSME.egg-info/
+coverage*
+d2to1*
+nosetests*
+
