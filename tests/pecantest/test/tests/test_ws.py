@@ -3,6 +3,14 @@ import json
 import pecan
 
 
+http_response_messages = {
+    400: '400 Bad Request',
+    401: '401 Unauthorized',
+    404: '404 Not Found',
+    500: '500 Internal Server Error',
+}
+
+
 class TestWS(FunctionalTest):
 
     def test_get_all(self):
@@ -70,12 +78,14 @@ class TestWS(FunctionalTest):
         assert a['firstname'] == 'test'
 
     def test_clientsideerror(self):
+        expected_status_code = 400
+        expected_status = http_response_messages[expected_status_code]
         res = self.app.get(
             '/authors/999.json',
             expect_errors=True
         )
         print res
-        self.assertEqual(res.status, '400 Bad Request')
+        self.assertEqual(res.status, expected_status)
         a = json.loads(res.body)
         print a
         assert a['faultcode'] == 'Client'
@@ -85,29 +95,77 @@ class TestWS(FunctionalTest):
             expect_errors=True
         )
         print res
-        self.assertEqual(res.status, '400 Bad Request')
+        self.assertEqual(res.status, expected_status)
         assert '<faultcode>Client</faultcode>' in res.body
 
+    def test_custom_clientside_error(self):
+        expected_status_code = 404
+        expected_status = http_response_messages[expected_status_code]
+        res = self.app.get(
+            '/authors/998.json',
+            expect_errors=True
+        )
+        print res
+        self.assertEqual(res.status, expected_status)
+        a = json.loads(res.body)
+        print a
+        assert a['faultcode'] == 'Server'
+
+        res = self.app.get(
+            '/authors/998.xml',
+            expect_errors=True
+        )
+        print res
+        self.assertEqual(res.status, expected_status)
+        assert '<faultcode>Server</faultcode>' in res.body
+
+    def test_custom_non_http_clientside_error(self):
+        expected_status_code = 500
+        expected_status = http_response_messages[expected_status_code]
+        res = self.app.get(
+            '/authors/997.json',
+            expect_errors=True
+        )
+        print res
+        self.assertEqual(res.status, expected_status)
+        a = json.loads(res.body)
+        print a
+        assert a['faultcode'] == 'Server'
+
+        res = self.app.get(
+            '/authors/997.xml',
+            expect_errors=True
+        )
+        print res
+        self.assertEqual(res.status, expected_status)
+        assert '<faultcode>Server</faultcode>' in res.body
+
     def test_non_default_response(self):
+        expected_status_code = 401
+        expected_status = http_response_messages[expected_status_code]
         res = self.app.get(
             '/authors/911.json',
             expect_errors=True
         )
-        self.assertEqual(res.status_int, 401)
-        self.assertEqual(res.status, '401 Unauthorized')
+        self.assertEqual(res.status_int, expected_status_code)
+        self.assertEqual(res.status, expected_status)
 
     def test_serversideerror(self):
+        expected_status_code = 500
+        expected_status = http_response_messages[expected_status_code]
         res = self.app.get('/divide_by_zero.json', expect_errors=True)
-        self.assertEqual(res.status, '500 Internal Server Error')
+        self.assertEqual(res.status, expected_status)
         a = json.loads(res.body)
         print a
         assert a['faultcode'] == 'Server'
         assert a['debuginfo'] is None
 
     def test_serversideerror_with_debug(self):
+        expected_status_code = 500
+        expected_status = http_response_messages[expected_status_code]
         pecan.set_config({'wsme': {'debug': True}})
         res = self.app.get('/divide_by_zero.json', expect_errors=True)
-        self.assertEqual(res.status, '500 Internal Server Error')
+        self.assertEqual(res.status, expected_status)
         a = json.loads(res.body)
         print a
         assert a['faultcode'] == 'Server'
