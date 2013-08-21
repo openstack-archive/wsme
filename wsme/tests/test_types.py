@@ -220,15 +220,14 @@ class TestTypes(unittest.TestCase):
         assert isinstance(obj.abytes, types.bytes)
 
     def test_named_attribute(self):
-        class AType(object):
+        class ABCDType(object):
             a_list = types.wsattr([int], name='a.list')
             astr = str
 
-        types.register_type(AType)
+        types.register_type(ABCDType)
 
-        assert len(AType._wsme_attributes) == 2
-        attrs = AType._wsme_attributes
-        print(attrs)
+        assert len(ABCDType._wsme_attributes) == 2
+        attrs = ABCDType._wsme_attributes
 
         assert attrs[0].key == 'a_list', attrs[0].key
         assert attrs[0].name == 'a.list', attrs[0].name
