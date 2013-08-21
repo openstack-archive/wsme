@@ -1,0 +1,9 @@
+*.pyc
+.idea/*
+.tox/*
+.coverage.py27
+WSME.egg-info/
+coverage-py27.xml
+d2to1-0.2.10-py2.7.egg/
+nosetests-py27.xml
+

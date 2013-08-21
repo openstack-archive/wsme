@@ -76,14 +76,24 @@ def wsexpose(*args, **kwargs):
                     result = result.obj
 
             except:
+                exception_info = sys.exc_info()
+                orig_exception = exception_info[1]
+                orig_code = getattr(orig_exception, 'code', None)
+
                 data = wsme.api.format_exception(
-                    sys.exc_info(),
+                    exception_info,
                     pecan.conf.get('wsme', {}).get('debug', False)
                 )
+
                 if data['faultcode'] == 'Client':
                     pecan.response.status = 400
+                elif orig_code:
+                    pecan.response.status = orig_code
                 else:
                     pecan.response.status = 500
+
+
+
                 return data
 
             if funcdef.return_type is None:
