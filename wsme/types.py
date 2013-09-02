@@ -573,12 +573,12 @@ def register_type(class_):
 
 class BaseMeta(type):
     def __new__(cls, name, bases, dct):
-        if bases[0] is not object and '__registry__' not in dct:
+        if bases and bases[0] is not object and '__registry__' not in dct:
             dct['__registry__'] = registry
         return type.__new__(cls, name, bases, dct)
 
     def __init__(cls, name, bases, dct):
-        if bases[0] is not object:
+        if bases and bases[0] is not object:
             cls.__registry__.register(cls)
 
 
