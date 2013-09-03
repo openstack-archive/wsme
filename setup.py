@@ -9,11 +9,11 @@ else:
     webob_version = ''
 
 setup(
-    setup_requires=['d2to1'],
+    setup_requires=['pbr>=0.5.21'],
     install_requires=[
         'six',
         'simplegeneric',
         'WebOb' + webob_version
     ],
-    d2to1=True
+    pbr=True
 )
