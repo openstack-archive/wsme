@@ -1,0 +1,11 @@
+Verified+2: Jenkins
+Code-Review+1: Roman Podolyaka <rpodolyaka@mirantis.com>
+Code-Review+1: Sergey Skripnick <sskripnick@mirantis.com>
+Code-Review+1: Alex Gaynor <alex.gaynor@gmail.com>
+Approved+1: Christophe de Vienne <cdevienne@gmail.com>
+Code-Review+2: Christophe de Vienne <cdevienne@gmail.com>
+Submitted-by: Jenkins
+Submitted-at: Tue, 03 Sep 2013 14:39:53 +0000
+Reviewed-on: https://review.openstack.org/44659
+Project: stackforge/wsme
+Branch: refs/heads/master
