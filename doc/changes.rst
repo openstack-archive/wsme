@@ -1,6 +1,34 @@
 Changes
 =======
 
+0.5b3 (2013-09-04)
+------------------
+
+The project moved to stackforge. Mind the new URLs for the repository, bug
+report etc (see the documentation).
+
+*   Allow non-default status code return with the pecan adapter
+    (Angus Salked).
+
+*   Fix returning objects with object attributes set to None on rest-json
+    & ExtDirect.
+
+*   Allow error details to be set on the Response object (experimental !).
+
+*   Fix: Content-Type header is not set anymore when the return type is None
+    on the pecan adapter.
+
+*   Support unicode message in ClientSideError (Mehdi Abaakouk).
+
+*   Use pbr instead of d2to1 (Julien Danjou).
+
+*   Python 3.3 support (Julien Danjou).
+
+*   Pecan adapter: returned status can now be set on exceptions (Vitaly
+    Kostenko).
+
+*   six >= 1.4.0 support (Julien Danjou).
+
 0.5b2 (2013-04-18)
 ------------------
 
