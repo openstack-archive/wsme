@@ -60,8 +60,7 @@ class DataStoreControllerMixin(object):
     def create(self, obj):
         pass
 
-    def read(self, query=None, sort=None,
-                   page=None, start=None, limit=None):
+    def read(self, query=None, sort=None, page=None, start=None, limit=None):
         pass
 
     def update(self, obj):
@@ -116,5 +115,7 @@ Ext.define('%(appns)s.store.%(classname)s', {
         return tpl % d
 
 
-DataStoreController = DataStoreControllerMeta('DataStoreController',
-        (DataStoreControllerMixin,), {})
+DataStoreController = DataStoreControllerMeta(
+    'DataStoreController',
+    (DataStoreControllerMixin,), {}
+)

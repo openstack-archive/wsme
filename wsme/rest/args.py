@@ -68,8 +68,10 @@ def from_params(datatype, params, path, hit_paths):
         if objfound:
             r = datatype()
             for attrdef in list_attributes(datatype):
-                value = from_params(attrdef.datatype,
-                        params, '%s.%s' % (path, attrdef.key), hit_paths)
+                value = from_params(
+                    attrdef.datatype,
+                    params, '%s.%s' % (path, attrdef.key), hit_paths
+                )
                 if value is not Unset:
                     setattr(r, attrdef.key, value)
             return r

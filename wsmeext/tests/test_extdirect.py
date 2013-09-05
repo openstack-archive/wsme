@@ -98,8 +98,8 @@ class TestExtDirectProtocol(wsme.tests.protocol.ProtocolTestCase):
         'nsfolder': 'app'
     }
 
-    def call(self, fname, _rt=None, _no_result_decode=False,
-            _accept=None, **kw):
+    def call(self, fname, _rt=None, _no_result_decode=False, _accept=None,
+             **kw):
         path = fname.split('/')
         try:
             func, funcdef, args = self.root._lookup_function(path)
@@ -132,8 +132,8 @@ class TestExtDirectProtocol(wsme.tests.protocol.ProtocolTestCase):
         headers = {'Content-Type': 'application/json'}
         if _accept:
             headers['Accept'] = _accept
-        res = self.app.post('/extdirect/router/%s' % ns, data,
-            headers=headers, expect_errors=True)
+        res = self.app.post('/extdirect/router/%s' % ns, data, headers=headers,
+                            expect_errors=True)
 
         print(res.body)
 
@@ -170,8 +170,7 @@ class TestExtDirectProtocol(wsme.tests.protocol.ProtocolTestCase):
             'data': [2, 5],
         })
         headers = {'Content-Type': 'application/json'}
-        res = self.app.post('/extdirect/router', data,
-            headers=headers)
+        res = self.app.post('/extdirect/router', data, headers=headers)
 
         print(res.body)
 
@@ -220,8 +219,11 @@ class TestExtDirectProtocol(wsme.tests.protocol.ProtocolTestCase):
         }
 
         body = urlencode(params)
-        r = self.app.post('/extdirect/router', body,
-            headers={'Content-Type': 'application/x-www-form-urlencoded'})
+        r = self.app.post(
+            '/extdirect/router',
+            body,
+            headers={'Content-Type': 'application/x-www-form-urlencoded'}
+        )
         print (r)
 
         assert json.loads(r.text) == {

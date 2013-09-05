@@ -42,8 +42,12 @@ class TestProtocolsCommons(unittest.TestCase):
         assert from_params(ArrayType(int), {}, 'a', set()) is Unset
 
     def test_from_params_dict(self):
-        value = from_params(DictType(int, str), {
-                'a[2]': 'a2', 'a[3]': 'a3'}, 'a', set())
+        value = from_params(
+            DictType(int, str),
+            {'a[2]': 'a2', 'a[3]': 'a3'},
+            'a',
+            set()
+        )
         assert value == {2: 'a2', 3: 'a3'}, value
 
     def test_from_params_dict_unset(self):

@@ -143,8 +143,8 @@ wsme.tests.protocol.WSTestRoot.crud = MiniCrud()
 class TestRestJson(wsme.tests.protocol.ProtocolTestCase):
     protocol = 'restjson'
 
-    def call(self, fpath, _rt=None, _accept=None,
-                _no_result_decode=False, **kw):
+    def call(self, fpath, _rt=None, _accept=None, _no_result_decode=False,
+             **kw):
         for key in kw:
             if isinstance(kw[key], tuple):
                 value, datatype = kw[key]
@@ -175,14 +175,15 @@ class TestRestJson(wsme.tests.protocol.ProtocolTestCase):
             return r
         else:
             raise wsme.tests.protocol.CallException(
-                    r['faultcode'],
-                    r['faultstring'],
-                    r.get('debuginfo'))
+                r['faultcode'],
+                r['faultstring'],
+                r.get('debuginfo')
+            )
 
         return json.loads(res.text)
 
     def test_fromjson(self):
-        assert fromjson(str, None) == None
+        assert fromjson(str, None) is None
 
     def test_keyargs(self):
         r = self.app.get('/argtypes/setint.json?value=2')
@@ -202,8 +203,11 @@ class TestRestJson(wsme.tests.protocol.ProtocolTestCase):
             'value[1].inner.aint': 55
         }
         body = urlencode(params)
-        r = self.app.post('/argtypes/setnestedarray.json', body,
-            headers={'Content-Type': 'application/x-www-form-urlencoded'})
+        r = self.app.post(
+            '/argtypes/setnestedarray.json',
+            body,
+            headers={'Content-Type': 'application/x-www-form-urlencoded'}
+        )
         print(r)
 
         assert json.loads(r.text) == [
@@ -211,10 +215,9 @@ class TestRestJson(wsme.tests.protocol.ProtocolTestCase):
             {'inner': {'aint': 55}}]
 
     def test_body_and_params(self):
-        r = self.app.post('/argtypes/setint.json?value=2',
-                '{"value": 2}',
-                headers={"Content-Type": "application/json"},
-                expect_errors=True)
+        r = self.app.post('/argtypes/setint.json?value=2', '{"value": 2}',
+                          headers={"Content-Type": "application/json"},
+                          expect_errors=True)
         print(r)
         assert r.status_int == 400
         assert json.loads(r.text)['faultstring'] == \
@@ -233,21 +236,21 @@ class TestRestJson(wsme.tests.protocol.ProtocolTestCase):
         assert json.loads(r.text) == 2
 
     def test_unknown_arg(self):
-        r = self.app.post('/returntypes/getint.json',
-            '{"a": 2}',
-            headers={"Content-Type": "application/json"},
-            expect_errors=True)
+        r = self.app.post('/returntypes/getint.json', '{"a": 2}',
+                          headers={"Content-Type": "application/json"},
+                          expect_errors=True)
         print(r)
         assert r.status_int == 400
         assert json.loads(r.text)['faultstring'].startswith(
-                "Unknown argument:")
+            "Unknown argument:"
+        )
 
-        r = self.app.get('/returntypes/getint.json?a=2',
-            expect_errors=True)
+        r = self.app.get('/returntypes/getint.json?a=2', expect_errors=True)
         print(r)
         assert r.status_int == 400
         assert json.loads(r.text)['faultstring'].startswith(
-                "Unknown argument:")
+            "Unknown argument:"
+        )
 
     def test_unset_attrs(self):
         class AType(object):
@@ -269,14 +272,12 @@ class TestRestJson(wsme.tests.protocol.ProtocolTestCase):
 
     def test_None_tojson(self):
         for dt in (datetime.date, datetime.time, datetime.datetime,
-                decimal.Decimal):
+                   decimal.Decimal):
             assert tojson(dt, None) is None
 
     def test_None_fromjson(self):
-        for dt in (str, int,
-                datetime.date, datetime.time, datetime.datetime,
-                decimal.Decimal,
-                [int], {int: int}):
+        for dt in (str, int, datetime.date, datetime.time, datetime.datetime,
+                   decimal.Decimal, [int], {int: int}):
             assert fromjson(dt, None) is None
 
     def test_nest_result(self):
@@ -299,8 +300,8 @@ class TestRestJson(wsme.tests.protocol.ProtocolTestCase):
         r = wsme.rest.json.encode_sample_value(MyType, v, True)
         print(r)
         assert r[0] == ('javascript')
-        assert r[1] == json.dumps({'aint': 4, 'astr': 's'},
-            ensure_ascii=False, indent=4, sort_keys=True)
+        assert r[1] == json.dumps({'aint': 4, 'astr': 's'}, ensure_ascii=False,
+                                  indent=4, sort_keys=True)
 
     def test_bytes_tojson(self):
         assert tojson(wsme.types.bytes, None) is None

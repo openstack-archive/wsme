@@ -114,9 +114,7 @@ soap:encodingStyle="http://schemas.xmlsoap.org/soap/encoding/">
   </soap:Body>
 
 </soap:Envelope>
-""" % dict(method=method,
-            params=params,
-            typenamespace=typenamespace)
+""" % dict(method=method, params=params, typenamespace=typenamespace)
     return message
 
 
@@ -124,11 +122,15 @@ python_types = {
     int: ('xs:int', str),
     float: ('xs:float', str),
     bool: ('xs:boolean', str),
-    wsme.types.bytes: ('xs:string',
-        lambda x: x.decode('ascii') if isinstance(x, wsme.types.bytes) else x),
+    wsme.types.bytes: (
+        'xs:string',
+        lambda x: x.decode('ascii') if isinstance(x, wsme.types.bytes) else x
+    ),
     wsme.types.text: ('xs:string', wsme.types.text),
-    wsme.types.binary: ('xs:base64Binary',
-        lambda x: base64.encodestring(x).decode('ascii')),
+    wsme.types.binary: (
+        'xs:base64Binary',
+        lambda x: base64.encodestring(x).decode('ascii')
+    ),
     decimal.Decimal: ('xs:decimal', str),
     datetime.date: ('xs:date', datetime.date.isoformat),
     datetime.time: ('xs:time', datetime.time.isoformat),
@@ -278,9 +280,7 @@ def fromsuds(dt, value):
 
 class TestSOAP(wsme.tests.protocol.ProtocolTestCase):
     protocol = 'soap'
-    protocol_options = dict(
-            tns=tns,
-            typenamespace=typenamespace)
+    protocol_options = dict(tns=tns, typenamespace=typenamespace)
     ws_path = '/'
     _sudsclient = None
 
@@ -290,19 +290,22 @@ class TestSOAP(wsme.tests.protocol.ProtocolTestCase):
     def test_simple_call(self):
         message = build_soap_message('touch')
         print(message)
-        res = self.app.post(self.ws_path, message,
+        res = self.app.post(
+            self.ws_path,
+            message,
             headers={"Content-Type": "application/soap+xml; charset=utf-8"},
-            expect_errors=True)
+            expect_errors=True
+        )
         print(res.body)
         assert res.status.startswith('200')
 
-    def call(self, fpath, _rt=None, _accept=None,
-                _no_result_decode=False, **kw):
+    def call(self, fpath, _rt=None, _accept=None, _no_result_decode=False,
+             **kw):
 
         if _no_result_decode or _accept or self._testMethodName in (
-                'test_missing_argument', 'test_invalid_path',
-                'test_settext_empty', 'test_settext_none'
-            ):
+            'test_missing_argument', 'test_invalid_path', 'test_settext_empty',
+            'test_settext_none'
+        ):
             return self.raw_call(fpath, _rt, _accept, _no_result_decode, **kw)
 
         path = fpath.strip('/').split('/')
@@ -318,13 +321,13 @@ class TestSOAP(wsme.tests.protocol.ProtocolTestCase):
         except suds.WebFault:
             exc = sys.exc_info()[1]
             raise wsme.tests.protocol.CallException(
-                    exc.fault.faultcode,
-                    exc.fault.faultstring,
-                    getattr(exc.fault, 'detail', None) or None
+                exc.fault.faultcode,
+                exc.fault.faultstring,
+                getattr(exc.fault, 'detail', None) or None
             )
 
-    def raw_call(self, fpath, _rt=None, _accept=None,
-                       _no_result_decode=False, **kw):
+    def raw_call(self, fpath, _rt=None, _accept=None, _no_result_decode=False,
+                 **kw):
         path = fpath.strip('/').split('/')
         methodname = ''.join([path[0]] + [i.capitalize() for i in path[1:]])
         # get the actual definition so we can build the adequate request
@@ -366,17 +369,17 @@ class TestSOAP(wsme.tests.protocol.ProtocolTestCase):
         elif res.status_int == 400:
             fault = body.find(fault_qn)
             raise wsme.tests.protocol.CallException(
-                    fault.find(faultcode_qn).text,
-                    fault.find(faultstring_qn).text,
-                    "")
+                fault.find(faultcode_qn).text,
+                fault.find(faultstring_qn).text,
+                "")
 
         elif res.status_int == 500:
             fault = body.find(fault_qn)
             raise wsme.tests.protocol.CallException(
-                    fault.find(faultcode_qn).text,
-                    fault.find(faultstring_qn).text,
-                    fault.find(faultdetail_qn) is not None and
-                        fault.find(faultdetail_qn).text or None)
+                fault.find(faultcode_qn).text,
+                fault.find(faultstring_qn).text,
+                fault.find(faultdetail_qn) is not None and
+                fault.find(faultdetail_qn).text or None)
 
     @property
     def sudsclient(self):

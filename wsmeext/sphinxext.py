@@ -158,7 +158,7 @@ class TypeDirective(PyClasslike):
 class AttributeDirective(PyClassmember):
     doc_field_types = [
         Field('datatype', label=l_('Type'), has_arg=False,
-            names=('type', 'datatype'))
+              names=('type', 'datatype'))
     ]
 
 
@@ -429,8 +429,11 @@ def document_function(funcdef, docstrings=None, protocols=['restjson']):
     if protocols:
         params = []
         for arg in funcdef.arguments:
-            params.append((arg.name, arg.datatype,
-                make_sample_object(arg.datatype)))
+            params.append((
+                arg.name,
+                arg.datatype,
+                make_sample_object(arg.datatype)
+            ))
         codesamples.extend([
             u':%s:' % l_(u'Parameters samples'),
             u'    .. cssclass:: toggle',
@@ -494,8 +497,10 @@ class FunctionDocumenter(autodoc.MethodDocumenter):
 
     def format_args(self):
         args = [arg.name for arg in self.wsme_fd.arguments]
-        defaults = [arg.default
-            for arg in self.wsme_fd.arguments if not arg.mandatory]
+        defaults = [
+            arg.default
+            for arg in self.wsme_fd.arguments if not arg.mandatory
+        ]
         return inspect.formatargspec(args, defaults=defaults)
 
     def get_doc(self, encoding=None):

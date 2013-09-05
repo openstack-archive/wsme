@@ -239,9 +239,8 @@ def encode_error(context, errordetail):
 
 def encode_sample_value(datatype, value, format=False):
     r = tojson(datatype, value)
-    content = json.dumps(r, ensure_ascii=False,
-        indent=4 if format else 0,
-        sort_keys=format)
+    content = json.dumps(r, ensure_ascii=False, indent=4 if format else 0,
+                         sort_keys=format)
     return ('javascript', content)
 
 
@@ -249,9 +248,8 @@ def encode_sample_params(params, format=False):
     kw = {}
     for name, datatype, value in params:
         kw[name] = tojson(datatype, value)
-    content = json.dumps(kw, ensure_ascii=False,
-        indent=4 if format else 0,
-        sort_keys=format)
+    content = json.dumps(kw, ensure_ascii=False, indent=4 if format else 0,
+                         sort_keys=format)
     return ('javascript', content)
 
 
@@ -259,7 +257,6 @@ def encode_sample_result(datatype, value, format=False):
     r = tojson(datatype, value)
     #if self.nest_result:
         #r = {'result': r}
-    content = json.dumps(r, ensure_ascii=False,
-        indent=4 if format else 0,
-        sort_keys=format)
+    content = json.dumps(r, ensure_ascii=False, indent=4 if format else 0,
+                         sort_keys=format)
     return ('javascript', content)

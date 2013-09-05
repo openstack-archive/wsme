@@ -269,8 +269,7 @@ class ExtDirectProtocol(Protocol):
     displayname = 'ExtDirect'
     content_types = ['application/json', 'text/javascript']
 
-    def __init__(self, namespace='', params_notation='named',
-            nsfolder=None):
+    def __init__(self, namespace='', params_notation='named', nsfolder=None):
         self.namespace = namespace
         self.appns, self.apins = namespace.rsplit('.', 2) \
             if '.' in namespace else (namespace, '')
@@ -290,9 +289,11 @@ class ExtDirectProtocol(Protocol):
         assert path.startswith(self.root._webpath)
         path = path[len(self.root._webpath):]
 
-        return path == self.api_alias or \
-                     path == "/extdirect/api" or \
-                     path.startswith("/extdirect/router")
+        return (
+            path == self.api_alias or
+            path == "/extdirect/api" or
+            path.startswith("/extdirect/router")
+        )
 
     def iter_calls(self, req):
         path = req.path
@@ -333,12 +334,14 @@ class ExtDirectProtocol(Protocol):
 
     def read_std_arguments(self, context):
         funcdef = context.funcdef
-        notation = funcdef.extra_options.get(
-                'extdirect_params_notation', self.default_params_notation)
+        notation = funcdef.extra_options.get('extdirect_params_notation',
+                                             self.default_params_notation)
         args = context.params
         if notation == 'positional':
-            kw = dict((argdef.name, fromjson(argdef.datatype, arg))
-                    for argdef, arg in zip(funcdef.arguments, args))
+            kw = dict(
+                (argdef.name, fromjson(argdef.datatype, arg))
+                for argdef, arg in zip(funcdef.arguments, args)
+            )
         elif notation == 'named':
             if len(args) == 0:
                 args = [{}]
@@ -357,8 +360,8 @@ class ExtDirectProtocol(Protocol):
     def read_form_arguments(self, context):
         kw = {}
         for argdef in context.funcdef.arguments:
-            value = from_params(argdef.datatype,
-                context.request.params, argdef.name, set())
+            value = from_params(argdef.datatype, context.request.params,
+                                argdef.name, set())
             if value is not Unset:
                 kw[argdef.name] = value
         return kw
@@ -421,14 +424,14 @@ class ExtDirectProtocol(Protocol):
             if action not in namespaces[namespace]:
                 namespaces[namespace][action] = []
             notation = funcdef.extra_options.get('extdirect_params_notation',
-                self.default_params_notation)
+                                                 self.default_params_notation)
             method = {
                 'name': funcdef.name}
 
             if funcdef.extra_options.get('extdirect_formhandler', False):
                 method['formHandler'] = True
             method['len'] = 1 if notation == 'named' \
-                            else len(funcdef.arguments)
+                else len(funcdef.arguments)
             namespaces[namespace][action].append(method)
         webpath = self.root._webpath
         if webpath and not webpath.endswith('/'):
@@ -442,7 +445,6 @@ class ExtDirectProtocol(Protocol):
 
     def encode_sample_value(self, datatype, value, format=False):
         r = tojson(datatype, value)
-        content = json.dumps(r, ensure_ascii=False,
-            indent=4 if format else 0,
-            sort_keys=format)
+        content = json.dumps(r, ensure_ascii=False, indent=4 if format else 0,
+                             sort_keys=format)
         return ('javascript', content)

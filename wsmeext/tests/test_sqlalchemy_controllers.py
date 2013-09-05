@@ -23,9 +23,8 @@ from wsmeext.sqlalchemy.controllers import CRUDController
 from six import u
 
 engine = create_engine('sqlite:///')
-DBSession = scoped_session(sessionmaker(autocommit=False,
-                                      autoflush=False,
-                                      bind=engine))
+DBSession = scoped_session(sessionmaker(autocommit=False, autoflush=False,
+                                        bind=engine))
 DBBase = declarative_base()
 
 registry = wsme.types.Registry()
@@ -55,8 +54,8 @@ class DBAddress(DBBase):
 
 
 globals().update(
-    generate_types(DBPerson, DBAddress,
-        makename=lambda s: s[2:], registry=registry))
+    generate_types(DBPerson, DBAddress, makename=lambda s: s[2:],
+                   registry=registry))
 
 
 class PersonController(CRUDController):
@@ -97,9 +96,7 @@ class TestCRUDController():
             birthdate=u('1809-01-15')
         ))
         r = self.app.post('/person/create', json.dumps(data),
-            headers={
-                'Content-Type': 'application/json'
-            })
+                          headers={'Content-Type': 'application/json'})
         r = json.loads(r.text)
         print(r)
         assert r['name'] == u('Pierre-Joseph')
@@ -111,9 +108,7 @@ class TestCRUDController():
             birthdate=u('1809-01-15')
         ))
         r = self.app.put('/person', json.dumps(data),
-            headers={
-                'Content-Type': 'application/json'
-            })
+                         headers={'Content-Type': 'application/json'})
         r = json.loads(r.text)
         print(r)
         assert r['name'] == u('Pierre-Joseph')
@@ -127,9 +122,7 @@ class TestCRUDController():
         DBSession.flush()
         pid = p.id
         r = self.app.post('/person/read', '{"ref": {"id": %s}}' % pid,
-            headers={
-                'Content-Type': 'application/json'
-            })
+                          headers={'Content-Type': 'application/json'})
         r = json.loads(r.text)
         print(r)
         assert r['name'] == u('Pierre-Joseph')
@@ -143,9 +136,7 @@ class TestCRUDController():
         DBSession.flush()
         pid = p.id
         r = self.app.get('/person?ref.id=%s' % pid,
-            headers={
-                'Content-Type': 'application/json'
-            })
+                         headers={'Content-Type': 'application/json'})
         r = json.loads(r.text)
         print(r)
         assert r['name'] == u('Pierre-Joseph')
@@ -163,9 +154,7 @@ class TestCRUDController():
             "name": u('Pierre-Joseph Proudon')
         }
         r = self.app.post('/person/update', json.dumps(dict(data=data)),
-            headers={
-                'Content-Type': 'application/json'
-            })
+                          headers={'Content-Type': 'application/json'})
         r = json.loads(r.text)
         print(r)
         assert r['name'] == u('Pierre-Joseph Proudon')
@@ -183,9 +172,7 @@ class TestCRUDController():
             "name": u('Pierre-Joseph Proudon')
         }
         r = self.app.post('/person', json.dumps(dict(data=data)),
-            headers={
-                'Content-Type': 'application/json'
-            })
+                          headers={'Content-Type': 'application/json'})
         r = json.loads(r.text)
         print(r)
         assert r['name'] == u('Pierre-Joseph Proudon')
@@ -214,9 +201,7 @@ class TestCRUDController():
         DBSession.flush()
         pid = p.id
         r = self.app.delete('/person?ref.id=%s' % pid,
-            headers={
-                'Content-Type': 'application/json'
-            })
+                            headers={'Content-Type': 'application/json'})
         print(r)
         assert DBSession.query(DBPerson).get(pid) is None
 

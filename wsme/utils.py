@@ -87,7 +87,8 @@ def parse_isodatetime(value):
 try:
     from collections import OrderedDict
 except ImportError:
-    # Backport of OrderedDict() class that runs on Python 2.4, 2.5, 2.6, 2.7 and pypy.
+    # Backport of OrderedDict() class that runs on Python 2.4, 2.5, 2.6, 2.7
+    # and pypy.
     # Passes Python2.7's test suite and incorporates all the latest updates.
 
     try:
@@ -103,14 +104,17 @@ except ImportError:
     class OrderedDict(dict):
         'Dictionary that remembers insertion order'
         # An inherited dict maps keys to values.
-        # The inherited dict provides __getitem__, __len__, __contains__, and get.
-        # The remaining methods are order-aware.
-        # Big-O running times for all methods are the same as for regular dictionaries.
+        # The inherited dict provides __getitem__, __len__, __contains__, and
+        # get. The remaining methods are order-aware.
+        #
+        # Big-O running times for all methods are the same as for regular
+        # dictionaries.
 
-        # The internal self.__map dictionary maps keys to links in a doubly linked list.
-        # The circular doubly linked list starts and ends with a sentinel element.
-        # The sentinel element never gets deleted (this simplifies the algorithm).
-        # Each link is stored as a list of length three:  [PREV, NEXT, KEY].
+        # The internal self.__map dictionary maps keys to links in a doubly
+        # linked list. The circular doubly linked list starts and ends with
+        # a sentinel element. The sentinel element never gets deleted (this
+        # simplifies the algorithm). Each link is stored as a list of length
+        # three:  [PREV, NEXT, KEY].
 
         def __init__(self, *args, **kwds):
             '''Initialize an ordered dictionary.  Signature is the same as for
@@ -119,7 +123,9 @@ except ImportError:
 
             '''
             if len(args) > 1:
-                raise TypeError('expected at most 1 arguments, got %d' % len(args))
+                raise TypeError(
+                    'expected at most 1 arguments, got %d' % len(args)
+                )
             try:
                 self.__root
             except AttributeError:
@@ -130,8 +136,9 @@ except ImportError:
 
         def __setitem__(self, key, value, dict_setitem=dict.__setitem__):
             'od.__setitem__(i, y) <==> od[i]=y'
-            # Setting a new item creates a new link which goes at the end of the linked
-            # list, and the inherited dictionary is updated with the new key/value pair.
+            # Setting a new item creates a new link which goes at the end of
+            # the linked list, and the inherited dictionary is updated with the
+            # new key/value pair.
             if key not in self:
                 root = self.__root
                 last = root[0]
@@ -140,8 +147,9 @@ except ImportError:
 
         def __delitem__(self, key, dict_delitem=dict.__delitem__):
             'od.__delitem__(y) <==> del od[y]'
-            # Deleting an existing item uses self.__map to find the link which is
-            # then removed by updating the links in the predecessor and successor nodes.
+            # Deleting an existing item uses self.__map to find the link which
+            # is then removed by updating the links in the predecessor and
+            # successor nodes.
             dict_delitem(self, key)
             link_prev, link_next, key = self.__map.pop(key)
             link_prev[1] = link_next
@@ -177,7 +185,8 @@ except ImportError:
 
         def popitem(self, last=True):
             '''od.popitem() -> (k, v), return and remove a (key, value) pair.
-            Pairs are returned in LIFO order if last is true or FIFO order if false.
+            Pairs are returned in LIFO order if last is true or FIFO order if
+            false.
 
             '''
             if not self:
@@ -227,12 +236,12 @@ except ImportError:
                 yield (k, self[k])
 
         def update(*args, **kwds):
-            '''od.update(E, **F) -> None.  Update od from dict/iterable E and F.
+            '''od.update(E, **F) -> None.  Update od from dict/iterable E and F
 
             If E is a dict instance, does:           for k in E: od[k] = E[k]
-            If E has a .keys() method, does:         for k in E.keys(): od[k] = E[k]
+            If E has a .keys() method, does:         for k in E.keys(): od[k] = E[k]  # noqa
             Or if E is an iterable of items, does:   for k, v in E: od[k] = v
-            In either case, this is followed by:     for k, v in F.items(): od[k] = v
+            In either case, this is followed by:     for k, v in F.items(): od[k] = v  # noqa
 
             '''
             if len(args) > 2:
@@ -257,14 +266,15 @@ except ImportError:
             for key, value in kwds.items():
                 self[key] = value
 
-        __update = update  # let subclasses override update without breaking __init__
+        # let subclasses override update without breaking __init__
+        __update = update
 
         __marker = object()
 
         def pop(self, key, default=__marker):
-            '''od.pop(k[,d]) -> v, remove specified key and return the corresponding value.
-            If key is not found, d is returned if given, otherwise KeyError is raised.
-
+            '''od.pop(k[,d]) -> v, remove specified key and return the
+            corresponding value.  If key is not found, d is returned if given,
+            otherwise KeyError is raised.
             '''
             if key in self:
                 result = self[key]
@@ -275,7 +285,8 @@ except ImportError:
             return default
 
         def setdefault(self, key, default=None):
-            'od.setdefault(k[,d]) -> od.get(k,d), also set od[k]=d if k not in od'
+            '''od.setdefault(k[,d]) -> od.get(k,d), also set od[k]=d if k not
+            in od'''
             if key in self:
                 return self[key]
             self[key] = default
@@ -320,12 +331,15 @@ except ImportError:
             return d
 
         def __eq__(self, other):
-            '''od.__eq__(y) <==> od==y.  Comparison to another OD is order-sensitive
-            while comparison to a regular mapping is order-insensitive.
-
+            '''od.__eq__(y) <==> od==y.  Comparison to another OD is
+            order-sensitive while comparison to a regular mapping is
+            order-insensitive.
             '''
             if isinstance(other, OrderedDict):
-                return len(self)==len(other) and self.items() == other.items()
+                return (
+                    len(self) == len(other) and
+                    self.items() == other.items()
+                )
             return dict.__eq__(self, other)
 
         def __ne__(self, other):
@@ -342,5 +356,6 @@ except ImportError:
             return ValuesView(self)
 
         def viewitems(self):
-            "od.viewitems() -> a set-like object providing a view on od's items"
+            """od.viewitems() -> a set-like object providing a view on od's
+            items"""
             return ItemsView(self)

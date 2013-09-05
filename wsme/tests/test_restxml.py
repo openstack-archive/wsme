@@ -40,7 +40,7 @@ def dumpxml(key, obj, datatype=None):
         el.text = six.text_type(obj)
     elif type(obj) in (datetime.date, datetime.time, datetime.datetime):
         el.text = obj.isoformat()
-    elif type(obj) == type(None):
+    elif isinstance(obj, type(None)):
         el.set('nil', 'true')
     elif hasattr(datatype, '_wsme_attributes'):
         for attr in datatype._wsme_attributes:
@@ -120,8 +120,8 @@ def loadxml(el, datatype):
 class TestRestXML(wsme.tests.protocol.ProtocolTestCase):
     protocol = 'restxml'
 
-    def call(self, fpath, _rt=None, _accept=None,
-                _no_result_decode=False, **kw):
+    def call(self, fpath, _rt=None, _accept=None, _no_result_decode=False,
+             **kw):
         el = dumpxml('parameters', kw)
         content = et.tostring(el)
         headers = {
@@ -142,10 +142,11 @@ class TestRestXML(wsme.tests.protocol.ProtocolTestCase):
         el = et.fromstring(res.body)
         if el.tag == 'error':
             raise wsme.tests.protocol.CallException(
-                    el.find('faultcode').text,
-                    el.find('faultstring').text,
-                    el.find('debuginfo') is not None and
-                        el.find('debuginfo').text or None)
+                el.find('faultcode').text,
+                el.find('faultstring').text,
+                el.find('debuginfo') is not None and
+                el.find('debuginfo').text or None
+            )
 
         else:
             return loadxml(et.fromstring(res.body), _rt)

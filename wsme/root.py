@@ -79,7 +79,7 @@ class WSRoot(object):
     __registry__ = wsme.types.registry
 
     def __init__(self, protocols=[], webpath='', transaction=None,
-            scan_api=scan_api):
+                 scan_api=scan_api):
         self._debug = True
         self._webpath = webpath
         self.protocols = []
@@ -242,8 +242,8 @@ class WSRoot(object):
         if protocol is None:
             if msg is None:
                 msg = ("None of the following protocols can handle this "
-                       "request : %s" % ','.join(
-                            (p.name for p in self.protocols)))
+                       "request : %s" % ','.join((
+                           p.name for p in self.protocols)))
             res.status = 500
             res.content_type = 'text/plain'
             res.text = u(msg)

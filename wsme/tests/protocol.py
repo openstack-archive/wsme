@@ -35,7 +35,8 @@ class CallException(RuntimeError):
 
     def __str__(self):
         return 'faultcode=%s, faultstring=%s, debuginfo=%s' % (
-                self.faultcode, self.faultstring, self.debuginfo)
+            self.faultcode, self.faultstring, self.debuginfo
+        )
 
 
 myenumtype = wsme.types.Enum(wsme.types.bytes, 'v1', 'v2')
@@ -382,7 +383,7 @@ class ProtocolTestCase(unittest.TestCase):
             e = sys.exc_info()[1]
             self.assertEquals(e.faultcode, 'Client')
             self.assertEquals(e.faultstring.lower(),
-                    u('unknown function name: invalid_function'))
+                              u('unknown function name: invalid_function'))
 
     def test_serverside_error(self):
         try:
@@ -471,23 +472,21 @@ class ProtocolTestCase(unittest.TestCase):
 
     def test_return_nesteddict(self):
         r = self.call('returntypes/getnesteddict',
-            _rt={wsme.types.bytes: NestedOuter})
+                      _rt={wsme.types.bytes: NestedOuter})
         self.assertEquals(r, {
             b('a'): {'inner': {'aint': 0}},
             b('b'): {'inner': {'aint': 0}}
         })
 
     def test_return_objectarrayattribute(self):
-        r = self.call('returntypes/getobjectarrayattribute',
-            _rt=NestedOuter)
+        r = self.call('returntypes/getobjectarrayattribute', _rt=NestedOuter)
         self.assertEquals(r, {
             'inner': {'aint': 0},
             'inner_array': [{'aint': 12}, {'aint': 13}]
         })
 
     def test_return_objectdictattribute(self):
-        r = self.call('returntypes/getobjectdictattribute',
-            _rt=NestedOuter)
+        r = self.call('returntypes/getobjectdictattribute', _rt=NestedOuter)
         self.assertEquals(r, {
             'inner': {'aint': 0},
             'inner_dict': {
@@ -506,15 +505,15 @@ class ProtocolTestCase(unittest.TestCase):
 
     def test_setbytes(self):
         assert self.call('argtypes/setbytes', value=b('astring'),
-            _rt=wsme.types.bytes) == b('astring')
+                         _rt=wsme.types.bytes) == b('astring')
 
     def test_settext(self):
         assert self.call('argtypes/settext', value=u('\xe3\x81\xae'),
-                        _rt=wsme.types.text) == u('\xe3\x81\xae')
+                         _rt=wsme.types.text) == u('\xe3\x81\xae')
 
     def test_settext_empty(self):
         assert self.call('argtypes/settext', value=u(''),
-                        _rt=wsme.types.text) == u('')
+                         _rt=wsme.types.text) == u('')
 
     def test_settext_none(self):
         self.assertEquals(
@@ -564,14 +563,14 @@ class ProtocolTestCase(unittest.TestCase):
     def test_setbinary(self):
         value = binarysample
         r = self.call('argtypes/setbinary', value=(value, wsme.types.binary),
-                    _rt=wsme.types.binary) == value
+                      _rt=wsme.types.binary) == value
         print(r)
 
     def test_setnested(self):
         value = {'inner': {'aint': 54}}
         r = self.call('argtypes/setnested',
-                         value=(value, NestedOuter),
-                         _rt=NestedOuter)
+                      value=(value, NestedOuter),
+                      _rt=NestedOuter)
         self.assertEquals(r, value)
 
     def test_setnested_nullobj(self):
@@ -586,15 +585,15 @@ class ProtocolTestCase(unittest.TestCase):
     def test_setbytesarray(self):
         value = [b("1"), b("2"), b("three")]
         r = self.call('argtypes/setbytesarray',
-                         value=(value, [wsme.types.bytes]),
-                         _rt=[wsme.types.bytes])
+                      value=(value, [wsme.types.bytes]),
+                      _rt=[wsme.types.bytes])
         self.assertEquals(r, value)
 
     def test_settextarray(self):
         value = [u("1")]
         r = self.call('argtypes/settextarray',
-                         value=(value, [wsme.types.text]),
-                         _rt=[wsme.types.text])
+                      value=(value, [wsme.types.text]),
+                      _rt=[wsme.types.text])
         self.assertEquals(r, value)
 
     def test_setdatetimearray(self):
@@ -603,8 +602,8 @@ class ProtocolTestCase(unittest.TestCase):
             datetime.datetime(2008, 4, 6, 2, 12, 15),
         ]
         r = self.call('argtypes/setdatetimearray',
-                         value=(value, [datetime.datetime]),
-                         _rt=[datetime.datetime])
+                      value=(value, [datetime.datetime]),
+                      _rt=[datetime.datetime])
         self.assertEquals(r, value)
 
     def test_setnestedarray(self):
@@ -613,8 +612,8 @@ class ProtocolTestCase(unittest.TestCase):
             {'inner': {'aint': 55}},
         ]
         r = self.call('argtypes/setnestedarray',
-                         value=(value, [NestedOuter]),
-                         _rt=[NestedOuter])
+                      value=(value, [NestedOuter]),
+                      _rt=[NestedOuter])
         self.assertEquals(r, value)
 
     def test_setnesteddict(self):
@@ -623,8 +622,8 @@ class ProtocolTestCase(unittest.TestCase):
             b('o2'): {'inner': {'aint': 55}},
         }
         r = self.call('argtypes/setnesteddict',
-                        value=(value, {six.binary_type: NestedOuter}),
-                        _rt={six.binary_type: NestedOuter})
+                      value=(value, {six.binary_type: NestedOuter}),
+                      _rt={six.binary_type: NestedOuter})
         print(r)
         self.assertEquals(r, value)
 
@@ -637,8 +636,8 @@ class ProtocolTestCase(unittest.TestCase):
     def test_setnamedattrsobj(self):
         value = {'attr.1': 10, 'attr.2': 20}
         r = self.call('argtypes/setnamedattrsobj',
-            value=(value, NamedAttrsObject),
-            _rt=NamedAttrsObject)
+                      value=(value, NamedAttrsObject),
+                      _rt=NamedAttrsObject)
         self.assertEquals(r, value)
 
     def test_nested_api(self):
@@ -661,5 +660,5 @@ class ProtocolTestCase(unittest.TestCase):
 
     def test_html_format(self):
         res = self.call('argtypes/setdatetime', _accept="text/html",
-            _no_result_decode=True)
+                        _no_result_decode=True)
         self.assertEquals(res.content_type, 'text/html')
