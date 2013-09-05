@@ -92,4 +92,5 @@ class CRUDControllerBase(object):
         return None
 
 CRUDController = CRUDControllerMeta(
-        'CRUDController', (CRUDControllerBase,), {})
+    'CRUDController', (CRUDControllerBase,), {}
+)

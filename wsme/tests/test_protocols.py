@@ -68,4 +68,3 @@ class TestProtocols(unittest.TestCase):
         assert p.encode_sample_value(None, None) == ('none', 'N/A')
         assert p.encode_sample_params(None) == ('none', 'N/A')
         assert p.encode_sample_result(None, None) == ('none', 'N/A')
-

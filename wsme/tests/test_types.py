@@ -47,7 +47,7 @@ class TestTypes(unittest.TestCase):
         assert attrs[0].name == 'aint'
         assert isinstance(attrs[0], types.wsattr)
         assert attrs[0].datatype == int
-        assert attrs[0].mandatory == False
+        assert attrs[0].mandatory is False
         assert attrs[1].key == 'abytes'
         assert attrs[1].name == 'abytes'
         assert attrs[2].key == 'atext'
@@ -322,9 +322,9 @@ class TestTypes(unittest.TestCase):
     def test_register_invalid_dict(self):
         self.assertRaises(ValueError, types.register_type, {})
         self.assertRaises(ValueError, types.register_type,
-                {int: str, str: int})
+                          {int: str, str: int})
         self.assertRaises(ValueError, types.register_type,
-                {types.Unset: str})
+                          {types.Unset: str})
 
     def test_list_attribute_no_auto_register(self):
         class MyType(object):
@@ -454,6 +454,7 @@ class TestTypes(unittest.TestCase):
         class buffer:
             def read(self):
                 return 'from-file'
+
         class fieldstorage:
             filename = 'static.json'
             file = buffer()
@@ -465,6 +466,7 @@ class TestTypes(unittest.TestCase):
         class buffer:
             def read(self):
                 return 'from-file'
+
         class fieldstorage:
             filename = 'static.json'
             file = None

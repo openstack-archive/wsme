@@ -125,9 +125,8 @@ class SoapEncoder(object):
             el.set(type_qn, xsitype)
             el.text = value
         elif wsme.types.isusertype(datatype):
-            return self.tosoap(
-                    datatype.basetype, tag,
-                    datatype.tobasetype(value))
+            return self.tosoap(datatype.basetype, tag,
+                               datatype.tobasetype(value))
         elif wsme.types.iscomplex(datatype):
             el.set(type_qn, 'types:%s' % (datatype.__name__))
             for attrdef in wsme.types.list_attributes(datatype):
@@ -182,8 +181,11 @@ class SoapEncoder(object):
 
     @tosoap.when_object(bool)
     def bool_tosoap(self, datatype, tag, value):
-        return self.make_soap_element(datatype, tag,
-            'true' if value is True else 'false' if value is False else None)
+        return self.make_soap_element(
+            datatype,
+            tag,
+            'true' if value is True else 'false' if value is False else None
+        )
 
     @tosoap.when_object(wsme.types.bytes)
     def bytes_tosoap(self, datatype, tag, value):
@@ -194,8 +196,11 @@ class SoapEncoder(object):
 
     @tosoap.when_object(datetime.datetime)
     def datetime_tosoap(self, datatype, tag, value):
-        return self.make_soap_element(datatype, tag,
-            value is not None and value.isoformat() or None)
+        return self.make_soap_element(
+            datatype,
+            tag,
+            value is not None and value.isoformat() or None
+        )
 
     @tosoap.when_object(wsme.types.binary)
     def binary_tosoap(self, datatype, tag, value):
@@ -326,10 +331,8 @@ class SoapProtocol(Protocol):
         "soapenc": "http://schemas.xmlsoap.org/soap/encoding/",
     }
 
-    def __init__(self, tns=None,
-            typenamespace=None,
-            baseURL=None,
-            servicename='MyApp'):
+    def __init__(self, tns=None, typenamespace=None, baseURL=None,
+                 servicename='MyApp'):
         self.tns = tns
         self.typenamespace = typenamespace
         self.servicename = servicename
@@ -343,7 +346,8 @@ class SoapProtocol(Protocol):
             self._name_mapping[service] = dict(
                 (soap_fname(path, f), path)
                 for path, f in self.root.getapi()
-                    if service is None or (path and path[0] == service))
+                if service is None or (path and path[0] == service)
+            )
         return self._name_mapping[service]
 
     def accept(self, req):

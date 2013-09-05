@@ -1,6 +1,7 @@
 # encoding=utf8
 
-from wsme.exc import *
+from wsme.exc import (ClientSideError, InvalidInput, MissingArgument,
+                      UnknownArgument)
 from six import u
 
 
@@ -19,9 +20,10 @@ def test_unicode_clientside_error():
 def test_invalidinput():
     e = InvalidInput('field', 'badvalue', "error message")
 
-    assert e.faultstring == \
-        u("Invalid input for field/attribute field. Value: 'badvalue'. " \
-        "error message"), e.faultstring
+    assert e.faultstring == u(
+        "Invalid input for field/attribute field. Value: 'badvalue'. "
+        "error message"
+    ), e.faultstring
 
 
 def test_missingargument():

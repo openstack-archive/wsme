@@ -72,8 +72,7 @@ def make_wsattr(registry, saproperty):
             saproperty.columns[0].type)
     elif isinstance(saproperty, RelationProperty):
         other_saclass = saproperty.mapper.class_
-        datatype = SQLAlchemyRegistry.get(registry).getdatatype(
-                other_saclass)
+        datatype = SQLAlchemyRegistry.get(registry).getdatatype(other_saclass)
         if saproperty.uselist:
             datatype = [datatype]
     else:
