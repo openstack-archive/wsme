@@ -1,0 +1,8 @@
+Verified+2: Jenkins
+Approved+1: Christophe de Vienne <cdevienne@gmail.com>
+Code-Review+2: Christophe de Vienne <cdevienne@gmail.com>
+Submitted-by: Jenkins
+Submitted-at: Thu, 05 Sep 2013 19:00:42 +0000
+Reviewed-on: https://review.openstack.org/45243
+Project: stackforge/wsme
+Branch: refs/heads/master
