@@ -4,6 +4,7 @@ from wsmeext.tg11 import wsexpose, wsvalidate
 import wsmeext.tg1
 
 from turbogears.controllers import RootController
+import cherrypy
 
 import unittest
 
@@ -43,9 +44,14 @@ class Root(RootController):
     def multiply(self, a, b):
         return a * b
 
-    sub = Subcontroller()
+    @wsexpose(int)
+    @wsvalidate(int, int)
+    def divide(self, a, b):
+        if b == 0:
+            raise cherrypy.HTTPError(400, 'Cannot divide by zero!')
+        return a / b
 
-import cherrypy
+    sub = Subcontroller()
 
 from turbogears import testutil, config, startup
 
@@ -107,6 +113,31 @@ class TestController(unittest.TestCase):
         )
         print response
         assert response.body == "<result>50</result>"
+
+    def test_custom_clientside_error(self):
+        response = self.app.post(
+            "/divide",
+            simplejson.dumps({'a': 5, 'b': 0}),
+            {'Content-Type': 'application/json', 'Accept': 'application/json'},
+            expect_errors=True
+        )
+        assert response.status_int == 400
+        assert simplejson.loads(response.body) == {
+            "debuginfo": None,
+            "faultcode": "Server",
+            "faultstring": "(400, 'Cannot divide by zero!')"
+        }
+
+        response = self.app.post(
+            "/divide",
+            simplejson.dumps({'a': 5, 'b': 0}),
+            {'Content-Type': 'application/json', 'Accept': 'text/xml'},
+            expect_errors=True
+        )
+        assert response.status_int == 400
+        assert response.body == ("<error><faultcode>Server</faultcode>"
+                                 "<faultstring>(400, 'Cannot divide by zero!')"
+                                 "</faultstring><debuginfo /></error>")
 
     def test_soap_wsdl(self):
         ts = test_soap.TestSOAP('test_wsdl')

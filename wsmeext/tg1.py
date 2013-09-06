@@ -4,15 +4,17 @@ except ImportError:
     import simplejson as json  # noqa
 
 import functools
+import sys
 
 import cherrypy
 import webob
-from turbogears import expose
+from turbogears import expose, util
 
 from wsme.rest import validate as wsvalidate
 import wsme.api
 import wsme.rest.args
 import wsme.rest.json
+from wsmeext.utils import is_valid_code
 
 import inspect
 
@@ -55,7 +57,35 @@ def wsexpose(*args, **kwargs):
             )
             if funcdef.pass_request:
                 kwargs[funcdef.pass_request] = cherrypy.request
-            result = f(self, *args, **kwargs)
+            try:
+                result = f(self, *args, **kwargs)
+            except:
+                try:
+                    exception_info = sys.exc_info()
+                    orig_exception = exception_info[1]
+                    if isinstance(orig_exception, cherrypy.HTTPError):
+                        orig_code = getattr(orig_exception, 'status', None)
+                    else:
+                        orig_code = getattr(orig_exception, 'code', None)
+                    data = wsme.api.format_exception(exception_info)
+                finally:
+                    del exception_info
+
+                cherrypy.response.status = 500
+                if data['faultcode'] == 'client':
+                    cherrypy.response.status = 400
+                elif orig_code and is_valid_code(orig_code):
+                    cherrypy.response.status = orig_code
+
+                accept = cherrypy.request.headers.get('Accept', "").lower()
+                accept = util.simplify_http_accept_header(accept)
+
+                decorators = {'text/xml': wsme.rest.xml.encode_error}
+                return decorators.get(
+                    accept,
+                    wsme.rest.json.encode_error
+                )(None, data)
+
             return dict(
                 datatype=funcdef.return_type,
                 result=result
@@ -115,7 +145,6 @@ class Controller(object):
         cherrypy.response.header_list = res.headerlist
         cherrypy.response.status = res.status
         return res.body
-
 
 import wsme.rest
 
