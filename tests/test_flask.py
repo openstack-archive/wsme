@@ -1,5 +1,5 @@
 import unittest
-from flask import Flask, json
+from flask import Flask, json, abort
 from wsmeext.flask import signature
 from wsme.api import Response
 from wsme.types import Base, text
@@ -44,6 +44,20 @@ def list_models(q=None):
 @signature(Model, text)
 def get_model(name):
     return Model(name=name)
+
+
+@test_app.route('/models/<name>/secret')
+@signature(Model, text)
+def model_secret(name):
+    abort(403, description="You're not allowed in there!")
+
+
+@test_app.route('/models/<name>/custom-error')
+@signature(Model, text)
+def model_custom_error(name):
+    class CustomError(Exception):
+        code = 412
+    raise CustomError("FOO!")
 
 
 @test_app.route('/models', methods=['POST'])
@@ -110,6 +124,40 @@ class FlaskrTestCase(unittest.TestCase):
     def test_get_status_response(self):
         resp = self.app.get('/status_response')
         assert resp.status_code == 201
+
+    def test_custom_clientside_error(self):
+        r = self.app.get(
+            '/models/test/secret',
+            headers={'Accept': 'application/json'}
+        )
+        assert r.status_code == 403, r.status_code
+        assert json.loads(r.data)['faultstring'] == '403: Forbidden'
+
+        r = self.app.get(
+            '/models/test/secret',
+            headers={'Accept': 'application/xml'}
+        )
+        assert r.status_code == 403, r.status_code
+        assert r.data == ('<error><faultcode>Server</faultcode>'
+                          '<faultstring>403: Forbidden</faultstring>'
+                          '<debuginfo /></error>')
+
+    def test_custom_non_http_clientside_error(self):
+        r = self.app.get(
+            '/models/test/custom-error',
+            headers={'Accept': 'application/json'}
+        )
+        assert r.status_code == 412, r.status_code
+        assert json.loads(r.data)['faultstring'] == 'FOO!'
+
+        r = self.app.get(
+            '/models/test/custom-error',
+            headers={'Accept': 'application/xml'}
+        )
+        assert r.status_code == 412, r.status_code
+        assert r.data == ('<error><faultcode>Server</faultcode>'
+                          '<faultstring>FOO!</faultstring>'
+                          '<debuginfo /></error>')
 
     def test_serversideerror(self):
         r = self.app.get('/divide_by_zero')

@@ -9,6 +9,7 @@ import wsme.api
 import wsme.rest.json
 import wsme.rest.xml
 import wsme.rest.args
+from wsmeext.utils import is_valid_code
 
 import flask
 
@@ -78,10 +79,19 @@ def signature(*args, **kw):
                 res.mimetype = dataformat.content_type
                 res.status_code = status_code
             except:
-                data = wsme.api.format_exception(sys.exc_info())
+                try:
+                    exception_info = sys.exc_info()
+                    orig_exception = exception_info[1]
+                    orig_code = getattr(orig_exception, 'code', None)
+                    data = wsme.api.format_exception(exception_info)
+                finally:
+                    del exception_info
+
                 res = flask.make_response(dataformat.encode_error(None, data))
                 if data['faultcode'] == 'client':
                     res.status_code = 400
+                elif orig_code and is_valid_code(orig_code):
+                    res.status_code = orig_code
                 else:
                     res.status_code = 500
             return res
