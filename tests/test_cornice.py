@@ -6,6 +6,7 @@ import webtest
 from cornice import Service
 from cornice import resource
 from pyramid.config import Configurator
+from pyramid.httpexceptions import HTTPUnauthorized
 
 from wsme.types import text, Base, HostRequest
 from wsmeext.cornice import signature
@@ -29,6 +30,15 @@ def users_get():
 def users_create(data):
     data.id = 2
     return data
+
+
+secret = Service(name='secrets', path='/secret')
+
+
+@secret.get()
+@signature()
+def secret_get():
+    raise HTTPUnauthorized()
 
 
 divide = Service(name='divide', path='/divide')
@@ -163,3 +173,13 @@ class WSMECorniceTestCase(unittest.TestCase):
         print resp.body
         self.assertEquals(resp.json['faultcode'], 'Client')
         self.assertEquals(resp.status_code, 400)
+
+    def test_runtime_error(self):
+        resp = self.app.get(
+            '/secret',
+            headers={'Accept': 'application/json'},
+            expect_errors=True
+        )
+        print resp.body
+        self.assertEquals(resp.json['faultcode'], 'Server')
+        self.assertEquals(resp.status_code, 401)
