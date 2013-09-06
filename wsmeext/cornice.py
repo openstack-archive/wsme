@@ -39,7 +39,9 @@ class WSMEJsonRenderer(object):
         response = context['request'].response
         response.content_type = 'application/json'
         if 'faultcode' in data:
-            if data['faultcode'] == 'Client':
+            if 'orig_code' in data:
+                response.status_code = data['orig_code']
+            elif data['faultcode'] == 'Client':
                 response.status_code = 400
             else:
                 response.status_code = 500
@@ -125,7 +127,16 @@ def signature(*args, **kwargs):
                     'result': result
                 }
             except:
-                return wsme.api.format_exception(sys.exc_info())
+                try:
+                    exception_info = sys.exc_info()
+                    orig_exception = exception_info[1]
+                    orig_code = getattr(orig_exception, 'code', None)
+                    data = wsme.api.format_exception(exception_info)
+                    if orig_code is not None:
+                        data['orig_code'] = orig_code
+                    return data
+                finally:
+                    del exception_info
 
         callfunction.wsme_func = f
         return callfunction
