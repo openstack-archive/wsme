@@ -27,7 +27,14 @@ report etc (see the documentation).
 *   Pecan adapter: returned status can now be set on exceptions (Vitaly
     Kostenko).
 
+*   Cornice and TG adapters: returned status can be set on exceptions (Ryan
+    Petrello).
+
 *   six >= 1.4.0 support (Julien Danjou).
+
+*   Require ordereddict from pypi for python < 2.6 (Ryan Petrello).
+
+*   Make the code PEP8 compliant (Ryan Petrello).
 
 0.5b2 (2013-04-18)
 ------------------
