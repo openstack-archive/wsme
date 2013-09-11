@@ -1,0 +1,8 @@
+Verified+2: Jenkins
+Approved+1: Doug Hellmann <doug.hellmann@dreamhost.com>
+Code-Review+2: Doug Hellmann <doug.hellmann@dreamhost.com>
+Submitted-by: Jenkins
+Submitted-at: Wed, 11 Sep 2013 17:10:21 +0000
+Reviewed-on: https://review.openstack.org/46092
+Project: stackforge/wsme
+Branch: refs/heads/master
