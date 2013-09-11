@@ -27,7 +27,7 @@ report etc (see the documentation).
 *   Pecan adapter: returned status can now be set on exceptions (Vitaly
     Kostenko).
 
-*   Cornice and TG adapters: returned status can be set on exceptions (Ryan
+*   TG adapters: returned status can be set on exceptions (Ryan
     Petrello).
 
 *   six >= 1.4.0 support (Julien Danjou).
