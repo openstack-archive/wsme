@@ -1,6 +1,12 @@
 Changes
 =======
 
+0.5b4 (2013-09-11)
+------------------
+
+Fixes some release-related files for the stackforge release process.
+No user-facing bug fixes or features over what 0.5b3 provides.
+
 0.5b3 (2013-09-04)
 ------------------
 

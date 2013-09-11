@@ -19,3 +19,8 @@ doc/_build
 d2to1-*.egg
 
 WSME.egg-info/
+
+# Files created by pbr
+AUTHORS
+ChangeLog
+pbr*.egg
