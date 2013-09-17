@@ -12,7 +12,7 @@ from simplegeneric import generic
 from wsme.types import Unset
 import wsme.types
 import wsme.utils
-from wsme.exc import UnknownArgument
+from wsme.exc import UnknownArgument, InvalidInput
 
 
 try:
@@ -137,6 +137,8 @@ def fromjson(datatype, value):
             if attrdef.name in value:
                 setattr(obj, attrdef.key,
                         fromjson(attrdef.datatype, value[attrdef.name]))
+            elif attrdef.mandatory:
+                raise InvalidInput(attrdef.name, None, "Mandatory field missing.")
         return obj
     elif wsme.types.isusertype(datatype):
         value = datatype.frombasetype(
