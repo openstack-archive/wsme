@@ -166,9 +166,10 @@ def dict_fromjson(datatype, value):
 
 @fromjson.when_object(six.binary_type)
 def str_fromjson(datatype, value):
-    if value is None:
-        return None
-    return value.encode('utf8')
+    if (isinstance(value, six.string_types)
+            or isinstance(value, six.integer_types)
+            or isinstance(value, float)):
+        return six.text_type(value).encode('utf8')
 
 
 @fromjson.when_object(wsme.types.text)
