@@ -168,7 +168,7 @@ def dict_fromjson(datatype, value):
 def str_fromjson(datatype, value):
     if value is None:
         return None
-    return value.encode('utf8')
+    return six.text_type(value).encode('utf8')
 
 
 @fromjson.when_object(wsme.types.text)
