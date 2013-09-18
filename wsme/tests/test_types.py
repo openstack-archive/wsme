@@ -1,6 +1,10 @@
-import unittest
+try:
+    import unittest2 as unittest
+except ImportError:
+    import unittest
 import six
 
+from wsme import exc
 from wsme import types
 
 
@@ -176,12 +180,13 @@ class TestTypes(unittest.TestCase):
         obj.a = 'v1'
         assert obj.a == 'v1', repr(obj.a)
 
-        try:
-            obj.a = 'v3'
-            assert False, 'ValueError was not raised'
-        except ValueError as e:
-            assert str(e) == \
-                "a: Value 'v3' is invalid (should be one of: v1, v2)", e
+        self.assertRaisesRegexp(exc.InvalidInput,
+                                "Invalid input for field/attribute a. \
+Value: 'v3'. Invalid value \(should be one of: v., v.\)",
+                                setattr,
+                                obj,
+                                'a',
+                                'v3')
 
     def test_attribute_validation(self):
         class AType(object):
@@ -197,8 +202,8 @@ class TestTypes(unittest.TestCase):
         obj.aint = 5
         assert obj.aint == 5
 
-        self.assertRaises(ValueError, setattr, obj, 'alist', 12)
-        self.assertRaises(ValueError, setattr, obj, 'alist', [2, 'a'])
+        self.assertRaises(exc.InvalidInput, setattr, obj, 'alist', 12)
+        self.assertRaises(exc.InvalidInput, setattr, obj, 'alist', [2, 'a'])
 
     def test_text_attribute_conversion(self):
         class SType(object):
