@@ -7,6 +7,8 @@ import six
 import sys
 import weakref
 
+from wsme import exc
+
 log = logging.getLogger(__name__)
 
 #: The 'str' (python 2) or 'bytes' (python 3) type.
@@ -159,8 +161,8 @@ class Enum(UserType):
 
     def validate(self, value):
         if value not in self.values:
-            raise ValueError("Value '%s' is invalid (should be one of: %s)" % (
-                value, ', '.join(sorted(self.values))))
+            raise ValueError("Invalid value (should be one of: %s)" %
+                             ', '.join(map(str, sorted(self.values))))
         return value
 
     def tobasetype(self, value):
@@ -340,9 +342,8 @@ class wsattr(object):
     def __set__(self, instance, value):
         try:
             value = validate_value(self.datatype, value)
-        except ValueError:
-            e = sys.exc_info()[1]
-            raise ValueError("%s: %s" % (self.name, e))
+        except ValueError as e:
+            raise exc.InvalidInput(self.name, value, str(e))
         dataholder = self._get_dataholder(instance)
         if value is Unset:
             if hasattr(dataholder, self.key):
