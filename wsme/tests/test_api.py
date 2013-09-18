@@ -9,7 +9,7 @@ import webtest
 from wsme import WSRoot, expose, validate
 from wsme.rest import scan_api
 from wsme.api import FunctionArgument, FunctionDefinition
-from wsme.types import iscomplex
+from wsme import types
 import wsme.types
 
 from wsme.tests.test_protocols import DummyProtocol
@@ -58,7 +58,27 @@ class TestController(unittest.TestCase):
         assert not args[2].mandatory
         assert args[2].default == 0
 
-        assert iscomplex(ComplexType)
+        assert types.iscomplex(ComplexType)
+
+    def test_validate_enum_with_none(self):
+        class Version(object):
+            number = types.Enum(str, 'v1', 'v2', None)
+
+        class MyWS(WSRoot):
+            @expose(str)
+            @validate(Version)
+            def setcplx(self, version):
+                return version.version
+
+        r = MyWS(['restjson'])
+        app = webtest.TestApp(r.wsgiapp())
+        res = app.post_json('/setcplx', params={'version': {'number': 'arf'}},
+                            expect_errors=True,
+                            headers={'Accept': 'application/json'})
+        self.assertEqual(
+            res.json_body['faultstring'],
+            "Invalid input for field/attribute number. Value: 'arf'. Invalid value (should be one of: None, v1, v2)")
+        self.assertEqual(res.status_int, 400)
 
     def test_scan_api(self):
         class NS(object):
