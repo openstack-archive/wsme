@@ -76,7 +76,7 @@ class SampleType(object):
 
     @classmethod
     def sample(cls):
-        return SampleType(10)
+        return cls(10)
 
 
 class SampleService(wsme.WSRoot):
@@ -194,8 +194,8 @@ class TypeDocumenter(autodoc.ClassDocumenter):
            'samples-slot': check_samples_slot,
            })
 
-    @classmethod
-    def can_document_member(cls, member, membername, isattr, parent):
+    @staticmethod
+    def can_document_member(member, membername, isattr, parent):
         # we don't want to be automaticaly used
         # TODO check if the member is registered an an exposed type
         return False
@@ -271,8 +271,8 @@ class AttributeDocumenter(autodoc.AttributeDocumenter):
     datatype = None
     domain = 'wsme'
 
-    @classmethod
-    def can_document_member(cls, member, membername, isattr, parent):
+    @staticmethod
+    def can_document_member(member, membername, isattr, parent):
         return isinstance(parent, TypeDocumenter)
 
     def import_object(self):
@@ -483,8 +483,8 @@ class FunctionDocumenter(autodoc.MethodDocumenter):
         'method': directives.unchanged
     }
 
-    @classmethod
-    def can_document_member(cls, member, membername, isattr, parent):
+    @staticmethod
+    def can_document_member(member, membername, isattr, parent):
         return (isinstance(parent, ServiceDocumenter)
                 and wsme.api.iswsmefunction(member))
 

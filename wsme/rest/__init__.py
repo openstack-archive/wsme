@@ -12,25 +12,25 @@ class expose(object):
         return self.signature(func)
 
     @classmethod
-    def with_method(self, method, *args, **kwargs):
+    def with_method(cls, method, *args, **kwargs):
         kwargs['method'] = method
-        return expose(*args, **kwargs)
+        return cls(*args, **kwargs)
 
     @classmethod
     def get(cls, *args, **kwargs):
-        return expose.with_method('GET', *args, **kwargs)
+        return cls.with_method('GET', *args, **kwargs)
 
     @classmethod
     def post(cls, *args, **kwargs):
-        return expose.with_method('POST', *args, **kwargs)
+        return cls.with_method('POST', *args, **kwargs)
 
     @classmethod
     def put(cls, *args, **kwargs):
-        return expose.with_method('PUT', *args, **kwargs)
+        return cls.with_method('PUT', *args, **kwargs)
 
     @classmethod
     def delete(cls, *args, **kwargs):
-        return expose.with_method('DELETE', *args, **kwargs)
+        return cls.with_method('DELETE', *args, **kwargs)
 
 
 class validate(object):
