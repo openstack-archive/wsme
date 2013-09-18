@@ -222,6 +222,24 @@ class TestController(unittest.TestCase):
 
         self.assertEquals(res.body, b('"hellohello"'))
 
+    def test_wsattr_default(self):
+        class ComplexType(object):
+            attr = wsme.types.wsattr(wsme.types.Enum(str, 'or', 'and'),
+                                     default='and')
+
+        class MyRoot(WSRoot):
+            @expose(int)
+            @validate(ComplexType)
+            def clx(self, a):
+                return a.attr
+
+        r = MyRoot(['restjson'])
+        app = webtest.TestApp(r.wsgiapp())
+        res = app.post_json('/clx', params={'a': {}}, expect_errors=True,
+                            headers={'Accept': 'application/json'})
+        self.assertEqual(res.body, b"\"and\"")
+        self.assertEqual(res.status_int, 200)
+
 
 class TestFunctionDefinition(unittest.TestCase):
 
