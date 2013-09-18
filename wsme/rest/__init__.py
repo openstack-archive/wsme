@@ -11,8 +11,8 @@ class expose(object):
     def __call__(self, func):
         return self.signature(func)
 
-    @classmethod
-    def with_method(self, method, *args, **kwargs):
+    @staticmethod
+    def with_method(method, *args, **kwargs):
         kwargs['method'] = method
         return expose(*args, **kwargs)
 
