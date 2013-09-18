@@ -1,7 +1,6 @@
 import decimal
 import datetime
 import base64
-import sys
 
 import six
 
@@ -318,8 +317,7 @@ class TestSOAP(wsme.tests.protocol.ProtocolTestCase):
         print(kw)
         try:
             return fromsuds(_rt, m(**kw))
-        except suds.WebFault:
-            exc = sys.exc_info()[1]
+        except suds.WebFault as exc:
             raise wsme.tests.protocol.CallException(
                 exc.fault.faultcode,
                 exc.fault.faultstring,

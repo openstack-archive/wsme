@@ -1,7 +1,6 @@
 # encoding=utf8
 
 from six import b
-import sys
 
 import unittest
 import webtest
@@ -107,8 +106,7 @@ class TestController(unittest.TestCase):
         try:
             list(scan_api(r))
             assert False, "ValueError not raised"
-        except ValueError:
-            e = sys.exc_info()[1]
+        except ValueError as e:
             assert str(e).startswith("Path is too long")
 
     def test_handle_request(self):

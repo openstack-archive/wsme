@@ -4,7 +4,6 @@ import unittest
 import warnings
 import datetime
 import decimal
-import sys
 import six
 
 from six import u, b
@@ -22,8 +21,7 @@ binarysample = b('\x00\xff\x43')
 
 try:
     1 / 0
-except ZeroDivisionError:
-    e = sys.exc_info()[1]
+except ZeroDivisionError as e:
     zerodivisionerrormsg = str(e)
 
 
@@ -379,8 +377,7 @@ class ProtocolTestCase(unittest.TestCase):
             res = self.call('invalid_function')
             print(res)
             assert "No error raised"
-        except CallException:
-            e = sys.exc_info()[1]
+        except CallException as e:
             self.assertEquals(e.faultcode, 'Client')
             self.assertEquals(e.faultstring.lower(),
                               u('unknown function name: invalid_function'))
@@ -390,9 +387,7 @@ class ProtocolTestCase(unittest.TestCase):
             res = self.call('witherrors/divide_by_zero')
             print(res)
             assert "No error raised"
-        except CallException:
-            e = sys.exc_info()[1]
-            print(e)
+        except CallException as e:
             self.assertEquals(e.faultcode, 'Server')
             self.assertEquals(e.faultstring, zerodivisionerrormsg)
             assert e.debuginfo is not None
@@ -403,9 +398,7 @@ class ProtocolTestCase(unittest.TestCase):
             res = self.call('witherrors/divide_by_zero')
             print(res)
             assert "No error raised"
-        except CallException:
-            e = sys.exc_info()[1]
-            print(e)
+        except CallException as e:
             self.assertEquals(e.faultcode, 'Server')
             self.assertEquals(e.faultstring, zerodivisionerrormsg)
             assert e.debuginfo is None
@@ -649,9 +642,7 @@ class ProtocolTestCase(unittest.TestCase):
             r = self.call('argtypes/setdatetime')
             print(r)
             assert "No error raised"
-        except CallException:
-            e = sys.exc_info()[1]
-            print(e)
+        except CallException as e:
             self.assertEquals(e.faultcode, 'Client')
             self.assertEquals(e.faultstring, u('Missing argument: "value"'))
 

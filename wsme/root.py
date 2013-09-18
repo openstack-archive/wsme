@@ -192,8 +192,7 @@ class WSRoot(object):
                 # TODO make sure result type == a._wsme_definition.return_type
                 return protocol.encode_result(context, result)
 
-        except Exception:
-            e = sys.exc_info()[1]
+        except Exception as e:
             infos = wsme.api.format_exception(sys.exc_info(), self._debug)
             if isinstance(e, ClientSideError):
                 request.client_errorcount += 1
@@ -233,8 +232,7 @@ class WSRoot(object):
         try:
             msg = None
             protocol = self._select_protocol(request)
-        except Exception:
-            e = sys.exc_info()[1]
+        except Exception as e:
             msg = ("Error while selecting protocol: %s" % str(e))
             log.exception(msg)
             protocol = None
@@ -339,8 +337,7 @@ class WSRoot(object):
             return html_body % dict(
                 css=formatter.get_style_defs(),
                 content=highlight(content, lexer, formatter).encode('utf8'))
-        except Exception:
-            e = sys.exc_info()[1]
+        except Exception as e:
             log.warning(
                 "Could not pygment the content because of the following "
                 "error :\n%s" % e)
