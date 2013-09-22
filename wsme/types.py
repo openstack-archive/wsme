@@ -340,8 +340,7 @@ class wsattr(object):
     def __set__(self, instance, value):
         try:
             value = validate_value(self.datatype, value)
-        except ValueError:
-            e = sys.exc_info()[1]
+        except ValueError as e:
             raise ValueError("%s: %s" % (self.name, e))
         dataholder = self._get_dataholder(instance)
         if value is Unset:

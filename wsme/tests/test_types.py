@@ -1,5 +1,4 @@
 import unittest
-import sys
 import six
 
 from wsme import types
@@ -180,8 +179,7 @@ class TestTypes(unittest.TestCase):
         try:
             obj.a = 'v3'
             assert False, 'ValueError was not raised'
-        except ValueError:
-            e = sys.exc_info()[1]
+        except ValueError as e:
             assert str(e) == \
                 "a: Value 'v3' is invalid (should be one of: v1, v2)", e
 
