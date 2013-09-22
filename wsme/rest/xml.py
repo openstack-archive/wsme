@@ -9,7 +9,7 @@ import xml.etree.ElementTree as et
 from simplegeneric import generic
 
 import wsme.types
-from wsme.exc import UnknownArgument
+from wsme.exc import UnknownArgument, InvalidInput
 
 import re
 
@@ -98,10 +98,13 @@ def fromxml(datatype, element):
         return datatype.frombasetype(fromxml(datatype.basetype, element))
     if wsme.types.iscomplex(datatype):
         obj = datatype()
-        for attrdef in datatype._wsme_attributes:
+        for attrdef in wsme.types.list_attributes(datatype):
             sub = element.find(attrdef.name)
             if sub is not None:
                 setattr(obj, attrdef.key, fromxml(attrdef.datatype, sub))
+            elif attrdef.mandatory:
+                raise InvalidInput(attrdef.name, None,
+                                   "Mandatory field missing.")
         return obj
     if datatype is wsme.types.bytes:
         return element.text.encode('ascii')

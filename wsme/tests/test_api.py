@@ -220,6 +220,59 @@ class TestController(unittest.TestCase):
 
         self.assertEquals(res.body, b('"hellohello"'))
 
+    def test_wsattr_mandatory(self):
+        class ComplexType(object):
+            attr = wsme.types.wsattr(int, mandatory=True)
+
+        class MyRoot(WSRoot):
+            @expose(int, body=ComplexType)
+            @validate(ComplexType)
+            def clx(self, a):
+                return a.attr
+
+        r = MyRoot(['restjson'])
+        app = webtest.TestApp(r.wsgiapp())
+        res = app.post_json('/clx', params={}, expect_errors=True,
+                            headers={'Accept': 'application/json'})
+        self.assertEqual(res.status_int, 400)
+
+    def test_wsproperty_mandatory(self):
+        class ComplexType(object):
+            def foo(self):
+                pass
+
+            attr = wsme.types.wsproperty(int, foo, foo, mandatory=True)
+
+        class MyRoot(WSRoot):
+            @expose(int, body=ComplexType)
+            @validate(ComplexType)
+            def clx(self, a):
+                return a.attr
+
+        r = MyRoot(['restjson'])
+        app = webtest.TestApp(r.wsgiapp())
+        res = app.post_json('/clx', params={}, expect_errors=True,
+                            headers={'Accept': 'application/json'})
+        self.assertEqual(res.status_int, 400)
+
+    def test_validate_enum_mandatory(self):
+        class Version(object):
+            number = wsme.types.wsattr(wsme.types.Enum(str, 'v1', 'v2'),
+                                       mandatory=True)
+
+        class MyWS(WSRoot):
+            @expose(str)
+            @validate(Version)
+            def setcplx(self, version):
+                pass
+
+        r = MyWS(['restjson'])
+        app = webtest.TestApp(r.wsgiapp())
+        res = app.post_json('/setcplx', params={'version': {}},
+                            expect_errors=True,
+                            headers={'Accept': 'application/json'})
+        self.assertEqual(res.status_int, 400)
+
 
 class TestFunctionDefinition(unittest.TestCase):
 
