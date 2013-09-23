@@ -83,8 +83,8 @@ class FunctionDefinition(object):
         #: Dictionnary of protocol-specific options.
         self.extra_options = None
 
-    @classmethod
-    def get(cls, func):
+    @staticmethod
+    def get(func):
         """
         Returns the :class:`FunctionDefinition` of a method.
         """

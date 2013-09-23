@@ -18,7 +18,7 @@ class SQLAlchemyRegistry(object):
     @classmethod
     def get(cls, registry):
         if not hasattr(registry, 'sqlalchemy'):
-            registry.sqlalchemy = SQLAlchemyRegistry()
+            registry.sqlalchemy = cls()
         return registry.sqlalchemy
 
     def __init__(self):

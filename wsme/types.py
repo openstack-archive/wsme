@@ -437,15 +437,12 @@ def inspect_class(class_):
         if inspect.isroutine(attr):
             continue
 
-        if isinstance(attr, wsattr):
-            attrdef = attr
-        elif isinstance(attr, wsproperty):
+        if isinstance(attr, (wsattr, wsproperty)):
             attrdef = attr
         else:
             if attr not in native_types and (
                     inspect.isclass(attr)
-                    or isinstance(attr, list)
-                    or isinstance(attr, dict)):
+                    or isinstance(attr, (list, dict))):
                 register_type(attr)
             attrdef = getattr(class_, '__wsattrclass__', wsattr)(attr)
 
