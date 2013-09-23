@@ -236,6 +236,23 @@ class TestController(unittest.TestCase):
                             headers={'Accept': 'application/json'})
         self.assertEqual(res.status_int, 400)
 
+    def test_wsattr_default(self):
+        class ComplexType(object):
+            attr = wsme.types.wsattr(wsme.types.Enum(str, 'or', 'and'),
+                                     default='and')
+
+        class MyRoot(WSRoot):
+            @expose(int)
+            @validate(ComplexType)
+            def clx(self, a):
+                return a.attr
+
+        r = MyRoot(['restjson'])
+        app = webtest.TestApp(r.wsgiapp())
+        res = app.post_json('/clx', params={}, expect_errors=True,
+                            headers={'Accept': 'application/json'})
+        self.assertEqual(res.status_int, 400)
+
     def test_wsproperty_mandatory(self):
         class ComplexType(object):
             def foo(self):
