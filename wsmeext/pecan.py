@@ -53,6 +53,11 @@ def wsexpose(*args, **kwargs):
         content_type='application/xml',
         generic=False
     )
+    pecan_text_xml_decorate = pecan.expose(
+        template='wsmexml:',
+        content_type='text/xml',
+        generic=False
+    )
     sig = wsme.signature(*args, **kwargs)
 
     def decorate(f):
@@ -109,6 +114,7 @@ def wsexpose(*args, **kwargs):
             )
 
         pecan_xml_decorate(callfunction)
+        pecan_text_xml_decorate(callfunction)
         pecan_json_decorate(callfunction)
         pecan.util._cfg(callfunction)['argspec'] = inspect.getargspec(f)
         callfunction._wsme_definition = funcdef
