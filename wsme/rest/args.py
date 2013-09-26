@@ -11,6 +11,8 @@ from wsme.types import UserType, ArrayType, DictType, File
 from wsme.utils import parse_isodate, parse_isotime, parse_isodatetime
 import wsme.runtime
 
+from six import moves
+
 ARRAY_MAX_SIZE = 1000
 
 
@@ -114,7 +116,7 @@ def array_from_params(datatype, params, path, hit_paths):
                 if len(value) < len(attrvalues):
                     value[-1:] = [
                         datatype.item_type()
-                        for i in xrange(len(attrvalues) - len(value))
+                        for i in moves.range(len(attrvalues) - len(value))
                     ]
                 for i, attrvalue in enumerate(attrvalues):
                     setattr(
