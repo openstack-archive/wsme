@@ -6,6 +6,8 @@ from wsme.types import Base, text, wsattr
 import wsme
 import wsmeext.pecan
 
+import six
+
 
 class Author(Base):
     id = int
@@ -41,7 +43,6 @@ class BooksController(RestController):
 
     @wsmeext.pecan.wsexpose(Book, int, int)
     def get(self, author_id, id):
-        print repr(author_id), repr(id)
         book = Book(
             name=u"Les Confessions d’un révolutionnaire pour servir à "
                  u"l’histoire de la révolution de février",
@@ -51,8 +52,6 @@ class BooksController(RestController):
 
     @wsmeext.pecan.wsexpose(Book, int, int, body=Book)
     def put(self, author_id, id, book=None):
-        print author_id, id
-        print book
         book.id = id
         book.author = Author(id=author_id)
         return book
@@ -68,7 +67,7 @@ class AuthorsController(RestController):
 
     books = BooksController()
 
-    @wsmeext.pecan.wsexpose([Author], [unicode], [Criterion])
+    @wsmeext.pecan.wsexpose([Author], [six.text_type], [Criterion])
     def get_all(self, q=None, r=None):
         if q:
             return [
@@ -116,4 +115,4 @@ class AuthorsController(RestController):
 
     @wsmeext.pecan.wsexpose(None, int)
     def delete(self, author_id):
-        print "Deleting", author_id
+        print("Deleting", author_id)
