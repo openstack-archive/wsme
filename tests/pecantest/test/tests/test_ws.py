@@ -82,6 +82,8 @@ class TestWS(FunctionalTest):
         a = json.loads(res.body.decode('utf-8'))
         assert a['faultcode'] == 'Client'
 
+        import mimetypes
+        raise Exception(mimetypes.guess_type('x.xml'))
         res = self.app.get(
             '/authors/999.xml',
             expect_errors=True
