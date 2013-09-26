@@ -4,11 +4,10 @@ import json
 import pecan
 
 used_status_codes = [400, 401, 404, 500]
-http_response_messages = {
-    code: '{} {}'.format(code, status)
-    for code, status in http_client.responses.iteritems()
-    if code in used_status_codes
-}
+http_response_messages = {}
+for code, status in http_client.responses.iteritems():
+    if code in used_status_codes:
+        http_response_messages[code] = '%s %s' % (code, status)
 
 
 class TestWS(FunctionalTest):
