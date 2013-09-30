@@ -336,8 +336,22 @@ class WSTestRoot(WSRoot):
         self._touched = True
 
 
-class ProtocolTestCase(unittest.TestCase):
+class BaseProtocolTestCase(unittest.TestCase):
+    protocol = None
     protocol_options = {}
+    controller = None
+
+    def setUp(self):
+        super(BaseProtocolTestCase, self).setUp()
+        self.root = self.controller()
+        self.root.getapi()
+        self.root.addprotocol(self.protocol, **self.protocol_options)
+
+        self.app = TestApp(self.root.wsgiapp())
+
+
+class ProtocolTestCase(BaseProtocolTestCase):
+    controller = WSTestRoot
 
     def assertTypedEquals(self, a, b, convert):
         if isinstance(a, six.string_types):
@@ -363,14 +377,6 @@ class ProtocolTestCase(unittest.TestCase):
 
     def assertDecimalEquals(self, a, b):
         self.assertTypedEquals(a, b, decimal.Decimal)
-
-    def setUp(self):
-        if self.__class__.__name__ != 'ProtocolTestCase':
-            self.root = WSTestRoot()
-            self.root.getapi()
-            self.root.addprotocol(self.protocol, **self.protocol_options)
-
-            self.app = TestApp(self.root.wsgiapp())
 
     def test_invalid_path(self):
         try:
@@ -653,3 +659,41 @@ class ProtocolTestCase(unittest.TestCase):
         res = self.call('argtypes/setdatetime', _accept="text/html",
                         _no_result_decode=True)
         self.assertEquals(res.content_type, 'text/html')
+
+
+class WSRestTestRoot(WSRoot):
+    def assertEquals(self, a, b):
+        if not (a == b):
+            raise AssertionError('%s != %s' % (a, b))
+
+    @expose(int, body={wsme.types.text: int})
+    @validate(int)
+    def setdict(self, body):
+        print("DICT XML body", body)
+        self.assertEquals(type(body), dict)
+        self.assertEquals(type(body['test']), int)
+        self.assertEquals(body['test'], 10)
+        return body['test']
+
+    @expose(int, body=[int])
+    @validate(int)
+    def setlist(self, body):
+        print(body)
+        self.assertEquals(type(body), list)
+        self.assertEquals(type(body[0]), int)
+        self.assertEquals(body[0], 10)
+        return body[0]
+
+
+class RestOnlyProtocolTestCase(BaseProtocolTestCase):
+    controller = WSRestTestRoot
+
+    def test_body_list(self):
+        r = self.call('setlist', body=([10], [int]), _rt=int)
+        self.assertEqual(r, 10)
+
+    def test_body_dict(self):
+        r = self.call('setdict',
+                      body=({'test': 10}, {wsme.types.text: int}),
+                      _rt=int)
+        self.assertEqual(r, 10)

@@ -117,12 +117,13 @@ def loadxml(el, datatype):
         return datatype(el.text)
 
 
-class TestRestXML(wsme.tests.protocol.ProtocolTestCase):
-    protocol = 'restxml'
-
+class BaseTestRestXML(object):
     def call(self, fpath, _rt=None, _accept=None, _no_result_decode=False,
-             **kw):
-        el = dumpxml('parameters', kw)
+             body=None, **kw):
+        if body:
+            el = dumpxml('body', body)
+        else:
+            el = dumpxml('parameters', kw)
         content = et.tostring(el)
         headers = {
             'Content-Type': 'text/xml',
@@ -150,6 +151,16 @@ class TestRestXML(wsme.tests.protocol.ProtocolTestCase):
 
         else:
             return loadxml(et.fromstring(res.body), _rt)
+
+
+class TestRestOnlyProtocolRestXML(wsme.tests.protocol.RestOnlyProtocolTestCase,
+                                  BaseTestRestXML):
+    protocol = 'restxml'
+
+
+class TestProtocolRestXML(wsme.tests.protocol.ProtocolTestCase,
+                          BaseTestRestXML):
+    protocol = 'restxml'
 
     def test_encode_sample_value(self):
         class MyType(object):

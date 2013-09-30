@@ -140,19 +140,25 @@ class MiniCrud(object):
 wsme.tests.protocol.WSTestRoot.crud = MiniCrud()
 
 
-class TestRestJson(wsme.tests.protocol.ProtocolTestCase):
-    protocol = 'restjson'
-
+class BaseTestRestJSON(object):
     def call(self, fpath, _rt=None, _accept=None, _no_result_decode=False,
-             **kw):
-        for key in kw:
-            if isinstance(kw[key], tuple):
-                value, datatype = kw[key]
+             body=None, **kw):
+        if body:
+            if isinstance(body, tuple):
+                body, datatype = body
             else:
-                value = kw[key]
-                datatype = type(value)
-            kw[key] = prepare_value(value, datatype)
-        content = json.dumps(kw)
+                datatype = type(body)
+            body = prepare_value(body, datatype)
+            content = json.dumps(body)
+        else:
+            for key in kw:
+                if isinstance(kw[key], tuple):
+                    value, datatype = kw[key]
+                else:
+                    value = kw[key]
+                    datatype = type(value)
+                kw[key] = prepare_value(value, datatype)
+            content = json.dumps(kw)
         headers = {
             'Content-Type': 'application/json',
         }
@@ -181,6 +187,17 @@ class TestRestJson(wsme.tests.protocol.ProtocolTestCase):
             )
 
         return json.loads(res.text)
+
+
+class TestRestOnlyProtocolRestJson(
+        wsme.tests.protocol.RestOnlyProtocolTestCase,
+        BaseTestRestJSON):
+    protocol = 'restjson'
+
+
+class TestProtocolRestJson(wsme.tests.protocol.ProtocolTestCase,
+                           BaseTestRestJSON):
+    protocol = 'restjson'
 
     def test_fromjson(self):
         assert fromjson(str, None) is None

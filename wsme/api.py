@@ -105,6 +105,7 @@ class FunctionDefinition(object):
 
     def resolve_types(self, registry):
         self.return_type = registry.resolve_type(self.return_type)
+        self.body_type = registry.resolve_type(self.body_type)
         for arg in self.arguments:
             arg.resolve_type(registry)
 
