@@ -152,6 +152,8 @@ class TestRestJson(wsme.tests.protocol.ProtocolTestCase):
                 value = kw[key]
                 datatype = type(value)
             kw[key] = prepare_value(value, datatype)
+        if 'body' in kw:
+            kw = kw['body']
         content = json.dumps(kw)
         headers = {
             'Content-Type': 'application/json',

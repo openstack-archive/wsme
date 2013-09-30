@@ -122,6 +122,8 @@ class TestRestXML(wsme.tests.protocol.ProtocolTestCase):
 
     def call(self, fpath, _rt=None, _accept=None, _no_result_decode=False,
              **kw):
+        if 'body' in kw:
+            kw = kw['body']
         el = dumpxml('parameters', kw)
         content = et.tostring(el)
         headers = {

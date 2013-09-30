@@ -18,7 +18,7 @@ class TestSpore(unittest.TestCase):
 
         spore = json.loads(spore)
 
-        assert len(spore['methods']) == 47, str(len(spore['methods']))
+        assert len(spore['methods']) == 49, str(len(spore['methods']))
 
         m = spore['methods']['argtypes_setbytesarray']
         assert m['path'] == 'argtypes/setbytesarray', m['path']
