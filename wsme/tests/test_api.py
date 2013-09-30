@@ -290,6 +290,33 @@ class TestController(unittest.TestCase):
                             headers={'Accept': 'application/json'})
         self.assertEqual(res.status_int, 400)
 
+    def test_body_list(self):
+        class MyRoot(WSRoot):
+            @expose(int, body=[int])
+            def clx(self, a):
+                return a[0]
+
+        r = MyRoot(['restjson'])
+        app = webtest.TestApp(r.wsgiapp())
+        res = app.post_json('/clx', params=[1], expect_errors=True,
+                            headers={'Accept': 'application/json'})
+        self.assertEqual(res.status_code, 200)
+        self.assertEqual(res.body, '1')
+
+    def test_body_dict(self):
+        class MyRoot(WSRoot):
+            @expose(int, body={str: int})
+            def clx(self, a):
+                return a['test']
+
+        r = MyRoot(['restjson'])
+        app = webtest.TestApp(r.wsgiapp())
+        res = app.post_json('/clx', params={'test': 1},
+                            expect_errors=True,
+                            headers={'Accept': 'application/json'})
+        self.assertEqual(res.status_code, 200)
+        self.assertEqual(res.body, '1')
+
 
 class TestFunctionDefinition(unittest.TestCase):
 
@@ -302,3 +329,5 @@ class TestFunctionDefinition(unittest.TestCase):
 
         assert fd.get_arg('a').datatype is int
         assert fd.get_arg('b') is None
+
+
