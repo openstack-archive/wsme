@@ -308,6 +308,30 @@ class ArgTypes(object):
         return value
 
 
+class BodyTypes(object):
+    def assertEquals(self, a, b):
+        if not (a == b):
+            raise AssertionError('%s != %s' % (a, b))
+
+    @expose(int, body={wsme.types.text: int})
+    @validate(int)
+    def setdict(self, body):
+        print(body)
+        self.assertEquals(type(body), dict)
+        self.assertEquals(type(body['test']), int)
+        self.assertEquals(body['test'], 10)
+        return body['test']
+
+    @expose(int, body=[int])
+    @validate(int)
+    def setlist(self, body):
+        print(body)
+        self.assertEquals(type(body), list)
+        self.assertEquals(type(body[0]), int)
+        self.assertEquals(body[0], 10)
+        return body[0]
+
+
 class WithErrors(object):
     @expose()
     def divide_by_zero(self):
@@ -324,6 +348,7 @@ class MiscFunctions(object):
 class WSTestRoot(WSRoot):
     argtypes = ArgTypes()
     returntypes = ReturnTypes()
+    bodytypes = BodyTypes()
     witherrors = WithErrors()
     nested = NestedOuterApi()
     misc = MiscFunctions()
@@ -653,3 +678,15 @@ class ProtocolTestCase(unittest.TestCase):
         res = self.call('argtypes/setdatetime', _accept="text/html",
                         _no_result_decode=True)
         self.assertEquals(res.content_type, 'text/html')
+
+
+class RestOnlyProtocolTestCase(ProtocolTestCase):
+    def test_body_list(self):
+        r = self.call('bodytypes/setlist', body=([10], [int]), _rt=int)
+        self.assertEqual(r, 10)
+
+    def test_body_dict(self):
+        r = self.call('bodytypes/setdict',
+                      body=({'test': 10}, {wsme.types.text: int}),
+                      _rt=int)
+        self.assertEqual(r, 10)
