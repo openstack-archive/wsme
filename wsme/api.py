@@ -110,6 +110,12 @@ class FunctionDefinition(object):
 
     def set_options(self, body=None, ignore_extra_args=False, status_code=200,
                     **extra_options):
+        # Try to promote the body type to one of our complex types.
+        if isinstance(body, list):
+            body = wsme.types.ArrayType(body[0])
+        elif isinstance(body, dict):
+            body = wsme.types.DictType(*list(body.items())[0])
+
         self.body_type = body
         self.status_code = status_code
         self.ignore_extra_args = ignore_extra_args
