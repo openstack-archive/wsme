@@ -253,6 +253,39 @@ class TestController(unittest.TestCase):
                             headers={'Accept': 'application/json'})
         self.assertEqual(res.status_int, 400)
 
+    def test_expose_list_complex_type(self):
+        class ComplexType(object):
+            attr = int
+
+        class MyRoot(WSRoot):
+            @expose(int, body=[ComplexType])
+            def clx(self, a):
+                return a[0].attr
+
+        r = MyRoot(['restjson'])
+        app = webtest.TestApp(r.wsgiapp())
+        res = app.post_json('/clx', params=[{'attr': 1}], expect_errors=True,
+                            headers={'Accept': 'application/json'})
+        self.assertEqual(res.status_code, 200)
+        self.assertEqual(res.body, '1')
+
+    def test_expose_dict_complex_type(self):
+        class ComplexType(object):
+            attr = int
+
+        class MyRoot(WSRoot):
+            @expose(int, body={str: ComplexType})
+            def clx(self, a):
+                return a['test'].attr
+
+        r = MyRoot(['restjson'])
+        app = webtest.TestApp(r.wsgiapp())
+        res = app.post_json('/clx', params={'test': {'attr': 1}},
+                            expect_errors=True,
+                            headers={'Accept': 'application/json'})
+        self.assertEqual(res.status_code, 200)
+        self.assertEqual(res.body, '1')
+
     def test_wsproperty_mandatory(self):
         class ComplexType(object):
             def foo(self):
