@@ -2,6 +2,8 @@ import inspect
 import re
 import sys
 
+import six
+
 from sphinx import addnodes
 from sphinx.ext import autodoc
 from sphinx.domains.python import PyClasslike, PyClassmember
@@ -37,7 +39,7 @@ def datatypename(datatype):
 
 def make_sample_object(datatype):
     if datatype is wsme.types.bytes:
-        return 'samplestring'
+        return six.b('samplestring')
     if datatype is wsme.types.text:
         return u'sample unicode'
     if datatype is int:
@@ -223,8 +225,6 @@ class TypeDocumenter(autodoc.ClassDocumenter):
         # Check where to include the samples
         samples_slot = self.options.samples_slot or self.default_samples_slot
 
-        print 'SAMPLES SLOT:', self.options.samples_slot
-
         def add_docstring():
             super(TypeDocumenter, self).add_content(
                 more_content, no_docstring)
@@ -250,8 +250,9 @@ class TypeDocumenter(autodoc.ClassDocumenter):
                         u'    .. code-block:: ' + language,
                         u'',
                     ])
-                    content.extend((
-                        u' ' * 8 + line for line in sample.split('\n')))
+                    content.extend(
+                        u' ' * 8 + line
+                        for line in six.text_type(sample).split('\n'))
             for line in content:
                 self.add_line(line, u'<wsmeext.sphinxext')
 
