@@ -23,7 +23,7 @@ How Easy ?
 
 Here is a standalone wsgi example::
     
-    from wsme import WSRoot, expose, validate
+    from wsme import WSRoot, expose
 
     class MyService(WSRoot):
         @expose(unicode, unicode)  # First parameter is the return type,
