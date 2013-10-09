@@ -1,7 +1,7 @@
 import datetime
 import unittest
 
-from wsme.utils import parse_isodate, parse_isotime, parse_isodatetime
+from wsme import utils
 
 
 class TestUtils(unittest.TestCase):
@@ -18,9 +18,9 @@ class TestUtils(unittest.TestCase):
             '2012-02-30',
         ]
         for s, d in good_dates:
-            assert parse_isodate(s) == d
+            assert utils.parse_isodate(s) == d
         for s in ill_formatted_dates + out_of_range_dates:
-            self.assertRaises(ValueError, parse_isodate, s)
+            self.assertRaises(ValueError, utils.parse_isodate, s)
 
     def test_parse_isotime(self):
         good_times = [
@@ -35,9 +35,9 @@ class TestUtils(unittest.TestCase):
             '00:54:60',
         ]
         for s, t in good_times:
-            assert parse_isotime(s) == t
+            assert utils.parse_isotime(s) == t
         for s in ill_formatted_times + out_of_range_times:
-            self.assertRaises(ValueError, parse_isotime, s)
+            self.assertRaises(ValueError, utils.parse_isotime, s)
 
     def test_parse_isodatetime(self):
         good_datetimes = [
@@ -54,6 +54,27 @@ class TestUtils(unittest.TestCase):
             '2012-13-12T00:54:60',
         ]
         for s, t in good_datetimes:
-            assert parse_isodatetime(s) == t
+            assert utils.parse_isodatetime(s) == t
         for s in ill_formatted_datetimes + out_of_range_datetimes:
-            self.assertRaises(ValueError, parse_isodatetime, s)
+            self.assertRaises(ValueError, utils.parse_isodatetime, s)
+
+    def test_validator_with_valid_code(self):
+        valid_code = 404
+        assert (
+            utils.is_valid_code(valid_code),
+            "Valid status code not detected"
+        )
+
+    def test_validator_with_invalid_int_code(self):
+        invalid_int_code = 648
+        assert (
+            not utils.is_valid_code(invalid_int_code),
+            "Invalid status code not detected"
+        )
+
+    def test_validator_with_invalid_str_code(self):
+        invalid_str_code = '404'
+        assert (
+            not utils.is_valid_code(invalid_str_code),
+            "Invalid status code not detected"
+        )

@@ -14,7 +14,7 @@ from wsme.rest import validate as wsvalidate
 import wsme.api
 import wsme.rest.args
 import wsme.rest.json
-from wsmeext.utils import is_valid_code
+from wsme.utils import is_valid_code
 
 import inspect
 

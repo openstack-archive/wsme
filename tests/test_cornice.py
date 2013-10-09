@@ -181,5 +181,5 @@ class WSMECorniceTestCase(unittest.TestCase):
             expect_errors=True
         )
         print resp.body
-        self.assertEquals(resp.json['faultcode'], 'Server')
+        self.assertEquals(resp.json['faultcode'], 'Client')
         self.assertEquals(resp.status_code, 401)

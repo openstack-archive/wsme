@@ -5,7 +5,7 @@ import pecan
 import six
 
 
-used_status_codes = [400, 401, 404, 500]
+used_status_codes = [400, 401, 403, 404, 500]
 http_response_messages = {}
 for code in used_status_codes:
     http_response_messages[code] = '%s %s' % (code, http_client.responses[code])
@@ -96,14 +96,14 @@ class TestWS(FunctionalTest):
         )
         self.assertEqual(res.status, expected_status)
         a = json.loads(res.body.decode('utf-8'))
-        assert a['faultcode'] == 'Server'
+        assert a['faultcode'] == 'Client'
 
         res = self.app.get(
             '/authors/998.xml',
             expect_errors=True
         )
         self.assertEqual(res.status, expected_status)
-        assert '<faultcode>Server</faultcode>' in res.body.decode('utf-8')
+        assert '<faultcode>Client</faultcode>' in res.body.decode('utf-8')
 
     def test_custom_non_http_clientside_error(self):
         expected_status_code = 500
@@ -122,6 +122,24 @@ class TestWS(FunctionalTest):
         )
         self.assertEqual(res.status, expected_status)
         assert '<faultcode>Server</faultcode>' in res.body.decode('utf-8')
+
+    def test_clientsideerror_status_code(self):
+        expected_status_code = 403
+        expected_status = http_response_messages[expected_status_code]
+        res = self.app.get(
+            '/authors/996.json',
+            expect_errors=True
+        )
+        self.assertEqual(res.status, expected_status)
+        a = json.loads(res.body.decode('utf-8'))
+        assert a['faultcode'] == 'Client'
+
+        res = self.app.get(
+            '/authors/996.xml',
+            expect_errors=True
+        )
+        self.assertEqual(res.status, expected_status)
+        assert '<faultcode>Client</faultcode>' in res.body.decode('utf-8')
 
     def test_non_default_response(self):
         expected_status_code = 401

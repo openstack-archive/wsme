@@ -9,7 +9,7 @@ import wsme.api
 import wsme.rest.json
 import wsme.rest.xml
 import wsme.rest.args
-from wsmeext.utils import is_valid_code
+from wsme.utils import is_valid_code
 
 import flask
 
