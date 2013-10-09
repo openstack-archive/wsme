@@ -14,6 +14,12 @@ class Author(Base):
     firstname = text
     books = wsattr(['Book'])
 
+    @staticmethod
+    def validate(author):
+        if author.firstname == 'Robert':
+            raise wsme.exc.ClientSideError("I don't like this author!")
+        return author
+
 
 class Book(Base):
     id = int
