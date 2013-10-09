@@ -4,7 +4,7 @@ import re
 
 from simplegeneric import generic
 
-from wsme.exc import ClientSideError, UnknownArgument
+from wsme.exc import ClientSideError, UnknownArgument, InvalidInput
 
 from wsme.types import iscomplex, list_attributes, Unset
 from wsme.types import UserType, ArrayType, DictType, File
@@ -168,7 +168,13 @@ def dict_from_params(datatype, params, path, hit_paths):
 def args_from_args(funcdef, args, kwargs):
     newargs = []
     for argdef, arg in zip(funcdef.arguments[:len(args)], args):
-        newargs.append(from_param(argdef.datatype, arg))
+        try:
+            newargs.append(from_param(argdef.datatype, arg))
+        except Exception:
+            raise InvalidInput(
+                argdef.name,
+                arg,
+                "unable to convert to %s" % argdef.datatype.__name__)
     newkwargs = {}
     for argname, value in kwargs.items():
         newkwargs[argname] = from_param(

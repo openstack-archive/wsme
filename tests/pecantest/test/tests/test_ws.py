@@ -69,6 +69,19 @@ class TestWS(FunctionalTest):
         assert a['id'] == 10
         assert a['firstname'] == 'test'
 
+    def test_put_parameter_validate(self):
+        res = self.app.put(
+            '/authors/foobar', '{"firstname": "test"}',
+            headers={"Content-Type": "application/json"},
+            expect_errors=True
+        )
+        self.assertEqual(res.status_int, 400)
+        a = json.loads(res.body.decode('utf-8'))
+        self.assertEqual(
+            a['faultstring'],
+            "Invalid input for field/attribute author_id. "
+            "Value: 'foobar'. unable to convert to int")
+
     def test_clientsideerror(self):
         expected_status_code = 400
         expected_status = http_response_messages[expected_status_code]

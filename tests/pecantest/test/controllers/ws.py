@@ -116,3 +116,7 @@ class AuthorsController(RestController):
     @wsmeext.pecan.wsexpose(None, int)
     def delete(self, author_id):
         print("Deleting", author_id)
+
+    @wsmeext.pecan.wsexpose(Book, int, body=Author)
+    def put(self, author_id, author=None):
+        return author
