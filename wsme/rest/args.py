@@ -168,7 +168,12 @@ def dict_from_params(datatype, params, path, hit_paths):
 def args_from_args(funcdef, args, kwargs):
     newargs = []
     for argdef, arg in zip(funcdef.arguments[:len(args)], args):
-        newargs.append(from_param(argdef.datatype, arg))
+        try:
+            newargs.append(from_param(argdef.datatype, arg))
+        except Exception:
+            raise ClientSideError(
+                "Invalid value for %s, unable to convert to %s" %
+                (arg, argdef.datatype.__name__))
     newkwargs = {}
     for argname, value in kwargs.items():
         newkwargs[argname] = from_param(
