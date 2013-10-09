@@ -94,6 +94,9 @@ class AuthorsController(RestController):
         if id == 997:
             raise NonHttpException(id)
 
+        if id == 996:
+            raise wsme.exc.ClientSideError('Disabled ID', status_code=403)
+
         if id == 911:
             return wsme.api.Response(Author(),
                                      status_code=401)

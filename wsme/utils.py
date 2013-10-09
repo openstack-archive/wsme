@@ -1,7 +1,7 @@
 import decimal
 import datetime
 import re
-from six.moves import builtins
+from six.moves import builtins, http_client
 
 try:
     import dateutil.parser
@@ -82,6 +82,18 @@ def parse_isodatetime(value):
             ms)
     except ValueError:
         raise ValueError("'%s' is a out-of-range datetime" % (value))
+
+
+def is_valid_code(code_value):
+    """
+    This function checks if incoming value in http response codes range.
+    """
+    return code_value in http_client.responses
+
+
+def is_client_error(code):
+    """ Checks client error code (RFC 2616)."""
+    return 400 <= code < 500
 
 
 try:

@@ -109,7 +109,7 @@ class TestController(testutil.TGTest):
         assert response.status_int == 400
         assert simplejson.loads(response.body) == {
             "debuginfo": None,
-            "faultcode": "Server",
+            "faultcode": "Client",
             "faultstring": "(400, 'Cannot divide by zero!')"
         }
 
@@ -120,7 +120,7 @@ class TestController(testutil.TGTest):
             expect_errors=True
         )
         assert response.status_int == 400
-        assert response.body == ("<error><faultcode>Server</faultcode>"
+        assert response.body == ("<error><faultcode>Client</faultcode>"
                                  "<faultstring>(400, 'Cannot divide by zero!')"
                                  "</faultstring><debuginfo /></error>")
 

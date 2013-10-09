@@ -138,7 +138,7 @@ class FlaskrTestCase(unittest.TestCase):
             headers={'Accept': 'application/xml'}
         )
         assert r.status_code == 403, r.status_code
-        assert r.data == ('<error><faultcode>Server</faultcode>'
+        assert r.data == ('<error><faultcode>Client</faultcode>'
                           '<faultstring>403: Forbidden</faultstring>'
                           '<debuginfo /></error>')
 
@@ -155,7 +155,7 @@ class FlaskrTestCase(unittest.TestCase):
             headers={'Accept': 'application/xml'}
         )
         assert r.status_code == 412, r.status_code
-        assert r.data == ('<error><faultcode>Server</faultcode>'
+        assert r.data == ('<error><faultcode>Client</faultcode>'
                           '<faultstring>FOO!</faultstring>'
                           '<debuginfo /></error>')
 

@@ -6,6 +6,8 @@ import logging
 import wsme.exc
 import wsme.types
 
+from wsme import utils
+
 log = logging.getLogger(__name__)
 
 
@@ -200,9 +202,12 @@ class Response(object):
 def format_exception(excinfo, debug=False):
     """Extract informations that can be sent to the client."""
     error = excinfo[1]
-    if isinstance(error, wsme.exc.ClientSideError):
+    code = getattr(error, 'code', None)
+    if code and utils.is_valid_code(code) and utils.is_client_error(code):
+        faultstring = error.faultstring if hasattr(error, 'faultstring') \
+            else str(error)
         r = dict(faultcode="Client",
-                 faultstring=error.faultstring)
+                 faultstring=faultstring)
         log.warning("Client-side error: %s" % r['faultstring'])
         r['debuginfo'] = None
         return r

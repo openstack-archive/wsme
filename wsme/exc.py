@@ -4,8 +4,9 @@ from wsme.utils import _
 
 
 class ClientSideError(RuntimeError):
-    def __init__(self, msg=None):
+    def __init__(self, msg=None, status_code=400):
         self.msg = msg
+        self.code = status_code
         super(ClientSideError, self).__init__(self.faultstring)
 
     @property
