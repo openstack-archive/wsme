@@ -105,7 +105,7 @@ def fromxml(datatype, element):
             elif attrdef.mandatory:
                 raise InvalidInput(attrdef.name, None,
                                    "Mandatory field missing.")
-        return obj
+        return wsme.types.validate_value(datatype, obj)
     if datatype is wsme.types.bytes:
         return element.text.encode('ascii')
     return datatype(element.text)

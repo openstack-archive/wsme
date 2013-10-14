@@ -59,6 +59,17 @@ class TestWS(FunctionalTest):
         assert '<id>1</id>' in body
         assert '<firstname>aname</firstname>' in body
 
+    def test_post_body_parameter_validation(self):
+        res = self.app.post(
+            '/authors', '{"firstname": "Robert"}',
+            headers={"Content-Type": "application/json"},
+            expect_errors=True
+        )
+        self.assertEqual(res.status_int, 400)
+        a = json.loads(res.body.decode('utf-8'))
+        self.assertEqual(a['faultcode'], 'Client')
+        self.assertEqual(a['faultstring'], "I don't like this author!")
+
     def test_post_body_parameter(self):
         res = self.app.post(
             '/authors', '{"firstname": "test"}',
