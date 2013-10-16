@@ -1,6 +1,26 @@
 Changes
 =======
 
+0.5b6 (2013-10-16)
+------------------
+
+*  Add improved support for HTTP response codes in cornice apps.
+
+*  Handle mandatory attributes
+
+*  Fix error code returned when None is used in an Enum
+
+*  Handle list and dict for body type in REST protocol
+
+*  Fix Sphinx for Python 3
+
+*  Add custom error code to ClientSideError
+
+*  Return a ClientSideError if unable to convert data
+
+*  Validate body when using Pecan
+
+
 0.5b5 (2013-09-16)
 ------------------
 
