@@ -3,8 +3,11 @@ import datetime
 import decimal
 import inspect
 import logging
+import netaddr
+import re
 import six
 import sys
+import uuid
 import weakref
 
 from wsme import exc
@@ -134,6 +137,90 @@ class BinaryType(UserType):
 
 #: The binary almost-native type
 binary = BinaryType()
+
+
+class IntegerType(UserType):
+    basetype = int
+    name = "integer"
+
+    def __init__(self, minimum=None, maximum=None):
+        self.minimum = minimum
+        self.maximum = maximum
+
+    def frombasetype(value):
+        return int(value) if value is not None else None
+
+    def validate(self, value):
+        if self.minimum is not None and value < self.minimum:
+            error = 'Value should be greater or equal to %s' % self.minimum
+            raise ValueError(error)
+
+        if self.maximum is not None and value > self.maximum:
+            error = 'Value should be lower or equal to %s' % self.maximum
+            raise ValueError(error)
+
+        return value
+
+
+class StringType(UserType):
+    name = "string"
+    format_validator = {
+        'ipv4': self._validate_format_ipv4,
+        'ipv6': self._validate_format_ipv6,
+        'uuid': self._validate_format_uuid,
+    }
+
+    def __init__(self, minLength=None, maxLength=None,
+                 format=None, pattern=None):
+        self.minLength = minLength
+        self.maxLength = maxLength
+        self.validate_format = self.format_validator(format)
+        self.pattern = pattern
+
+    def validate(self, value):
+        if not isinstance(value, basestring):
+            error = 'Value should be string or unicode'
+            raise ValueError(error)
+
+        if self.minLength is not None and len(value) < self.minLength:
+            error = 'Value should have a minimum character requirement of %s' \
+                    % self.minLength
+            raise ValueError(error)
+
+        if self.maxLength is not None and value > self.maxLength:
+            error = 'Value should have a maximum character requirement of %s' \
+                    % self.maxLength
+            raise ValueError(error)
+
+        if self.pattern is not None and not re.search(self.pattern, value):
+            error = 'Value should match the pattern %s' % self.pattern
+            raise ValueError(error)
+
+        if self.format is not None:
+            self.validate_format(value)
+
+        return value
+
+    def _validate_format_ipv4(self, value):
+        try:
+            return netaddr.valid_ipv4(value)
+        except Exception:
+            error = 'Value should be IPv4 format'
+            raise ValueError(error)
+
+    def _validate_format_ipv6(self, value):
+        try:
+            return netaddr.valid_ipv6(value)
+        except Exception:
+            error = 'Value should be IPv6 format'
+            raise ValueError(error)
+
+    def _validate_format_uuid(self, value):
+        try:
+            return str(uuid.UUID(val)) == val
+        except (TypeError, ValueError, AttributeError):
+            error = 'Value should be UUID format'
+            raise ValueError(error)
 
 
 class Enum(UserType):
