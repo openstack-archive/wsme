@@ -3,9 +3,16 @@ import datetime
 import decimal
 import inspect
 import logging
+import re
 import six
 import sys
+import uuid
 import weakref
+
+try:
+    import ipaddress
+except ImportError:
+    import ipaddr as ipaddress
 
 from wsme import exc
 
@@ -134,6 +141,132 @@ class BinaryType(UserType):
 
 #: The binary almost-native type
 binary = BinaryType()
+
+
+class IntegerType(UserType):
+    """
+    A simple integer type. Can validate a value range.
+
+    :param minimum: Possible minimum value
+    :param maximum: Possible maximum value
+
+    Example::
+
+        Gender = IntegerType(minimum=1, maximum=10)
+
+    """
+    basetype = int
+    name = "integer"
+
+    def __init__(self, minimum=None, maximum=None):
+        self.minimum = minimum
+        self.maximum = maximum
+
+    def frombasetype(value):
+        return int(value) if value is not None else None
+
+    def validate(self, value):
+        if self.minimum is not None and value < self.minimum:
+            error = 'Value should be greater or equal to %s' % self.minimum
+            raise ValueError(error)
+
+        if self.maximum is not None and value > self.maximum:
+            error = 'Value should be lower or equal to %s' % self.maximum
+            raise ValueError(error)
+
+        return value
+
+
+class StringType(UserType):
+    """
+    A simple string type. Can validate a length and a pattern.
+
+    :param minLength: Possible minimum length
+    :param maxLength: Possible maximum length
+    :param pattern: Possible string pattern
+
+    Example::
+
+        Gender = StringType(minLength=1, maxLength=10)
+
+    """
+    basetype = text
+    name = "string"
+
+    def __init__(self, minLength=None, maxLength=None, pattern=None):
+        self.minLength = minLength
+        self.maxLength = maxLength
+        self.pattern = pattern
+
+    def validate(self, value):
+        if not isinstance(value, self.basetype):
+            error = 'Value should be string'
+            raise ValueError(error)
+
+        if self.minLength is not None and len(value) < self.minLength:
+            error = 'Value should have a minimum character requirement of %s' \
+                    % self.minLength
+            raise ValueError(error)
+
+        if self.maxLength is not None and len(value) > self.maxLength:
+            error = 'Value should have a maximum character requirement of %s' \
+                    % self.maxLength
+            raise ValueError(error)
+
+        if self.pattern is not None and not re.search(self.pattern, value):
+            error = 'Value should match the pattern %s' % self.pattern
+            raise ValueError(error)
+
+        return value
+
+
+class IPv4AddressType(UserType):
+    """
+    A simple IPv4 type.
+    """
+    basetype = text
+    name = "ipv4address"
+
+    def validate(self, value):
+        try:
+            ipaddress.IPv4Address(value)
+        except ipaddress.AddressValueError:
+            error = 'Value should be IPv4 format'
+            raise ValueError(error)
+
+
+class IPv6AddressType(UserType):
+    """
+    A simple IPv6 type.
+    """
+    basetype = text
+    name = "ipv6address"
+
+    def validate(self, value):
+        try:
+            ipaddress.IPv6Address(value)
+        except ipaddress.AddressValueError:
+            error = 'Value should be IPv6 format'
+            raise ValueError(error)
+
+
+class UuidType(UserType):
+    """
+    A simple UUID type.
+
+    This type allows not only UUID having dashes but also UUID not
+    having dashes. For example, '6a0a707c-45ef-4758-b533-e55adddba8ce'
+    and '6a0a707c45ef4758b533e55adddba8ce' are distinguished as valid.
+    """
+    basetype = text
+    name = "uuid"
+
+    def validate(self, value):
+        try:
+            uuid.UUID(value)
+        except (TypeError, ValueError, AttributeError):
+            error = 'Value should be UUID format'
+            raise ValueError(error)
 
 
 class Enum(UserType):

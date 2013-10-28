@@ -317,6 +317,54 @@ Value: 'v3'. Invalid value \(should be one of: v., v.\)",
         except ValueError:
             pass
 
+    def test_validate_integer_type(self):
+        v = types.IntegerType(minimum=1, maximum=10)
+        v.validate(1)
+        v.validate(5)
+        v.validate(10)
+        self.assertRaises(ValueError, v.validate, 0)
+        self.assertRaises(ValueError, v.validate, 11)
+
+    def test_validate_string_type(self):
+        v = types.StringType(minLength=1, maxLength=10,
+                             pattern='^[a-zA-Z0-9]*$')
+        v.validate('1')
+        v.validate('12345')
+        v.validate('1234567890')
+        self.assertRaises(ValueError, v.validate, '')
+        self.assertRaises(ValueError, v.validate, '12345678901')
+
+        # Test a pattern validation
+        v.validate('a')
+        v.validate('A')
+        self.assertRaises(ValueError, v.validate, '_')
+
+    def test_validate_ipv4_address_type(self):
+        v = types.IPv4AddressType()
+        v.validate('127.0.0.1')
+        v.validate('192.168.0.1')
+        self.assertRaises(ValueError, v.validate, '')
+        self.assertRaises(ValueError, v.validate, 'foo')
+        self.assertRaises(ValueError, v.validate,
+                          '2001:0db8:bd05:01d2:288a:1fc0:0001:10ee')
+
+    def test_validate_ipv6_address_type(self):
+        v = types.IPv6AddressType()
+        v.validate('0:0:0:0:0:0:0:1')
+        v.validate('2001:0db8:bd05:01d2:288a:1fc0:0001:10ee')
+        self.assertRaises(ValueError, v.validate, '')
+        self.assertRaises(ValueError, v.validate, 'foo')
+        self.assertRaises(ValueError, v.validate, '192.168.0.1')
+
+    def test_validate_uuid_type(self):
+        v = types.UuidType()
+        v.validate('6a0a707c-45ef-4758-b533-e55adddba8ce')
+        v.validate('6a0a707c45ef4758b533e55adddba8ce')
+        self.assertRaises(ValueError, v.validate, '')
+        self.assertRaises(ValueError, v.validate, 'foo')
+        self.assertRaises(ValueError, v.validate,
+                          '6a0a707c-45ef-4758-b533-e55adddba8ce-a')
+
     def test_register_invalid_array(self):
         self.assertRaises(ValueError, types.register_type, [])
         self.assertRaises(ValueError, types.register_type, [int, str])
