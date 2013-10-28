@@ -17,6 +17,9 @@ install_requires = [
 if sys.version_info[:2] <= (2, 6):
     install_requires += ('ordereddict',)
 
+if sys.version_info[:2] < (3, 3):
+    install_requires += ('ipaddr',)
+
 setup(
     setup_requires=['pbr>=0.5.21'],
     install_requires=install_requires,
