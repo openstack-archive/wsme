@@ -9,6 +9,7 @@ else:
     webob_version = ''
 
 install_requires = [
+    'netaddr',
     'six',
     'simplegeneric',
     'WebOb' + webob_version
