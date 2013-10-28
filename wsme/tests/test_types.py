@@ -317,6 +317,23 @@ Value: 'v3'. Invalid value \(should be one of: v., v.\)",
         except ValueError:
             pass
 
+    def test_validate_integer_type(self):
+        v = types.IntegerType(minimum=1, maximum=10)
+        v.validate(1)
+        v.validate(5)
+        v.validate(10)
+        try:
+            v.validate(0)
+            assert False, "No ValueError raised"
+        except ValueError:
+            pass
+
+        try:
+            v.validate(11)
+            assert False, "No ValueError raised"
+        except ValueError:
+            pass
+
     def test_register_invalid_array(self):
         self.assertRaises(ValueError, types.register_type, [])
         self.assertRaises(ValueError, types.register_type, [int, str])
