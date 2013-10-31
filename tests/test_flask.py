@@ -49,7 +49,7 @@ def get_model(name):
 @test_app.route('/models/<name>/secret')
 @signature(Model, text)
 def model_secret(name):
-    abort(403, description="You're not allowed in there!")
+    abort(403)
 
 
 @test_app.route('/models/<name>/custom-error')
