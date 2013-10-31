@@ -253,19 +253,13 @@ Value: 'v3'. Invalid value \(should be one of: v., v.\)",
     def test_validate_dict(self):
         assert types.validate_value({int: str}, {1: '1', 5: '5'})
 
-        try:
-            types.validate_value({int: str}, [])
-            assert False, "No ValueError raised"
-        except ValueError:
-            pass
+        self.assertRaises(ValueError, types.validate_value,
+                          {int: str}, [])
 
         assert types.validate_value({int: str}, {'1': '1', 5: '5'})
 
-        try:
-            types.validate_value({int: str}, {1: 1, 5: '5'})
-            assert False, "No ValueError raised"
-        except ValueError:
-            pass
+        self.assertRaises(ValueError, types.validate_value,
+                          {int: str}, {1: 1, 5: '5'})
 
     def test_validate_list_valid(self):
         assert types.validate_value([int], [1, 2])
@@ -279,43 +273,25 @@ Value: 'v3'. Invalid value \(should be one of: v., v.\)",
         assert v.validate(None) is None
 
     def test_validate_list_invalid_member(self):
-        try:
-            assert types.validate_value([int], ['not-a-number'])
-            assert False, "No ValueError raised"
-        except ValueError:
-            pass
+        self.assertRaises(ValueError, types.validate_value, [int],
+                          ['not-a-number'])
 
     def test_validate_list_invalid_type(self):
-        try:
-            assert types.validate_value([int], 1)
-            assert False, "No ValueError raised"
-        except ValueError:
-            pass
+        self.assertRaises(ValueError, types.validate_value, [int], 1)
 
     def test_validate_float(self):
         self.assertEqual(types.validate_value(float, 1), 1.0)
         self.assertEqual(types.validate_value(float, '1'), 1.0)
         self.assertEqual(types.validate_value(float, 1.1), 1.1)
-        try:
-            types.validate_value(float, [])
-            assert False, "No ValueError raised"
-        except ValueError:
-            pass
-        try:
-            types.validate_value(float, 'not-a-float')
-            assert False, "No ValueError raised"
-        except ValueError:
-            pass
+        self.assertRaises(ValueError, types.validate_value, float, [])
+        self.assertRaises(ValueError, types.validate_value, float,
+                          'not-a-float')
 
     def test_validate_int(self):
         self.assertEqual(types.validate_value(int, 1), 1)
         self.assertEqual(types.validate_value(int, '1'), 1)
         self.assertEqual(types.validate_value(int, six.u('1')), 1)
-        try:
-            types.validate_value(int, 1.1)
-            assert False, "No ValueError raised"
-        except ValueError:
-            pass
+        self.assertRaises(ValueError, types.validate_value, int, 1.1)
 
     def test_register_invalid_array(self):
         self.assertRaises(ValueError, types.register_type, [])
@@ -335,11 +311,7 @@ Value: 'v3'. Invalid value \(should be one of: v., v.\)",
 
         assert not hasattr(MyType, '_wsme_attributes')
 
-        try:
-            types.list_attributes(MyType)
-            assert False, "TypeError was not raised"
-        except TypeError:
-            pass
+        self.assertRaises(TypeError, types.list_attributes, MyType)
 
         assert not hasattr(MyType, '_wsme_attributes')
 
