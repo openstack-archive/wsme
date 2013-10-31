@@ -161,7 +161,7 @@ class Enum(UserType):
 
     def validate(self, value):
         if value not in self.values:
-            raise ValueError("Invalid value (should be one of: %s)" %
+            raise ValueError("Value should be one of: %s" %
                              ', '.join(map(six.text_type, self.values)))
         return value
 

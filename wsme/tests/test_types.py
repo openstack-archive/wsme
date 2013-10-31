@@ -182,7 +182,7 @@ class TestTypes(unittest.TestCase):
 
         self.assertRaisesRegexp(exc.InvalidInput,
                                 "Invalid input for field/attribute a. \
-Value: 'v3'. Invalid value \(should be one of: v., v.\)",
+Value: 'v3'. Value should be one of: v., v.",
                                 setattr,
                                 obj,
                                 'a',

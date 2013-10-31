@@ -80,7 +80,7 @@ class TestController(unittest.TestCase):
         self.assertTrue(
             res.json_body['faultstring'].startswith(
                 "Invalid input for field/attribute number. Value: 'arf'. \
-Invalid value (should be one of:"))
+Value should be one of:"))
         self.assertIn('v1', res.json_body['faultstring'])
         self.assertIn('v2', res.json_body['faultstring'])
         self.assertIn('None', res.json_body['faultstring'])
@@ -104,7 +104,7 @@ Invalid value (should be one of:"))
         self.assertTrue(
             res.json_body['faultstring'].startswith(
                 "Invalid input for field/attribute number. Value: '1'. \
-Invalid value (should be one of:"))
+Value should be one of:"))
         self.assertIn('v1', res.json_body['faultstring'])
         self.assertIn('v2', res.json_body['faultstring'])
         self.assertIn('None', res.json_body['faultstring'])
