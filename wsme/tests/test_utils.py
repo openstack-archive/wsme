@@ -60,21 +60,21 @@ class TestUtils(unittest.TestCase):
 
     def test_validator_with_valid_code(self):
         valid_code = 404
-        assert (
+        self.assertTrue(
             utils.is_valid_code(valid_code),
             "Valid status code not detected"
         )
 
     def test_validator_with_invalid_int_code(self):
         invalid_int_code = 648
-        assert (
-            not utils.is_valid_code(invalid_int_code),
+        self.assertFalse(
+            utils.is_valid_code(invalid_int_code),
             "Invalid status code not detected"
         )
 
     def test_validator_with_invalid_str_code(self):
         invalid_str_code = '404'
-        assert (
-            not utils.is_valid_code(invalid_str_code),
+        self.assertFalse(
+            utils.is_valid_code(invalid_str_code),
             "Invalid status code not detected"
         )
