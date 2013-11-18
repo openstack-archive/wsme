@@ -152,7 +152,7 @@ Example
 ::
 
     Gender = wsme.types.Enum(str, 'male', 'female')
-    Title = Ewsme.types.num(str, 'M', 'Mrs')
+    Title = wsme.types.Enum(str, 'M', 'Mrs')
 
     class Person(wsme.types.Base):
         lastname = wsme.types.wsattr(unicode, mandatory=True)
