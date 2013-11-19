@@ -670,6 +670,37 @@ class Registry(object):
         self._complex_types.append(weakref.ref(class_))
         return class_
 
+    def reregister(self, class_):
+        """Register a type which may already have been registered.
+        """
+        # Clear the existing attribute reference so it is rebuilt
+        if hasattr(class_, '_wsme_attributes'):
+            del class_._wsme_attributes
+        # Remove the previous version of the registered class
+        # to avoid having duplicates.
+        self._unregister(class_)
+        return self.register(class_)
+
+    def _unregister(self, class_):
+        """Remove a previously registered type.
+        """
+        if isinstance(class_, list):
+            item_type = class_[0]
+            self.array_types = set(
+                at for at in self.array_types
+                if at.item_type != item_type
+            )
+        elif isinstance(class_, dict):
+            key_type, value_type = class_.items()[0]
+            self.dict_types = set(
+                dt for dt in self.dict_types
+                if (dt.key_type, dt.value_type) != (key_type, value_type)
+            )
+        self._complex_types = [
+            ct for ct in self._complex_types
+            if ct() is not class_
+        ]
+
     def lookup(self, typename):
         log.debug('Lookup %s' % typename)
         modname = None
@@ -772,3 +803,26 @@ class File(Base):
         if self._file is None and self._content:
             self._file = six.BytesIO(self._content)
         return self._file
+
+
+class DynamicBase(Base):
+    """Base type for complex types for which all attributes are not
+    defined when the class is constructed.
+
+    This class is meant to be used as a base for types that have
+    properties added after the main class is created, such as by
+    loading plugins.
+
+    """
+
+    @classmethod
+    def add_extensions(cls, **exts):
+        """Add extension attributes
+
+        The arguments should be valid Python attribute names
+        associated with a type for the new attribute.
+
+        """
+        for n, t in exts.items():
+            setattr(cls, n, t)
+        cls.__registry__.reregister(cls)

@@ -523,3 +523,63 @@ Value: 'v3'. Value should be one of: v., v.",
                 return 'from-file'
         f = types.File(content=six.b('from-content'))
         assert f.file.read() == six.b('from-content')
+
+    def test_unregister(self):
+        class TempType(object):
+            pass
+        types.registry.register(TempType)
+        v = types.registry.lookup('TempType')
+        self.assertIs(v, TempType)
+        types.registry._unregister(TempType)
+        after = types.registry.lookup('TempType')
+        self.assertIs(after, None)
+
+    def test_unregister_array_type(self):
+        class TempType(object):
+            pass
+        t = [TempType]
+        types.registry.register(t)
+        self.assertNotEqual(types.registry.array_types, set())
+        types.registry._unregister(t)
+        self.assertEqual(types.registry.array_types, set())
+
+    def test_unregister_dict_type(self):
+        class TempType(object):
+            pass
+        t = {str: TempType}
+        types.registry.register(t)
+        self.assertNotEqual(types.registry.dict_types, set())
+        types.registry._unregister(t)
+        self.assertEqual(types.registry.dict_types, set())
+
+    def test_reregister(self):
+        class TempType(object):
+            pass
+        types.registry.register(TempType)
+        v = types.registry.lookup('TempType')
+        self.assertIs(v, TempType)
+        types.registry.reregister(TempType)
+        after = types.registry.lookup('TempType')
+        self.assertIs(after, TempType)
+
+    def test_reregister_and_add_attr(self):
+        class TempType(object):
+            pass
+        types.registry.register(TempType)
+        attrs = types.list_attributes(TempType)
+        self.assertEqual(attrs, [])
+        TempType.one = str
+        types.registry.reregister(TempType)
+        after = types.list_attributes(TempType)
+        self.assertNotEqual(after, [])
+
+    def test_dynamicbase_add_extensions(self):
+        class TempType(types.DynamicBase):
+            pass
+        types.registry.register(TempType)
+        attrs = types.list_attributes(TempType)
+        self.assertEqual(attrs, [])
+        TempType.add_extensions(one=str)
+        types.registry.reregister(TempType)
+        after = types.list_attributes(TempType)
+        self.assertNotEqual(after, [])
