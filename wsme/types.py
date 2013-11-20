@@ -218,7 +218,7 @@ class StringType(UserType):
             raise ValueError(error)
 
         if self.pattern is not None and not self.pattern.search(value):
-            error = 'Value should match the pattern %s' % self.pattern
+            error = 'Value should match the pattern %s' % self.pattern.pattern
             raise ValueError(error)
 
         return value
