@@ -326,6 +326,16 @@ Value: 'v3'. Value should be one of: v., v.",
         v.validate('A')
         self.assertRaises(ValueError, v.validate, '_')
 
+    def test_validate_string_type_pattern_exception_message(self):
+        regex = '[0-9]'
+        v = types.StringType(pattern=regex)
+        try:
+            v.validate('a')
+        except ValueError as e:
+            assert regex in str(e)
+        else:
+            self.fail('Should have thrown a ValueError exception')
+
     def test_validate_ipv4_address_type(self):
         v = types.IPv4AddressType()
         v.validate('127.0.0.1')
