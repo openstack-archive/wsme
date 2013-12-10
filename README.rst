@@ -9,7 +9,7 @@ by providing simple yet powerful typing which removes the need to directly
 manipulate the request and the response objects.
 
 WSME can work standalone or on top of your favorite python web
-(micro)framework, so you can use both your prefered way of routing your REST
+(micro)framework, so you can use both your preferred way of routing your REST
 requests and most of the features of WSME that rely on the typing system like:
 
 -   Alternate protocols, including ones supporting batch-calls
@@ -60,7 +60,7 @@ Main features
 -   Supports user-defined simple and complex types.
 -   Multi-protocol : REST+Json, REST+XML, SOAP, ExtDirect and more to come.
 -   Extensible : easy to add more protocols or more base types.
--   Framework independance : adapters are provided to easily integrate
+-   Framework independence : adapters are provided to easily integrate
     your API in any web framework, for example a wsgi container,
     Pecan_, TurboGears_, Flask_, cornice_...
 -   Very few runtime dependencies: webob, simplegeneric. Optionnaly lxml and

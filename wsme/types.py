@@ -512,7 +512,7 @@ class wsattr(object):
 
     #: attribute data type. Can be either an actual type,
     #: or a type name, in which case the actual type will be
-    #: determined when needed (generaly just before scaning the api).
+    #: determined when needed (generally just before scanning the api).
     datatype = property(_get_datatype, _set_datatype)
 
 
@@ -530,7 +530,7 @@ def sort_attributes(class_, attributes):
     3 mechanisms are attempted :
 
     #.  Look for a _wsme_attr_order attribute on the class_. This allow
-        to define an arbitrary order of the attributes (usefull for
+        to define an arbitrary order of the attributes (useful for
         generated types).
 
     #.  Access the object source code to find the declaration order.
