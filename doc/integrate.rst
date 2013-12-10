@@ -196,7 +196,7 @@ configuration entry in ``config.py``:
 
 Valid configuration variables are :
 
--   ``'debug'``: Wether or not to include exception tracebacks in the returned
+-   ``'debug'``: Whether or not to include exception tracebacks in the returned
     server-side errors.
 
 Example

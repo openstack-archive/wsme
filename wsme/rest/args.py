@@ -257,7 +257,7 @@ def get_args(funcdef, args, kwargs, params, form, body, mimetype):
     * the request body
 
     Note that the host framework args and kwargs can be overridden
-    by arguements from params of body
+    by arguments from params of body
     """
     # get the body from params if not given directly
     if not body and '__body__' in params:
