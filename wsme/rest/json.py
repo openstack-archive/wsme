@@ -135,8 +135,11 @@ def fromjson(datatype, value):
         obj = datatype()
         for attrdef in wsme.types.list_attributes(datatype):
             if attrdef.name in value:
-                setattr(obj, attrdef.key,
-                        fromjson(attrdef.datatype, value[attrdef.name]))
+                val_fromjson = fromjson(attrdef.datatype, value[attrdef.name])
+                if getattr(attrdef, 'readonly', False):
+                    raise InvalidInput(attrdef.name, val_fromjson,
+                                       "Cannot set read only field.")
+                setattr(obj, attrdef.key, val_fromjson)
             elif attrdef.mandatory:
                 raise InvalidInput(attrdef.name, None,
                                    "Mandatory field missing.")

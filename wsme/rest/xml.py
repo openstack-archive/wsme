@@ -101,7 +101,11 @@ def fromxml(datatype, element):
         for attrdef in wsme.types.list_attributes(datatype):
             sub = element.find(attrdef.name)
             if sub is not None:
-                setattr(obj, attrdef.key, fromxml(attrdef.datatype, sub))
+                val_fromxml = fromxml(attrdef.datatype, sub)
+                if getattr(attrdef, 'readonly', False):
+                    raise InvalidInput(attrdef.name, val_fromxml,
+                                       "Cannot set read only field.")
+                setattr(obj, attrdef.key, val_fromxml)
             elif attrdef.mandatory:
                 raise InvalidInput(attrdef.name, None,
                                    "Mandatory field missing.")

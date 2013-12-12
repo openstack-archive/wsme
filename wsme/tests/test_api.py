@@ -287,6 +287,25 @@ Value should be one of:"))
                             headers={'Accept': 'application/json'})
         self.assertEqual(res.status_int, 400)
 
+    def test_wsattr_readonly(self):
+        class ComplexType(object):
+            attr = wsme.types.wsattr(int, readonly=True)
+
+        class MyRoot(WSRoot):
+            @expose(int, body=ComplexType)
+            @validate(ComplexType)
+            def clx(self, a):
+                return a.attr
+
+        r = MyRoot(['restjson'])
+        app = webtest.TestApp(r.wsgiapp())
+        res = app.post_json('/clx', params={'attr': 1005}, expect_errors=True,
+                            headers={'Accept': 'application/json'})
+        self.assertIn('Cannot set read only field.',
+                      res.json_body['faultstring'])
+        self.assertIn('1005', res.json_body['faultstring'])
+        self.assertEqual(res.status_int, 400)
+
     def test_wsattr_default(self):
         class ComplexType(object):
             attr = wsme.types.wsattr(wsme.types.Enum(str, 'or', 'and'),

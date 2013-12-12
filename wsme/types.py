@@ -447,7 +447,8 @@ class wsattr(object):
             mandatoryvalue = wsattr(int, mandatory=True)
 
     """
-    def __init__(self, datatype, mandatory=False, name=None, default=Unset):
+    def __init__(self, datatype, mandatory=False, name=None, default=Unset,
+                 readonly=False):
         #: The attribute name in the parent python class.
         #: Set by :func:`inspect_class`
         self.key = None  # will be set by class inspection
@@ -460,6 +461,8 @@ class wsattr(object):
         #: Default value. The attribute will return this instead
         #: of :data:`Unset` if no value has been set.
         self.default = default
+        #: If True value cannot be set from json/xml input data
+        self.readonly = readonly
 
         self.complextype = None
 
