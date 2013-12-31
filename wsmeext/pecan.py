@@ -59,6 +59,7 @@ def wsexpose(*args, **kwargs):
         generic=False
     )
     sig = wsme.signature(*args, **kwargs)
+    raise_exception = kwargs.get('raise_exception', False)
 
     def decorate(f):
         sig(f)
@@ -83,6 +84,8 @@ def wsexpose(*args, **kwargs):
                     result = result.obj
 
             except:
+                if raise_exception:
+                    raise
                 try:
                     exception_info = sys.exc_info()
                     orig_exception = exception_info[1]
