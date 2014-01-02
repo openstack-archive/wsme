@@ -171,10 +171,14 @@ def args_from_args(funcdef, args, kwargs):
         try:
             newargs.append(from_param(argdef.datatype, arg))
         except Exception:
+            if isinstance(argdef.datatype, UserType):
+                datatype_name = argdef.datatype.name
+            else:
+                datatype_name = argdef.datatype.__name__
             raise InvalidInput(
                 argdef.name,
                 arg,
-                "unable to convert to %s" % argdef.datatype.__name__)
+                "unable to convert to %s" % datatype_name)
     newkwargs = {}
     for argname, value in kwargs.items():
         newkwargs[argname] = from_param(
