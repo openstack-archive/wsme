@@ -3,7 +3,9 @@
 import datetime
 import unittest
 
-from wsme.rest.args import from_param, from_params
+from wsme.api import FunctionArgument, FunctionDefinition
+from wsme.rest.args import from_param, from_params, args_from_args
+from wsme.exc import InvalidInput
 
 from wsme.types import UserType, Unset, ArrayType, DictType
 
@@ -52,3 +54,24 @@ class TestProtocolsCommons(unittest.TestCase):
 
     def test_from_params_dict_unset(self):
         assert from_params(DictType(int, str), {}, 'a', set()) is Unset
+
+    def test_args_from_args_usertype(self):
+
+        class FakeType(UserType):
+            name = 'fake-type'
+            basetype = int
+
+        fake_type = FakeType()
+        fd = FunctionDefinition(FunctionDefinition)
+        fd.arguments.append(FunctionArgument('fake-arg', fake_type, True, 0))
+
+        new_args = args_from_args(fd, [1], {})
+        self.assertEqual([1], new_args[0])
+
+        # can't convert str to int
+        try:
+            args_from_args(fd, ['invalid-argument'], {})
+        except InvalidInput as e:
+            self.assertIn(fake_type.name, e.message)
+        else:
+            self.fail('Should have thrown an InvalidInput')
