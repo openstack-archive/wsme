@@ -15,10 +15,12 @@ from wsme.utils import is_valid_code
 
 
 class JSonRenderer(object):
-    def __init__(self, path, extra_vars):
+    @staticmethod
+    def __init__(path, extra_vars):
         pass
 
-    def render(self, template_path, namespace):
+    @staticmethod
+    def render(template_path, namespace):
         if 'faultcode' in namespace:
             return wsme.rest.json.encode_error(None, namespace)
         return wsme.rest.json.encode_result(
@@ -28,10 +30,12 @@ class JSonRenderer(object):
 
 
 class XMLRenderer(object):
-    def __init__(self, path, extra_vars):
+    @staticmethod
+    def __init__(path, extra_vars):
         pass
 
-    def render(self, template_path, namespace):
+    @staticmethod
+    def render(template_path, namespace):
         if 'faultcode' in namespace:
             return wsme.rest.xml.encode_error(None, namespace)
         return wsme.rest.xml.encode_result(
@@ -42,22 +46,22 @@ class XMLRenderer(object):
 pecan.templating._builtin_renderers['wsmejson'] = JSonRenderer
 pecan.templating._builtin_renderers['wsmexml'] = XMLRenderer
 
+pecan_json_decorate = pecan.expose(
+    template='wsmejson:',
+    content_type='application/json',
+    generic=False)
+pecan_xml_decorate = pecan.expose(
+    template='wsmexml:',
+    content_type='application/xml',
+    generic=False
+)
+pecan_text_xml_decorate = pecan.expose(
+    template='wsmexml:',
+    content_type='text/xml',
+    generic=False
+)
 
 def wsexpose(*args, **kwargs):
-    pecan_json_decorate = pecan.expose(
-        template='wsmejson:',
-        content_type='application/json',
-        generic=False)
-    pecan_xml_decorate = pecan.expose(
-        template='wsmexml:',
-        content_type='application/xml',
-        generic=False
-    )
-    pecan_text_xml_decorate = pecan.expose(
-        template='wsmexml:',
-        content_type='text/xml',
-        generic=False
-    )
     sig = wsme.signature(*args, **kwargs)
 
     def decorate(f):
