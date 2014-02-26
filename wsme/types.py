@@ -270,7 +270,7 @@ class UuidType(UserType):
     @staticmethod
     def validate(value):
         try:
-            uuid.UUID(value)
+            return six.text_type((uuid.UUID(value)))
         except (TypeError, ValueError, AttributeError):
             error = 'Value should be UUID format'
             raise ValueError(error)

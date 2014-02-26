@@ -345,8 +345,10 @@ Value: 'v3'. Value should be one of: v., v.",
 
     def test_validate_uuid_type(self):
         v = types.UuidType()
-        v.validate('6a0a707c-45ef-4758-b533-e55adddba8ce')
-        v.validate('6a0a707c45ef4758b533e55adddba8ce')
+        self.assertEqual(v.validate('6a0a707c-45ef-4758-b533-e55adddba8ce'),
+                         '6a0a707c-45ef-4758-b533-e55adddba8ce')
+        self.assertEqual(v.validate('6a0a707c45ef4758b533e55adddba8ce'),
+                         '6a0a707c-45ef-4758-b533-e55adddba8ce')
         self.assertRaises(ValueError, v.validate, '')
         self.assertRaises(ValueError, v.validate, 'foo')
         self.assertRaises(ValueError, v.validate,
