@@ -234,7 +234,7 @@ class IPv4AddressType(UserType):
     @staticmethod
     def validate(value):
         try:
-            ipaddress.IPv4Address(value)
+            return six.text_type(ipaddress.IPv4Address(value))
         except ipaddress.AddressValueError:
             error = 'Value should be IPv4 format'
             raise ValueError(error)
@@ -243,6 +243,8 @@ class IPv4AddressType(UserType):
 class IPv6AddressType(UserType):
     """
     A simple IPv6 type.
+
+    This type represents IPv6 addresses in the short format.
     """
     basetype = six.string_types
     name = "ipv6address"
@@ -250,7 +252,7 @@ class IPv6AddressType(UserType):
     @staticmethod
     def validate(value):
         try:
-            ipaddress.IPv6Address(value)
+            return six.text_type(ipaddress.IPv6Address(value))
         except ipaddress.AddressValueError:
             error = 'Value should be IPv6 format'
             raise ValueError(error)
