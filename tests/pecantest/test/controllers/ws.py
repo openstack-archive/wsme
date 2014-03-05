@@ -62,6 +62,11 @@ class BooksController(RestController):
         book.author = Author(id=author_id)
         return book
 
+    @wsmeext.pecan.wsexpose(Book, int, int, body=Book, content_types=['json'])
+    def post(self, author_id, id, book=None):
+        book.id = id
+        book.author = Author(id=author_id)
+        return book
 
 class Criterion(Base):
     op = text
