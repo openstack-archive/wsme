@@ -210,3 +210,27 @@ class TestWS(FunctionalTest):
                 "This test does not work in Python 3 until https://review.openstack.org/#/c/48439/ is merged")
         res = self.app.delete('/authors/4')
         assert "Content-Type" not in res.headers, res.headers['Content-Type']
+
+    def test_json_post_allowed_content_rendering(self):
+        a = self.app.post(
+            '/authors/1/books/2.json',
+            '{"name": "Alice au pays des merveilles"}',
+            headers={"Content-Type": "application/json"}
+        )
+        book = json.loads(a.body.decode('utf-8'))
+        assert book['id'] == 2
+        assert book['author']['id'] == 1
+
+    def test_json_post_disallowed_content_rendering(self):
+        expected_status_code = 500
+        expected_status = http_response_messages[expected_status_code]
+        res = self.app.post(
+            '/authors/1/books/2.json',
+            '{"name": "Test-Driven Development"}',
+            headers={"Content-Type": "application/xml"},
+            expect_errors=True
+        )
+        self.assertEqual(res.status, expected_status)
+        book = json.loads(res.body.decode('utf-8'))
+        assert book['faultcode'] == 'Server'
+        assert book['faultstring'] == 'Unknow mimetype: application/xml'

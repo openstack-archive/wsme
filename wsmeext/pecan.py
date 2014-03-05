@@ -44,20 +44,36 @@ pecan.templating._builtin_renderers['wsmexml'] = XMLRenderer
 
 
 def wsexpose(*args, **kwargs):
-    pecan_json_decorate = pecan.expose(
-        template='wsmejson:',
-        content_type='application/json',
-        generic=False)
-    pecan_xml_decorate = pecan.expose(
-        template='wsmexml:',
-        content_type='application/xml',
-        generic=False
-    )
-    pecan_text_xml_decorate = pecan.expose(
-        template='wsmexml:',
-        content_type='text/xml',
-        generic=False
-    )
+
+    if 'content_types' not in kwargs:
+        kwargs['content_types'] = ['xml', 'json', 'txt']
+
+    if 'json' in kwargs['content_types']:
+        pecan_json_decorate = pecan.expose(
+            template='wsmejson:',
+            content_type='application/json',
+            generic=False)
+    else:
+        pecan_json_decorate = None
+
+    if 'xml' in kwargs['content_types']:
+        pecan_xml_decorate = pecan.expose(
+            template='wsmexml:',
+            content_type='application/xml',
+            generic=False)
+    else:
+        pecan_xml_decorate = None
+
+    if 'txt' in kwargs['content_types']:
+        pecan_text_xml_decorate = pecan.expose(
+            template='wsmexml:',
+            content_type='text/xml',
+            generic=False)
+    else:
+        pecan_text_xml_decorate = None
+
+    kwargs.pop("content_types", None)
+
     sig = wsme.signature(*args, **kwargs)
 
     def decorate(f):
@@ -111,9 +127,12 @@ def wsexpose(*args, **kwargs):
                 result=result
             )
 
-        pecan_xml_decorate(callfunction)
-        pecan_text_xml_decorate(callfunction)
-        pecan_json_decorate(callfunction)
+        if pecan_xml_decorate:
+            pecan_xml_decorate(callfunction)
+        if pecan_text_xml_decorate:
+            pecan_text_xml_decorate(callfunction)
+        if pecan_json_decorate:
+            pecan_json_decorate(callfunction)
         pecan.util._cfg(callfunction)['argspec'] = inspect.getargspec(f)
         callfunction._wsme_definition = funcdef
         return callfunction
