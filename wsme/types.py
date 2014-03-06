@@ -69,7 +69,7 @@ class ArrayType(object):
 class DictType(object):
     def __init__(self, key_type, value_type):
         if key_type not in pod_types:
-            raise ValueError("Dictionnaries key can only be a pod type")
+            raise ValueError("Dictionaries key can only be a pod type")
         self.key_type = key_type
         if iscomplex(value_type):
             self._value_type = weakref.ref(value_type)

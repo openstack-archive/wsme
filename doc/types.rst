@@ -59,8 +59,8 @@ The native types are :
                 def getlist(self):
                     return ['a', 'b', 'c']
 
-    -   Dictionnaries -- Statically typed mapping are allowed. When exposing
-        a dictionnary datatype, you can specify the key and value types,
+    -   Dictionaries -- Statically typed mapping are allowed. When exposing
+        a dictionary datatype, you can specify the key and value types,
         with a restriction on the key value that must be a 'pod' type.
         Example::
 
@@ -80,7 +80,7 @@ types by the different protocols, but needs conversion to/from this basetypes,
 or needs to validate data integrity.
 
 To define a user type, you just have to inherit from
-:class:`wsme.types.UserType` and instanciate your new class. This instance
+:class:`wsme.types.UserType` and instantiate your new class. This instance
 will be your new type and can be used as @\ :class:`wsme.expose` or
 @\ :class:`wsme.validate` parameters.
 
@@ -171,7 +171,7 @@ A few things you should know about complex types:
 
     -   The class must have a default constructor --
         Since instances of the type will be created by the protocols when
-        used as input types, they must be instanciable without any argument.
+        used as input types, they must be instantiable without any argument.
 
     -   Complex types are registered automatically 
         (and thus inspected) as soon a they are used in expose or validate,
