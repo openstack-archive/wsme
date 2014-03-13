@@ -18,7 +18,7 @@ ARRAY_MAX_SIZE = 1000
 
 @generic
 def from_param(datatype, value):
-    return datatype(value) if value else None
+    return datatype(value) if value is not None else None
 
 
 @from_param.when_object(datetime.date)
