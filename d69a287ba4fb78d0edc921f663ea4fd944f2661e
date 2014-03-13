@@ -1,0 +1,10 @@
+Verified+2: Jenkins
+Approved+1: Julien Danjou <julien@danjou.info>
+Code-Review+1: Ryan Petrello <ryan@ryanpetrello.com>
+Approved+1: Christophe de Vienne <cdevienne@gmail.com>
+Code-Review+2: Christophe de Vienne <cdevienne@gmail.com>
+Submitted-by: Jenkins
+Submitted-at: Thu, 13 Mar 2014 10:38:59 +0000
+Reviewed-on: https://review.openstack.org/65743
+Project: stackforge/wsme
+Branch: refs/heads/master
