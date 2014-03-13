@@ -1,6 +1,29 @@
 Changes
 =======
 
+0.6.1
+-----
+
+* Fix default handling for zero values
+* Fixing spelling mistakes
+* A proper check of UuidType
+* pecan: cleanup, use global vars and staticmethod
+* args_from_args() to work with an instance of UserType
+
+0.6
+---
+
+* Add 'readonly' parameter to wsattr
+* Fix typos in documents and comments
+* Support dynamic types
+* Support building wheels (PEP-427)
+* Fix a typo in the types documentation
+* Add IntegerType and some classes for validation
+* Use assertRaises() for negative tests
+* Remove the duplicated error message from Enum
+* Drop description from 403 flask test case
+* Fix SyntaxWarning under Python 3
+
 0.5b6 (2013-10-16)
 ------------------
 
