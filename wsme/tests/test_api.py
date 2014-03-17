@@ -372,3 +372,20 @@ class TestFunctionDefinition(unittest.TestCase):
 
         assert fd.get_arg('a').datatype is int
         assert fd.get_arg('b') is None
+
+    def test_get_options(self):
+        fd = FunctionDefinition(FunctionDefinition)
+
+        assert fd.content_types == ['xml', 'json']
+        fd.set_options(content_types=['json'])
+        assert fd.content_types == ['json']
+        fd.set_options(content_types=['xml'])
+        assert fd.content_types == ['xml']
+        fd.set_options(content_types=['json', 'xml'])
+        assert fd.content_types == ['json', 'xml']
+
+        # unchanged due to type mismatch
+        fd.set_options(content_types='json')
+        assert fd.content_types == ['json', 'xml']
+        fd.set_options(content_types=6)
+        assert fd.content_types == ['json', 'xml']

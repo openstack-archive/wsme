@@ -46,21 +46,6 @@ class XMLRenderer(object):
 pecan.templating._builtin_renderers['wsmejson'] = JSonRenderer
 pecan.templating._builtin_renderers['wsmexml'] = XMLRenderer
 
-pecan_json_decorate = pecan.expose(
-    template='wsmejson:',
-    content_type='application/json',
-    generic=False)
-pecan_xml_decorate = pecan.expose(
-    template='wsmexml:',
-    content_type='application/xml',
-    generic=False
-)
-pecan_text_xml_decorate = pecan.expose(
-    template='wsmexml:',
-    content_type='text/xml',
-    generic=False
-)
-
 
 def wsexpose(*args, **kwargs):
     sig = wsme.signature(*args, **kwargs)
@@ -69,6 +54,27 @@ def wsexpose(*args, **kwargs):
         sig(f)
         funcdef = wsme.api.FunctionDefinition.get(f)
         funcdef.resolve_types(wsme.types.registry)
+
+        content_types = funcdef.content_types
+        pecan_json_decorate = None
+        pecan_xml_decorate = None
+        pecan_text_xml_decorate = None
+
+        if 'json' in content_types:
+            pecan_json_decorate = pecan.expose(
+                template='wsmejson:',
+                content_type='application/json',
+                generic=False)
+
+        if 'xml' in content_types:
+            pecan_xml_decorate = pecan.expose(
+                template='wsmexml:',
+                content_type='application/xml',
+                generic=False)
+            pecan_text_xml_decorate = pecan.expose(
+                template='wsmexml:',
+                content_type='text/xml',
+                generic=False)
 
         @functools.wraps(f)
         def callfunction(self, *args, **kwargs):
@@ -116,9 +122,12 @@ def wsexpose(*args, **kwargs):
                 result=result
             )
 
-        pecan_xml_decorate(callfunction)
-        pecan_text_xml_decorate(callfunction)
-        pecan_json_decorate(callfunction)
+        if pecan_xml_decorate:
+            pecan_xml_decorate(callfunction)
+            pecan_text_xml_decorate(callfunction)
+        if pecan_json_decorate:
+            pecan_json_decorate(callfunction)
+
         pecan.util._cfg(callfunction)['argspec'] = inspect.getargspec(f)
         callfunction._wsme_definition = funcdef
         return callfunction
