@@ -1,7 +1,8 @@
-import traceback
 import functools
 import inspect
 import logging
+import six
+import traceback
 
 import wsme.exc
 import wsme.types
@@ -69,6 +70,9 @@ class FunctionDefinition(object):
         #: If the body carry the datas of a single argument, its type
         self.body_type = None
 
+        #: The list of supported content types
+        self.content_types = ['xml', 'json']
+
         #: Status code
         self.status_code = 200
 
@@ -82,7 +86,7 @@ class FunctionDefinition(object):
         #: in the function @\ :function:`signature`
         self.pass_request = False
 
-        #: Dictionnary of protocol-specific options.
+        #: Dictionary of protocol-specific options.
         self.extra_options = None
 
     @staticmethod
@@ -112,10 +116,14 @@ class FunctionDefinition(object):
             arg.resolve_type(registry)
 
     def set_options(self, body=None, ignore_extra_args=False, status_code=200,
-                    **extra_options):
+                    content_types=None, **extra_options):
         self.body_type = body
         self.status_code = status_code
         self.ignore_extra_args = ignore_extra_args
+        if content_types is not None:
+            if not (isinstance(content_types, six.string_types) or
+                    isinstance(content_types, six.integer_types)):
+                self.content_types = content_types
         self.extra_options = extra_options
 
     def set_arg_types(self, argspec, arg_types):
