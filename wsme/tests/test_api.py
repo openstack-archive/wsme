@@ -10,7 +10,7 @@ import webtest
 
 from wsme import WSRoot, expose, validate
 from wsme.rest import scan_api
-from wsme.api import FunctionArgument, FunctionDefinition
+from wsme.api import FunctionArgument, FunctionDefinition, setcontenttypes
 from wsme import types
 import wsme.types
 
@@ -372,3 +372,48 @@ class TestFunctionDefinition(unittest.TestCase):
 
         assert fd.get_arg('a').datatype is int
         assert fd.get_arg('b') is None
+
+    def test_get_options(self):
+        fd = FunctionDefinition(FunctionDefinition)
+
+        # Initial state verification
+        assert FunctionDefinition.content_types == ['xml', 'json']
+
+        # Test succesfull global setting of content types
+        setcontenttypes(['json'])
+        assert FunctionDefinition.content_types == ['json']
+
+        setcontenttypes(['xml'])
+        assert FunctionDefinition.content_types == ['xml']
+
+        setcontenttypes(['json', 'xml'])
+        assert FunctionDefinition.content_types == ['json', 'xml']
+
+        # Test unsuccesfull global setting of content types
+        # due to type mismatch
+        setcontenttypes('json')
+        assert FunctionDefinition.content_types == ['json', 'xml']
+
+        setcontenttypes(6)
+        assert FunctionDefinition.content_types == ['json', 'xml']
+
+        # Test successfull instance-based setting of content types
+        fd.set_options(content_types=['json'])
+        assert FunctionDefinition.content_types == ['json']
+
+        fd.set_options(content_types=['xml'])
+        assert FunctionDefinition.content_types == ['xml']
+
+        fd.set_options(content_types=['json', 'xml'])
+        assert FunctionDefinition.content_types == ['json', 'xml']
+
+        # Test unsuccessfull instance-based setting of content types
+        # due to type mismatch
+        fd.set_options(content_types='xml')
+        assert FunctionDefinition.content_types == ['json', 'xml']
+
+        fd.set_options(content_types=42)
+        assert FunctionDefinition.content_types == ['json', 'xml']
+
+        # Reset back to where it should be for the rest of the tests
+        setcontenttypes(['xml', 'json'])

@@ -50,16 +50,16 @@ pecan_json_decorate = pecan.expose(
     template='wsmejson:',
     content_type='application/json',
     generic=False)
+
 pecan_xml_decorate = pecan.expose(
     template='wsmexml:',
     content_type='application/xml',
-    generic=False
-)
+    generic=False)
+
 pecan_text_xml_decorate = pecan.expose(
     template='wsmexml:',
     content_type='text/xml',
-    generic=False
-)
+    generic=False)
 
 
 def wsexpose(*args, **kwargs):
@@ -69,6 +69,8 @@ def wsexpose(*args, **kwargs):
         sig(f)
         funcdef = wsme.api.FunctionDefinition.get(f)
         funcdef.resolve_types(wsme.types.registry)
+
+        content_types = wsme.api.FunctionDefinition.content_types
 
         @functools.wraps(f)
         def callfunction(self, *args, **kwargs):
@@ -116,9 +118,12 @@ def wsexpose(*args, **kwargs):
                 result=result
             )
 
-        pecan_xml_decorate(callfunction)
-        pecan_text_xml_decorate(callfunction)
-        pecan_json_decorate(callfunction)
+        if 'xml' in content_types:
+            pecan_xml_decorate(callfunction)
+            pecan_text_xml_decorate(callfunction)
+        if 'json' in content_types:
+            pecan_json_decorate(callfunction)
+
         pecan.util._cfg(callfunction)['argspec'] = inspect.getargspec(f)
         callfunction._wsme_definition = funcdef
         return callfunction
