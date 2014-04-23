@@ -232,6 +232,7 @@ def args_from_body(funcdef, body, mimetype):
     except UnknownArgument:
         if not funcdef.ignore_extra_args:
             raise
+        kw = {}
 
     return (), kw
 
