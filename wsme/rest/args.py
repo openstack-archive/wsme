@@ -208,6 +208,7 @@ def args_from_body(funcdef, body, mimetype):
     from wsme.rest import json as restjson
     from wsme.rest import xml as restxml
 
+    kw = {}
     if funcdef.body_type is not None:
         datatypes = {funcdef.arguments[-1].name: funcdef.body_type}
     else:
