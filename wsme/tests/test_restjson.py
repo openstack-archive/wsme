@@ -330,14 +330,6 @@ class TestRestJson(wsme.tests.protocol.RestOnlyProtocolTestCase):
         )
         assert r[0] == 'javascript', r[0]
         assert r[1] == '''2'''
-        #self.root.protocols[0].nest_result = True
-        #r = wsme.rest.json.encode_sample_result(
-            #int, 2, True
-        #)
-        #assert r[0] == 'javascript', r[0]
-        #assert r[1] == '''{
-    #"result": 2
-#}'''
 
     def test_PUT(self):
         data = {"id": 1, "name": u("test")}

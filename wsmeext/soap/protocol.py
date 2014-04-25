@@ -56,7 +56,6 @@ type_registry = {
     int: 'xs:int',
     float: "xs:float",
     bool: "xs:boolean",
-    #unsigned: "xs:unsignedInt",
     datetime.datetime: "xs:dateTime",
     datetime.date: "xs:date",
     datetime.time: "xs:time",

@@ -258,7 +258,7 @@ def fromsuds(dt, value):
         return [fromsuds(dt[0], item) for item in value.item]
     if wsme.types.isarray(dt):
         return [fromsuds(dt.item_type, item) for item in value.item]
-    if wsme.types.isusertype(dt) and not dt in fromsuds_types:
+    if wsme.types.isusertype(dt) and dt not in fromsuds_types:
         dt = dt.basetype
     if dt in fromsuds_types:
         print(dt, value)
@@ -390,12 +390,7 @@ class TestSOAP(wsme.tests.protocol.ProtocolTestCase):
         return self._sudsclient
 
     def test_wsdl(self):
-        #assert res.body.find('NestedOuter_Array') != -1
-        #assert 'returntypesGettext' in res.body
-        #assert 'returntypesGettextResponse' in res.body
-#
         c = self.sudsclient
-        print(c)
         assert c.wsdl.tns[1] == tns, c.wsdl.tns
 
         sd = c.sd[0]

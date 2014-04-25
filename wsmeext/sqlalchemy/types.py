@@ -125,9 +125,9 @@ class Base(six.with_metaclass(BaseMeta, wsme.types.Base)):
         for attr in self._wsme_attributes:
             if not isinstance(attr, wsattr):
                 continue
-            if attrs and not attr.isrelation and not attr.name in attrs:
+            if attrs and not attr.isrelation and attr.name not in attrs:
                 continue
-            if attr.isrelation and not attr.name in eagerload:
+            if attr.isrelation and attr.name not in eagerload:
                 continue
             value = getattr(instance, attr.saname)
             if attr.isrelation:
