@@ -323,6 +323,33 @@ class UnsetType(object):
     def __repr__(self):
         return 'Unset'
 
+
+class MultiType(UserType):
+    """A complex type that represents one or more types.
+
+    Used for validating that a value is an instance of one of the types.
+
+    :param *types: Variable-length list of types.
+
+    """
+    def __init__(self, *types):
+        self.types = types
+
+    def __str__(self):
+        return ' | '.join(map(str, self.types))
+
+    def validate(self, value):
+        for t in self.types:
+            if t is text and isinstance(value, bytes):
+                value = value.decode()
+            if isinstance(value, t):
+                return value
+        else:
+            raise ValueError(
+                "Wrong type. Expected '%(type)s', got '%(value)s'" %
+                {'type': self.types, 'value': type(value)})
+
+
 Unset = UnsetType()
 
 #: A special type that corresponds to the host framework request object.
