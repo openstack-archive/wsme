@@ -4,6 +4,7 @@ Changes
 0.6.1
 -----
 
+* Fix error: variable 'kw' referenced before assignment
 * Fix default handling for zero values
 * Fixing spelling mistakes
 * A proper check of UuidType
