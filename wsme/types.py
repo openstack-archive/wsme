@@ -754,7 +754,7 @@ class BaseMeta(type):
         return type.__new__(cls, name, bases, dct)
 
     def __init__(cls, name, bases, dct):
-        if bases and bases[0] is not object:
+        if bases and bases[0] is not object and cls.__registry__:
             cls.__registry__.register(cls)
 
 
