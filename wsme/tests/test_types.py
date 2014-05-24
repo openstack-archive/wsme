@@ -629,3 +629,11 @@ Value: 'v3'. Value should be one of: v., v.",
         TempType.add_attributes(two=int)
         after = types.list_attributes(TempType)
         self.assertEqual(len(after), 2)
+
+    def test_non_registered_complex_type(self):
+        class TempType(types.Base):
+            __registry__ = None
+
+        self.assertFalse(types.iscomplex(TempType))
+        types.registry.register(TempType)
+        self.assertTrue(types.iscomplex(TempType))
