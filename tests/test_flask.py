@@ -103,7 +103,7 @@ class FlaskrTestCase(unittest.TestCase):
         resp = self.app.get('/models?q.op=%3D&q.attr=name&q.value=second')
         assert resp.status_code == 200
         print resp.data
-        self.assertEquals(
+        self.assertEqual(
             resp.data, '[{"name": "second"}]'
         )
 
@@ -162,7 +162,7 @@ class FlaskrTestCase(unittest.TestCase):
     def test_serversideerror(self):
         r = self.app.get('/divide_by_zero')
         assert r.status_code == 500
-        self.assertEquals(
+        self.assertEqual(
             r.data,
             '{"debuginfo": null, "faultcode": "Server", "faultstring": '
             '"integer division or modulo by zero"}'
