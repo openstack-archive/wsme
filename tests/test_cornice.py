@@ -101,14 +101,14 @@ class WSMECorniceTestCase(unittest.TestCase):
 
     def test_get_json_list(self):
         resp = self.app.get('/users')
-        self.assertEquals(
+        self.assertEqual(
             resp.body,
             '[{"id": 1, "name": "first"}]'
         )
 
     def test_get_xml_list(self):
         resp = self.app.get('/users', headers={"Accept": "text/xml"})
-        self.assertEquals(
+        self.assertEqual(
             resp.body,
             '<result><item><id>1</id><name>first</name></item></result>'
         )
@@ -119,7 +119,7 @@ class WSMECorniceTestCase(unittest.TestCase):
             '/users', data,
             headers={"Content-Type": "application/json"}
         )
-        self.assertEquals(
+        self.assertEqual(
             resp.body,
             '{"id": 2, "name": "new"}'
         )
@@ -130,7 +130,7 @@ class WSMECorniceTestCase(unittest.TestCase):
             '/users', data,
             headers={"Content-Type": "text/xml"}
         )
-        self.assertEquals(
+        self.assertEqual(
             resp.body,
             '<result><id>2</id><name>new</name></result>'
         )
@@ -161,8 +161,8 @@ class WSMECorniceTestCase(unittest.TestCase):
 
     def test_server_error(self):
         resp = self.app.get('/divide?a=1&b=0', expect_errors=True)
-        self.assertEquals(resp.json['faultcode'], 'Server')
-        self.assertEquals(resp.status_code, 500)
+        self.assertEqual(resp.json['faultcode'], 'Server')
+        self.assertEqual(resp.status_code, 500)
 
     def test_client_error(self):
         resp = self.app.get(
@@ -171,8 +171,8 @@ class WSMECorniceTestCase(unittest.TestCase):
             expect_errors=True
         )
         print resp.body
-        self.assertEquals(resp.json['faultcode'], 'Client')
-        self.assertEquals(resp.status_code, 400)
+        self.assertEqual(resp.json['faultcode'], 'Client')
+        self.assertEqual(resp.status_code, 400)
 
     def test_runtime_error(self):
         resp = self.app.get(
@@ -181,5 +181,5 @@ class WSMECorniceTestCase(unittest.TestCase):
             expect_errors=True
         )
         print resp.body
-        self.assertEquals(resp.json['faultcode'], 'Client')
-        self.assertEquals(resp.status_code, 401)
+        self.assertEqual(resp.json['faultcode'], 'Client')
+        self.assertEqual(resp.status_code, 401)

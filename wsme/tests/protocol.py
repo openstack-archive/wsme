@@ -162,7 +162,7 @@ class ReturnTypes(object):
 
 
 class ArgTypes(object):
-    def assertEquals(self, a, b):
+    def assertEqual(self, a, b):
         if not (a == b):
             raise AssertionError('%s != %s' % (a, b))
 
@@ -170,146 +170,146 @@ class ArgTypes(object):
     @validate(wsme.types.bytes)
     def setbytes(self, value):
         print(repr(value))
-        self.assertEquals(type(value), wsme.types.bytes)
+        self.assertEqual(type(value), wsme.types.bytes)
         return value
 
     @expose(wsme.types.text)
     @validate(wsme.types.text)
     def settext(self, value):
         print(repr(value))
-        self.assertEquals(type(value), wsme.types.text)
+        self.assertEqual(type(value), wsme.types.text)
         return value
 
     @expose(wsme.types.text)
     @validate(wsme.types.text)
     def settextnone(self, value):
         print(repr(value))
-        self.assertEquals(type(value), type(None))
+        self.assertEqual(type(value), type(None))
         return value
 
     @expose(bool)
     @validate(bool)
     def setbool(self, value):
         print(repr(value))
-        self.assertEquals(type(value), bool)
+        self.assertEqual(type(value), bool)
         return value
 
     @expose(int)
     @validate(int)
     def setint(self, value):
         print(repr(value))
-        self.assertEquals(type(value), int)
+        self.assertEqual(type(value), int)
         return value
 
     @expose(float)
     @validate(float)
     def setfloat(self, value):
         print(repr(value))
-        self.assertEquals(type(value), float)
+        self.assertEqual(type(value), float)
         return value
 
     @expose(decimal.Decimal)
     @validate(decimal.Decimal)
     def setdecimal(self, value):
         print(repr(value))
-        self.assertEquals(type(value), decimal.Decimal)
+        self.assertEqual(type(value), decimal.Decimal)
         return value
 
     @expose(datetime.date)
     @validate(datetime.date)
     def setdate(self, value):
         print(repr(value))
-        self.assertEquals(type(value), datetime.date)
+        self.assertEqual(type(value), datetime.date)
         return value
 
     @expose(datetime.time)
     @validate(datetime.time)
     def settime(self, value):
         print(repr(value))
-        self.assertEquals(type(value), datetime.time)
+        self.assertEqual(type(value), datetime.time)
         return value
 
     @expose(datetime.datetime)
     @validate(datetime.datetime)
     def setdatetime(self, value):
         print(repr(value))
-        self.assertEquals(type(value), datetime.datetime)
+        self.assertEqual(type(value), datetime.datetime)
         return value
 
     @expose(wsme.types.binary)
     @validate(wsme.types.binary)
     def setbinary(self, value):
         print(repr(value))
-        self.assertEquals(type(value), six.binary_type)
+        self.assertEqual(type(value), six.binary_type)
         return value
 
     @expose([wsme.types.bytes])
     @validate([wsme.types.bytes])
     def setbytesarray(self, value):
         print(repr(value))
-        self.assertEquals(type(value), list)
-        self.assertEquals(type(value[0]), wsme.types.bytes)
+        self.assertEqual(type(value), list)
+        self.assertEqual(type(value[0]), wsme.types.bytes)
         return value
 
     @expose([wsme.types.text])
     @validate([wsme.types.text])
     def settextarray(self, value):
         print(repr(value))
-        self.assertEquals(type(value), list)
-        self.assertEquals(type(value[0]), wsme.types.text)
+        self.assertEqual(type(value), list)
+        self.assertEqual(type(value[0]), wsme.types.text)
         return value
 
     @expose([datetime.datetime])
     @validate([datetime.datetime])
     def setdatetimearray(self, value):
         print(repr(value))
-        self.assertEquals(type(value), list)
-        self.assertEquals(type(value[0]), datetime.datetime)
+        self.assertEqual(type(value), list)
+        self.assertEqual(type(value[0]), datetime.datetime)
         return value
 
     @expose(NestedOuter)
     @validate(NestedOuter)
     def setnested(self, value):
         print(repr(value))
-        self.assertEquals(type(value), NestedOuter)
+        self.assertEqual(type(value), NestedOuter)
         return value
 
     @expose([NestedOuter])
     @validate([NestedOuter])
     def setnestedarray(self, value):
         print(repr(value))
-        self.assertEquals(type(value), list)
-        self.assertEquals(type(value[0]), NestedOuter)
+        self.assertEqual(type(value), list)
+        self.assertEqual(type(value[0]), NestedOuter)
         return value
 
     @expose({wsme.types.bytes: NestedOuter})
     @validate({wsme.types.bytes: NestedOuter})
     def setnesteddict(self, value):
         print(repr(value))
-        self.assertEquals(type(value), dict)
-        self.assertEquals(type(list(value.keys())[0]), wsme.types.bytes)
-        self.assertEquals(type(list(value.values())[0]), NestedOuter)
+        self.assertEqual(type(value), dict)
+        self.assertEqual(type(list(value.keys())[0]), wsme.types.bytes)
+        self.assertEqual(type(list(value.values())[0]), NestedOuter)
         return value
 
     @expose(myenumtype)
     @validate(myenumtype)
     def setenum(self, value):
         print(value)
-        self.assertEquals(type(value), wsme.types.bytes)
+        self.assertEqual(type(value), wsme.types.bytes)
         return value
 
     @expose(NamedAttrsObject)
     @validate(NamedAttrsObject)
     def setnamedattrsobj(self, value):
         print(value)
-        self.assertEquals(type(value), NamedAttrsObject)
-        self.assertEquals(value.attr_1, 10)
-        self.assertEquals(value.attr_2, 20)
+        self.assertEqual(type(value), NamedAttrsObject)
+        self.assertEqual(value.attr_1, 10)
+        self.assertEqual(value.attr_2, 20)
         return value
 
 
 class BodyTypes(object):
-    def assertEquals(self, a, b):
+    def assertEqual(self, a, b):
         if not (a == b):
             raise AssertionError('%s != %s' % (a, b))
 
@@ -317,18 +317,18 @@ class BodyTypes(object):
     @validate(int)
     def setdict(self, body):
         print(body)
-        self.assertEquals(type(body), dict)
-        self.assertEquals(type(body['test']), int)
-        self.assertEquals(body['test'], 10)
+        self.assertEqual(type(body), dict)
+        self.assertEqual(type(body['test']), int)
+        self.assertEqual(body['test'], 10)
         return body['test']
 
     @expose(int, body=[int])
     @validate(int)
     def setlist(self, body):
         print(body)
-        self.assertEquals(type(body), list)
-        self.assertEquals(type(body[0]), int)
-        self.assertEquals(body[0], 10)
+        self.assertEqual(type(body), list)
+        self.assertEqual(type(body[0]), int)
+        self.assertEqual(body[0], 10)
         return body[0]
 
 
@@ -369,7 +369,7 @@ class ProtocolTestCase(unittest.TestCase):
             a = convert(a)
         if isinstance(b, six.string_types):
             b = convert(b)
-        self.assertEquals(a, b)
+        self.assertEqual(a, b)
 
     def assertDateEquals(self, a, b):
         self.assertTypedEquals(a, b, wsme.utils.parse_isodate)
@@ -403,8 +403,8 @@ class ProtocolTestCase(unittest.TestCase):
             print(res)
             assert "No error raised"
         except CallException as e:
-            self.assertEquals(e.faultcode, 'Client')
-            self.assertEquals(e.faultstring.lower(),
+            self.assertEqual(e.faultcode, 'Client')
+            self.assertEqual(e.faultstring.lower(),
                               u('unknown function name: invalid_function'))
 
     def test_serverside_error(self):
@@ -413,8 +413,8 @@ class ProtocolTestCase(unittest.TestCase):
             print(res)
             assert "No error raised"
         except CallException as e:
-            self.assertEquals(e.faultcode, 'Server')
-            self.assertEquals(e.faultstring, zerodivisionerrormsg)
+            self.assertEqual(e.faultcode, 'Server')
+            self.assertEqual(e.faultstring, zerodivisionerrormsg)
             assert e.debuginfo is not None
 
     def test_serverside_error_nodebug(self):
@@ -424,8 +424,8 @@ class ProtocolTestCase(unittest.TestCase):
             print(res)
             assert "No error raised"
         except CallException as e:
-            self.assertEquals(e.faultcode, 'Server')
-            self.assertEquals(e.faultstring, zerodivisionerrormsg)
+            self.assertEqual(e.faultcode, 'Server')
+            self.assertEqual(e.faultstring, zerodivisionerrormsg)
             assert e.debuginfo is None
 
     def test_touch(self):
@@ -434,11 +434,11 @@ class ProtocolTestCase(unittest.TestCase):
 
     def test_return_bytes(self):
         r = self.call('returntypes/getbytes', _rt=wsme.types.bytes)
-        self.assertEquals(r, b('astring'))
+        self.assertEqual(r, b('astring'))
 
     def test_return_text(self):
         r = self.call('returntypes/gettext', _rt=wsme.types.text)
-        self.assertEquals(r, u('\xe3\x81\xae'))
+        self.assertEqual(r, u('\xe3\x81\xae'))
 
     def test_return_int(self):
         r = self.call('returntypes/getint')
@@ -474,38 +474,38 @@ class ProtocolTestCase(unittest.TestCase):
 
     def test_return_binary(self):
         r = self.call('returntypes/getbinary', _rt=wsme.types.binary)
-        self.assertEquals(r, binarysample)
+        self.assertEqual(r, binarysample)
 
     def test_return_nested(self):
         r = self.call('returntypes/getnested', _rt=NestedOuter)
-        self.assertEquals(r, {'inner': {'aint': 0}})
+        self.assertEqual(r, {'inner': {'aint': 0}})
 
     def test_return_bytesarray(self):
         r = self.call('returntypes/getbytesarray', _rt=[six.binary_type])
-        self.assertEquals(r, [b('A'), b('B'), b('C')])
+        self.assertEqual(r, [b('A'), b('B'), b('C')])
 
     def test_return_nestedarray(self):
         r = self.call('returntypes/getnestedarray', _rt=[NestedOuter])
-        self.assertEquals(r, [{'inner': {'aint': 0}}, {'inner': {'aint': 0}}])
+        self.assertEqual(r, [{'inner': {'aint': 0}}, {'inner': {'aint': 0}}])
 
     def test_return_nesteddict(self):
         r = self.call('returntypes/getnesteddict',
                       _rt={wsme.types.bytes: NestedOuter})
-        self.assertEquals(r, {
+        self.assertEqual(r, {
             b('a'): {'inner': {'aint': 0}},
             b('b'): {'inner': {'aint': 0}}
         })
 
     def test_return_objectarrayattribute(self):
         r = self.call('returntypes/getobjectarrayattribute', _rt=NestedOuter)
-        self.assertEquals(r, {
+        self.assertEqual(r, {
             'inner': {'aint': 0},
             'inner_array': [{'aint': 12}, {'aint': 13}]
         })
 
     def test_return_objectdictattribute(self):
         r = self.call('returntypes/getobjectdictattribute', _rt=NestedOuter)
-        self.assertEquals(r, {
+        self.assertEqual(r, {
             'inner': {'aint': 0},
             'inner_dict': {
                 '12': {'aint': 12},
@@ -515,11 +515,11 @@ class ProtocolTestCase(unittest.TestCase):
 
     def test_return_enum(self):
         r = self.call('returntypes/getenum', _rt=myenumtype)
-        self.assertEquals(r, b('v2'), r)
+        self.assertEqual(r, b('v2'), r)
 
     def test_return_namedattrsobj(self):
         r = self.call('returntypes/getnamedattrsobj', _rt=NamedAttrsObject)
-        self.assertEquals(r, {'attr.1': 5, 'attr.2': 6})
+        self.assertEqual(r, {'attr.1': 5, 'attr.2': 6})
 
     def test_setbytes(self):
         assert self.call('argtypes/setbytes', value=b('astring'),
@@ -534,14 +534,14 @@ class ProtocolTestCase(unittest.TestCase):
                          _rt=wsme.types.text) == u('')
 
     def test_settext_none(self):
-        self.assertEquals(
+        self.assertEqual(
             None,
             self.call('argtypes/settextnone', value=None, _rt=wsme.types.text)
         )
 
     def test_setint(self):
         r = self.call('argtypes/setint', value=3, _rt=int)
-        self.assertEquals(r, 3)
+        self.assertEqual(r, 3)
 
     def test_setfloat(self):
         assert self.call('argtypes/setfloat', value=3.54,
@@ -564,19 +564,19 @@ class ProtocolTestCase(unittest.TestCase):
         value = datetime.date(2008, 4, 6)
         r = self.call('argtypes/setdate', value=value,
                       _rt=datetime.date)
-        self.assertEquals(r, value)
+        self.assertEqual(r, value)
 
     def test_settime(self):
         value = datetime.time(12, 12, 15)
         r = self.call('argtypes/settime', value=value,
                       _rt=datetime.time)
-        self.assertEquals(r, datetime.time(12, 12, 15))
+        self.assertEqual(r, datetime.time(12, 12, 15))
 
     def test_setdatetime(self):
         value = datetime.datetime(2008, 4, 6, 12, 12, 15)
         r = self.call('argtypes/setdatetime', value=value,
                       _rt=datetime.datetime)
-        self.assertEquals(r, datetime.datetime(2008, 4, 6, 12, 12, 15))
+        self.assertEqual(r, datetime.datetime(2008, 4, 6, 12, 12, 15))
 
     def test_setbinary(self):
         value = binarysample
@@ -589,7 +589,7 @@ class ProtocolTestCase(unittest.TestCase):
         r = self.call('argtypes/setnested',
                       value=(value, NestedOuter),
                       _rt=NestedOuter)
-        self.assertEquals(r, value)
+        self.assertEqual(r, value)
 
     def test_setnested_nullobj(self):
         value = {'inner': None}
@@ -598,21 +598,21 @@ class ProtocolTestCase(unittest.TestCase):
             value=(value, NestedOuter),
             _rt=NestedOuter
         )
-        self.assertEquals(r, value)
+        self.assertEqual(r, value)
 
     def test_setbytesarray(self):
         value = [b("1"), b("2"), b("three")]
         r = self.call('argtypes/setbytesarray',
                       value=(value, [wsme.types.bytes]),
                       _rt=[wsme.types.bytes])
-        self.assertEquals(r, value)
+        self.assertEqual(r, value)
 
     def test_settextarray(self):
         value = [u("1")]
         r = self.call('argtypes/settextarray',
                       value=(value, [wsme.types.text]),
                       _rt=[wsme.types.text])
-        self.assertEquals(r, value)
+        self.assertEqual(r, value)
 
     def test_setdatetimearray(self):
         value = [
@@ -622,7 +622,7 @@ class ProtocolTestCase(unittest.TestCase):
         r = self.call('argtypes/setdatetimearray',
                       value=(value, [datetime.datetime]),
                       _rt=[datetime.datetime])
-        self.assertEquals(r, value)
+        self.assertEqual(r, value)
 
     def test_setnestedarray(self):
         value = [
@@ -632,7 +632,7 @@ class ProtocolTestCase(unittest.TestCase):
         r = self.call('argtypes/setnestedarray',
                       value=(value, [NestedOuter]),
                       _rt=[NestedOuter])
-        self.assertEquals(r, value)
+        self.assertEqual(r, value)
 
     def test_setnesteddict(self):
         value = {
@@ -643,20 +643,20 @@ class ProtocolTestCase(unittest.TestCase):
                       value=(value, {six.binary_type: NestedOuter}),
                       _rt={six.binary_type: NestedOuter})
         print(r)
-        self.assertEquals(r, value)
+        self.assertEqual(r, value)
 
     def test_setenum(self):
         value = b('v1')
         r = self.call('argtypes/setenum', value=value,
                       _rt=myenumtype)
-        self.assertEquals(r, value)
+        self.assertEqual(r, value)
 
     def test_setnamedattrsobj(self):
         value = {'attr.1': 10, 'attr.2': 20}
         r = self.call('argtypes/setnamedattrsobj',
                       value=(value, NamedAttrsObject),
                       _rt=NamedAttrsObject)
-        self.assertEquals(r, value)
+        self.assertEqual(r, value)
 
     def test_nested_api(self):
         r = self.call('nested/inner/deepfunction', _rt=bool)
@@ -668,16 +668,16 @@ class ProtocolTestCase(unittest.TestCase):
             print(r)
             assert "No error raised"
         except CallException as e:
-            self.assertEquals(e.faultcode, 'Client')
-            self.assertEquals(e.faultstring, u('Missing argument: "value"'))
+            self.assertEqual(e.faultcode, 'Client')
+            self.assertEqual(e.faultstring, u('Missing argument: "value"'))
 
     def test_misc_multiply(self):
-        self.assertEquals(self.call('misc/multiply', a=5, b=2, _rt=int), 10)
+        self.assertEqual(self.call('misc/multiply', a=5, b=2, _rt=int), 10)
 
     def test_html_format(self):
         res = self.call('argtypes/setdatetime', _accept="text/html",
                         _no_result_decode=True)
-        self.assertEquals(res.content_type, 'text/html')
+        self.assertEqual(res.content_type, 'text/html')
 
 
 class RestOnlyProtocolTestCase(ProtocolTestCase):
