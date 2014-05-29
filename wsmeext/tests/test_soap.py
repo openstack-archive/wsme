@@ -397,7 +397,7 @@ class TestSOAP(wsme.tests.protocol.ProtocolTestCase):
 
         assert len(sd.ports) == 1
         port, methods = sd.ports[0]
-        self.assertEquals(len(methods), 49)
+        self.assertEqual(len(methods), 49)
 
         methods = dict(methods)
 
