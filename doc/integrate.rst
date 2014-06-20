@@ -6,7 +6,7 @@ General considerations
 
 Using WSME within another framework providing its own REST capabilities is
 generally done by using a specific decorator to declare the function signature,
-in addition to the framework own way of declaring exposed functions.
+in addition to the framework's own way of declaring exposed functions.
 
 This decorator can have two different names depending on the adapter.
 
@@ -19,18 +19,18 @@ This decorator can have two different names depending on the adapter.
     :ref:`adapter-tg1`. 
 
 ``@signature``
-    This decorator only set the function signature and returns a function
+    This decorator only sets the function signature and returns a function
     that can be used by the host framework as a REST request target.
 
-    Generally this decorator is provided for frameworks that expects functions
+    Generally this decorator is provided for frameworks that expect functions
     taking a request object as a single parameter and returning a response
-    object. This is the case of :ref:`adapter-cornice` and
+    object. This is the case for :ref:`adapter-cornice` and
     :ref:`adapter-flask`.
 
-Additionnaly, if you want to enable additionnal protocols, you will need to
+If you want to enable additional protocols, you will need to
 mount a :class:`WSRoot` instance somewhere in the application, generally
 ``/ws``. This subpath will then handle the additional protocols. In a future
-version, a wsgi middleware will probably play this role.
+version, a WSGI middleware will probably play this role.
 
 .. note::
 
@@ -39,13 +39,13 @@ version, a wsgi middleware will probably play this role.
 WSGI Application
 ----------------
 
-The :func:`wsme.WSRoot.wsgiapp` function of WSRoot returns a wsgi
+The :func:`wsme.WSRoot.wsgiapp` function of WSRoot returns a WSGI
 application.
 
 Example
 ~~~~~~~
 
-The following example assume the REST protocol will be entirely handled by
+The following example assumes the REST protocol will be entirely handled by
 WSME, which is the case if you write a WSME standalone application.
 
 .. code-block:: python
@@ -164,9 +164,9 @@ Pecan
 
 .. warning::
 
-    A pecan application is not able to mount another wsgi application on a
+    A pecan application is not able to mount another WSGI application on a
     subpath. For that reason, additional protocols are not supported for now,
-    ie until wsme provides a middleware that can do the same as a mounted
+    until WSME provides a middleware that can do the same as a mounted
     WSRoot.
 
 :mod:`wsmeext.pecan` -- Pecan adapter
