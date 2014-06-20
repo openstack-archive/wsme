@@ -122,7 +122,7 @@ def scan_services(service, path=[]):
                 has_functions = True
         if inspect.isclass(a):
             continue
-        if len(path) > wsme.api.APIPATH_MAXLEN:
+        if len(path) > wsme.rest.APIPATH_MAXLEN:
             raise ValueError("Path is too long: " + str(path))
         for value in scan_services(a, path + [name]):
             yield value
