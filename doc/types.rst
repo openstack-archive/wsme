@@ -1,13 +1,13 @@
 Types
 =====
 
-3 kinds of data types can be used as input or output by WSME.
+Three kinds of data types can be used as input or output by WSME.
 
 Native types
 ------------
 
-The native types are a fixed set of standard python types that
-the different protocols will map to theirs own basic types.
+The native types are a fixed set of standard Python types that
+different protocols map to their own basic types.
 
 The native types are :
 
@@ -59,7 +59,7 @@ The native types are :
                 def getlist(self):
                     return ['a', 'b', 'c']
 
-    -   Dictionaries -- Statically typed mapping are allowed. When exposing
+    -   Dictionaries -- Statically typed mappings are allowed. When exposing
         a dictionary datatype, you can specify the key and value types,
         with a restriction on the key value that must be a 'pod' type.
         Example::
@@ -67,16 +67,16 @@ The native types are :
             class SomeType(object):
                 amap = {str: SomeOthertype}
 
-There are other types that are supported out of the box, see
-the :ref:`pre-defined-user-types`.
+There are other types that are supported out of the box.  See the
+:ref:`pre-defined-user-types`.
 
 User types
 ----------
 
-User types allow to define new almost-native types.
+User types allow you to define new, almost-native types.
 
-The idea is that you may have python data that should be transported as native
-types by the different protocols, but needs conversion to/from this basetypes,
+The idea is that you may have Python data that should be transported as base
+types by the different protocols, but needs conversion to/from these base types,
 or needs to validate data integrity.
 
 To define a user type, you just have to inherit from
@@ -101,7 +101,7 @@ WSME provides some pre-defined user types:
     pre-defined list of values.
 
 These types are good examples of how to define user types. Have
-a look at their source code !
+a look at their source code!
 
 Here is a little example that combines :class:`binary <wsme.types.binary>`
 and :class:`Enum <wsme.types.Enum>`::
@@ -116,7 +116,7 @@ and :class:`Enum <wsme.types.Enum>`::
 .. data:: wsme.types.binary
 
     The :class:`wsme.types.BinaryType` instance to use when you need to
-    transfert base64 encoded data.
+    transfer base64 encoded data.
 
 .. autoclass:: wsme.types.BinaryType
 
@@ -126,24 +126,24 @@ and :class:`Enum <wsme.types.Enum>`::
 Complex types
 -------------
 
-Complex types are structured types. They are defined as simple python classes
+Complex types are structured types. They are defined as simple Python classes
 and will be mapped to adequate structured types in the various protocols.
 
-A base class for structured types is proposed, :class:`wsme.types.Base`,
-but is not mandatory. The only thing it add is a default constructor.
+A base class for structured types is provided, :class:`wsme.types.Base`,
+but is not mandatory. The only thing it adds is a default constructor.
 
 The attributes that are set at the class level will be used by WSME to discover
 the structure. These attributes can be:
 
     -   A datatype -- Any native, user or complex type.
-    -   A :class:`wsattr <wsme.wsattr>` -- Allow to add more information about
+    -   A :class:`wsattr <wsme.wsattr>` -- This allows you to add more information about
         the attribute, for example if it is mandatory.
-    -   A :class:`wsproperty <wsme.wsproperty>` -- Special typed property. Works
-        like standard properties with additional properties like
+    -   A :class:`wsproperty <wsme.wsproperty>` -- A special typed property. Works
+        like standard ``property`` with additional properties like
         :class:`wsattr <wsme.wsattr>`.
 
-Attributes having a leading '_' in there name will be ignored, as well as the
-ones that are none of the above list. It means the type can have functions,
+Attributes having a leading '_' in their name will be ignored, as well as the
+attributes that are not in the above list.  This means the type can have methods,
 they will not get in the way.
 
 Example
@@ -177,10 +177,10 @@ A few things you should know about complex types:
         (and thus inspected) as soon a they are used in expose or validate,
         even if they are nested in another complex type.
 
-        If for some reasons you need to control when type is inspected, you
+        If for some reason you need to control when type is inspected, you
         can use :func:`wsme.types.register_type`.
 
-    -   The datatype attributes will be replaced
+    -   The datatype attributes will be replaced.
 
         When using the 'short' way of defining attributes, ie setting a 
         simple data type, they will be replaced by a wsattr instance.
@@ -207,7 +207,7 @@ A few things you should know about complex types:
             assert Person.name.key == "name"
             assert Person.name.mandatory is False
 
-    -   The default value of instances attributes is
+    -   The default value of instance attributes is
         :data:`Unset <wsme.Unset>`.
 
         ::
@@ -218,13 +218,13 @@ A few things you should know about complex types:
             p = Person()
             assert p.name is Unset
 
-        This allow the protocol to make a clear distinction between null values
+        This allows the protocol to make a clear distinction between null values
         that will be transmitted, and unset values that will not be transmitted.
 
-        For input values, it allows the code to know if the values were, or not,
+        For input values, it allows the code to know if the values were, or were not,
         sent by the caller.
 
-    -   When 2 complex types refers to each other, their names can be
+    -   When 2 complex types refer to each other, their names can be
         used as datatypes to avoid adding attributes afterwards:
 
         ::
