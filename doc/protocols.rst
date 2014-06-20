@@ -10,8 +10,8 @@ REST
 
 .. note::
 
-    This chapter applies also for the different adapters, not only the native
-    REST implementation.
+    This chapter applies for all adapters, not just the native REST
+    implementation.
 
 The two REST protocols share common characterics.
 
@@ -19,8 +19,7 @@ Each function corresponds to distinct webpath that starts with the
 root webpath, followed by the controllers names if any, and finally
 the function name.
 
-For example, the functions exposed functions will be mapped to the
-following paths :
+The example's exposed functions will be mapped to the following paths:
 
 -   ``/ws/persons/create``
 -   ``/ws/persons/get``
@@ -31,10 +30,10 @@ following paths :
 In addition to this trivial function mapping, a `method` option can
 be given to the `expose` decorator. In such a case, the function
 name can be omitted by the caller, and the dispatch will look at the
-http method used in the request to select the correct function.
+HTTP method used in the request to select the correct function.
 
-The function parameters can be transmitted in two ways (is using
-the http method to select the function, one way or the other
+The function parameters can be transmitted in two ways (if using
+the HTTP method to select the function, one way or the other
 may be usable) :
 
 #.  As a GET query string or POST form parameters.
@@ -49,7 +48,7 @@ may be usable) :
 
 #.  In a Json or XML encoded POST body (see below)
 
-The result will be return Json or XML encoded (see below).
+The result will be returned Json or XML encoded (see below).
 
 In case of error, a 400 or 500 status code is returned, and the
 response body contains details about the error (see below).
@@ -63,8 +62,8 @@ Implements a REST+Json protocol.
 
 This protocol is selected if:
 
--   The request content-type is either text/javascript or application/json
--   The request 'Accept' header contains 'text/javascript' or 'application.json'
+-   The request content-type is either 'text/javascript' or 'application/json'
+-   The request 'Accept' header contains 'text/javascript' or 'application/json'
 -   A trailing '.json' is added to the path
 -   A 'wsmeproto=restjson' is added in the query string
 
@@ -108,11 +107,11 @@ Types
 Return
 ~~~~~~
 
-The json encoded result when the response code is 200, OR a json object
+The Json encoded result when the response code is 200, or a Json object
 with error properties ('faulcode', 'faultstring' and 'debuginfo' if
-available).
+available) on error.
 
-For example, the /ws/person/get result looks like:
+For example, the '/ws/person/get' result looks like:
 
 .. code-block:: javascript
 
@@ -143,7 +142,7 @@ REST+XML
 
 This protocol is selected if
 
--   The request content-type is text/xml
+-   The request content-type is 'text/xml'
 -   The request 'Accept' header contains 'text/xml'
 -   A trailing '.xml' is added to the path
 -   A 'wsmeproto=restxml' is added in the query string
@@ -245,7 +244,7 @@ Implements the SOAP protocol.
 A wsdl definition of the webservice is available at the 'api.wsdl' subpath.
 (``/ws/api.wsdl`` in our example).
 
-The protocol is selected if the request match one of the following condition:
+The protocol is selected if the request matches one of the following condition:
 
 -   The Content-Type is 'application/soap+xml'
 -   A header 'Soapaction' is present

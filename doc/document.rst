@@ -10,7 +10,7 @@ Install the extension
 
 Here we consider that you already quick-started a sphinx project.
 
-#.  In your ``conf.py`` file, add ``'ext'`` to you extensions,
+#.  In your ``conf.py`` file, add ``'ext'`` to your extensions,
     and optionally set the enabled protocols.
 
     .. code-block:: python
@@ -34,7 +34,7 @@ Config values
 .. confval:: wsme_protocols
 
     A list of strings that are WSME protocol names. If provided by an
-    additionnal package (for example WSME-Soap or WSME-ExtDirect), it must
+    additional package (for example WSME-Soap or WSME-ExtDirect), that package must
     be installed.
 
     The types and services generated documentation will include code samples
@@ -57,10 +57,10 @@ Directives
 
 .. rst:directive:: .. root:: <WSRoot full path>
 
-    Allow to define the service root controller in one documentation source file.
+    Define the service root controller for this documentation source file.
     To set it globally, see :confval:`wsme_root`.
 
-    A ``webpath`` option allow to override :confval:`wsme_webpath`.
+    A ``webpath`` option allows override of :confval:`wsme_webpath`.
     
     Example:
 
@@ -80,7 +80,7 @@ Directives
 .. rst:directive:: .. attribute:: aname
 
     Equivalent to the :rst:dir:`py:attribute` directive to document a complex type
-    attribute. It takes an additionnal ``:type:`` field.
+    attribute. It takes an additional ``:type:`` field.
 
 Example
 ~~~~~~~
@@ -151,7 +151,7 @@ Python source
 ~~~~~~~~~~~~~
 
 .. literalinclude:: ../wsmeext/sphinxext.py
-    :lines: 42-67
+    :lines: 69-96
     :language: python
 
 Documentation source
@@ -160,6 +160,10 @@ Documentation source
 .. code-block:: rst
 
     .. default-domain:: wsmeext
+
+    .. type:: int
+
+        An integer
 
     .. autotype:: wsmeext.sphinxext.SampleType
         :members:
