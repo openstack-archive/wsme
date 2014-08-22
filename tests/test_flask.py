@@ -162,10 +162,12 @@ class FlaskrTestCase(unittest.TestCase):
     def test_serversideerror(self):
         r = self.app.get('/divide_by_zero')
         assert r.status_code == 500
+        data = json.loads(r.data)
         self.assertEquals(
-            r.data,
-            '{"debuginfo": null, "faultcode": "Server", "faultstring": '
-            '"integer division or modulo by zero"}'
+            data,
+            {"debuginfo": None,
+             "faultcode": "Server",
+             "faultstring": "integer division or modulo by zero"}
         )
 
 if __name__ == '__main__':
