@@ -4,7 +4,7 @@ API Documentation test
 Example
 ~~~~~~~
 
-.. wsme:root:: wsme.sphinxext.SampleService
+.. wsme:root:: wsmeext.sphinxext.SampleService
     :webpath: /api
 
 .. wsme:type:: MyType
@@ -26,10 +26,10 @@ Example
 
     An integer
 
-.. autotype:: wsme.sphinxext.SampleType
+.. autotype:: wsmeext.sphinxext.SampleType
     :members:
 
-.. autoservice:: wsme.sphinxext.SampleService
+.. autoservice:: wsmeext.sphinxext.SampleService
     :members:
 
 
