@@ -148,6 +148,8 @@ class signature(object):
                  the request body by itself, its type.
     :param status: HTTP return status code of the function.
     :param ignore_extra_args: Allow extra/unknow arguments (default to False)
+    :param rest_content_types: An optional list of supported REST content
+                               types.  Defaults to ['json', 'xml'].
 
     Most of the time this decorator is not supposed to be used directly,
     unless you are not using WSME on top of another framework.
@@ -163,6 +165,8 @@ class signature(object):
             self.arg_types.extend(types[1:])
         if 'body' in options:
             self.arg_types.append(options['body'])
+        self.rest_content_types = options.pop('rest_content_types',
+                                              ['json', 'xml'])
         self.wrap = options.pop('wrap', False)
         self.options = options
 
@@ -174,6 +178,7 @@ class signature(object):
         if fd.extra_options is not None:
             raise ValueError("This function is already exposed")
         fd.return_type = self.return_type
+        fd.rest_content_types = self.rest_content_types
         fd.set_options(**self.options)
         if self.arg_types:
                 fd.set_arg_types(argspec, self.arg_types)

@@ -449,7 +449,9 @@ def document_function(funcdef, docstrings=None, protocols=['restjson']):
                 u'',
             ])
             codesamples.extend((
-                u' ' * 12 + line for line in sample.split('\n')))
+                u' ' * 12 + line
+                for line in six.text_type(sample).split('\n')
+            ))
 
         if funcdef.return_type:
             codesamples.extend([
@@ -467,7 +469,9 @@ def document_function(funcdef, docstrings=None, protocols=['restjson']):
                     u'',
                 ])
                 codesamples.extend((
-                    u' ' * 12 + line for line in sample.split('\n')))
+                    u' ' * 12 + line
+                    for line in six.text_type(sample).split('\n')
+                ))
 
     docstrings[0:0] = [codesamples]
     return docstrings

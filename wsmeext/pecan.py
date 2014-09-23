@@ -116,9 +116,11 @@ def wsexpose(*args, **kwargs):
                 result=result
             )
 
-        pecan_xml_decorate(callfunction)
-        pecan_text_xml_decorate(callfunction)
-        pecan_json_decorate(callfunction)
+        if 'xml' in funcdef.rest_content_types:
+            pecan_xml_decorate(callfunction)
+            pecan_text_xml_decorate(callfunction)
+        if 'json' in funcdef.rest_content_types:
+            pecan_json_decorate(callfunction)
         pecan.util._cfg(callfunction)['argspec'] = inspect.getargspec(f)
         callfunction._wsme_definition = funcdef
         return callfunction
