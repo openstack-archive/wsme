@@ -63,6 +63,9 @@ pecan_text_xml_decorate = pecan.expose(
 
 
 def wsexpose(*args, **kwargs):
+    content_types = ['json', 'xml']
+    if 'content_types' in kwargs:
+        content_types = kwargs.pop('content_types')
     sig = wsme.signature(*args, **kwargs)
 
     def decorate(f):
@@ -116,9 +119,11 @@ def wsexpose(*args, **kwargs):
                 result=result
             )
 
-        pecan_xml_decorate(callfunction)
-        pecan_text_xml_decorate(callfunction)
-        pecan_json_decorate(callfunction)
+        if 'xml' in content_types:
+            pecan_xml_decorate(callfunction)
+            pecan_text_xml_decorate(callfunction)
+        if 'json' in content_types:
+            pecan_json_decorate(callfunction)
         pecan.util._cfg(callfunction)['argspec'] = inspect.getargspec(f)
         callfunction._wsme_definition = funcdef
         return callfunction
