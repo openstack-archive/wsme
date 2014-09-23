@@ -20,11 +20,17 @@ class TestSphinxExt(unittest.TestCase):
     def test_buildhtml(self):
         if not os.path.exists('.test_sphinxext/'):
             os.makedirs('.test_sphinxext/')
-        assert sphinx.main(['',
-            '-b', 'html',
-            '-d', '.test_sphinxext/doctree',
-            docpath,
-            '.test_sphinxext/html']) == 0
+        try:
+            sphinx.main([
+                '',
+                '-b', 'html',
+                '-d', '.test_sphinxext/doctree',
+                docpath,
+                '.test_sphinxext/html'
+            ])
+            assert Exception("Should raise SystemExit 0")
+        except SystemExit as e:
+            assert e.code == 0
 
 
 class TestDataTypeName(unittest.TestCase):
