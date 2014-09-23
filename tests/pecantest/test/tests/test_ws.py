@@ -194,6 +194,24 @@ class TestWS(FunctionalTest):
         assert a['faultcode'] == 'Server'
         assert a['debuginfo'].startswith('Traceback (most recent call last):')
 
+    def test_json_only(self):
+        res = self.app.get('/authors/json_only.json')
+        assert res.status_int == 200
+        body = json.loads(res.body.decode('utf-8'))
+        assert len(body) == 1
+        assert body[0]['firstname'] == u"aname"
+        assert body[0]['books'] == []
+        assert body[0]['id'] == 1
+        res = self.app.get('/authors/json_only.xml', expect_errors=True)
+
+    def test_xml_only(self):
+        res = self.app.get('/authors/xml_only.xml')
+        assert res.status_int == 200
+        assert '<id>1</id>' in res.body.decode('utf-8')
+        assert '<firstname>aname</firstname>' in res.body.decode('utf-8')
+        assert '<books />' in res.body.decode('utf-8')
+        res = self.app.get('/authors/xml_only.json', expect_errors=True)
+
     def test_body_parameter(self):
         res = self.app.put(
             '/authors/1/books/2.json',
