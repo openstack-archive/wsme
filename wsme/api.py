@@ -112,10 +112,11 @@ class FunctionDefinition(object):
             arg.resolve_type(registry)
 
     def set_options(self, body=None, ignore_extra_args=False, status_code=200,
-                    **extra_options):
+                    rest_content_types=('json', 'xml'), **extra_options):
         self.body_type = body
         self.status_code = status_code
         self.ignore_extra_args = ignore_extra_args
+        self.rest_content_types = rest_content_types
         self.extra_options = extra_options
 
     def set_arg_types(self, argspec, arg_types):
