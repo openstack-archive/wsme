@@ -1,5 +1,7 @@
 # encoding=utf8
 
+import mock
+
 from six import b
 
 try:
@@ -8,7 +10,7 @@ except ImportError:
     import unittest
 import webtest
 
-from wsme import WSRoot, expose, validate
+from wsme import WSRoot, expose, validate, api
 from wsme.rest import scan_api
 from wsme.api import FunctionArgument, FunctionDefinition
 from wsme import types
@@ -372,3 +374,25 @@ class TestFunctionDefinition(unittest.TestCase):
 
         assert fd.get_arg('a').datatype is int
         assert fd.get_arg('b') is None
+
+
+class TestDefaultContentTypes(unittest.TestCase):
+
+    def setUp(self):
+        super(TestDefaultContentTypes, self).setUp()
+        self.old = api._default_rest_content_types
+
+    def tearDown(self):
+        api._default_rest_content_types = self.old
+        super(TestDefaultContentTypes, self).tearDown()
+
+    def test_set_default_rest_content_types(self):
+        api.set_default_rest_content_types(['abc', 'def'])
+        s = api.signature()
+        self.assertEqual(['abc', 'def'], api._default_rest_content_types)
+
+    def test_signature_uses_default_rest_content_types(self):
+        with mock.patch.object(api, '_default_rest_content_types',
+                               ['ghi', 'jkl']):
+            s = api.signature()
+            self.assertEqual(['ghi', 'jkl'], s.rest_content_types)

@@ -138,6 +138,28 @@ class FunctionDefinition(object):
                                                        mandatory, default))
 
 
+_default_rest_content_types = ['json', 'xml']
+
+
+def set_default_rest_content_types(types):
+    """Change the default content types.
+
+    By default, all APIs are exposed with support for both JSON and
+    XML. To control the content types supported for a specific
+    endpoint, pass ``rest_content_types`` when exposing it. To change
+    the defaults for all endpoints, call this function passing the
+    list of types desired.
+
+    :param types: List of content type strings ('json' or 'xml')
+    :type types: list of str
+    """
+    global _default_rest_content_types
+    if isinstance(types, basestring):
+        types = [types]
+    types = [t.lower() for t in types]
+    _default_rest_content_types = types
+
+
 class signature(object):
     """
     Decorator that specify the argument types of an exposed function.
@@ -166,7 +188,7 @@ class signature(object):
         if 'body' in options:
             self.arg_types.append(options['body'])
         self.rest_content_types = options.pop('rest_content_types',
-                                              ['json', 'xml'])
+                                              _default_rest_content_types)
         self.wrap = options.pop('wrap', False)
         self.options = options
 
