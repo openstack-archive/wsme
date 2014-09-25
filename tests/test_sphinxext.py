@@ -30,7 +30,7 @@ class TestSphinxExt(unittest.TestCase):
             ])
             assert Exception("Should raise SystemExit 0")
         except SystemExit as e:
-            assert e.code == 0
+            self.assertEqual(e.code, 0)
 
 
 class TestDataTypeName(unittest.TestCase):
