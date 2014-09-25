@@ -1,5 +1,8 @@
+from __future__ import print_function
+
 import unittest
 from flask import Flask, json, abort
+import six
 from wsmeext.flask import signature
 from wsme.api import Response
 from wsme.types import Base, text
@@ -89,7 +92,7 @@ class FlaskrTestCase(unittest.TestCase):
 
     def test_multiply(self):
         r = self.app.get('/multiply?a=2&b=5')
-        assert r.data == '10'
+        assert r.data == six.b('10')
 
     def test_get_model(self):
         resp = self.app.get('/models/test')
@@ -102,9 +105,9 @@ class FlaskrTestCase(unittest.TestCase):
     def test_array_parameter(self):
         resp = self.app.get('/models?q.op=%3D&q.attr=name&q.value=second')
         assert resp.status_code == 200
-        print resp.data
+        print(resp.data)
         self.assertEquals(
-            resp.data, '[{"name": "second"}]'
+            resp.data, six.b('[{"name": "second"}]')
         )
 
     def test_post_model(self):
@@ -138,9 +141,9 @@ class FlaskrTestCase(unittest.TestCase):
             headers={'Accept': 'application/xml'}
         )
         assert r.status_code == 403, r.status_code
-        assert r.data == ('<error><faultcode>Client</faultcode>'
-                          '<faultstring>403: Forbidden</faultstring>'
-                          '<debuginfo /></error>')
+        assert r.data == six.b('<error><faultcode>Client</faultcode>'
+                               '<faultstring>403: Forbidden</faultstring>'
+                               '<debuginfo /></error>')
 
     def test_custom_non_http_clientside_error(self):
         r = self.app.get(
@@ -155,20 +158,21 @@ class FlaskrTestCase(unittest.TestCase):
             headers={'Accept': 'application/xml'}
         )
         assert r.status_code == 412, r.status_code
-        assert r.data == ('<error><faultcode>Client</faultcode>'
-                          '<faultstring>FOO!</faultstring>'
-                          '<debuginfo /></error>')
+        assert r.data == six.b('<error><faultcode>Client</faultcode>'
+                               '<faultstring>FOO!</faultstring>'
+                               '<debuginfo /></error>')
 
     def test_serversideerror(self):
         r = self.app.get('/divide_by_zero')
         assert r.status_code == 500
         data = json.loads(r.data)
-        self.assertEquals(
-            data,
-            {"debuginfo": None,
-             "faultcode": "Server",
-             "faultstring": "integer division or modulo by zero"}
-        )
+        self.assertEqual(data['debuginfo'], None)
+        self.assertEqual(data['faultcode'], 'Server')
+        # The faultstring might be one of:
+        #  python2: "integer division or modulo by zero
+        #  python3: "division by zero"
+        self.assert_('division' in data['faultstring'])
+        self.assert_('by zero' in data['faultstring'])
 
 if __name__ == '__main__':
     test_app.run()
