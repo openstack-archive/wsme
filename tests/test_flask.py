@@ -1,5 +1,8 @@
+# encoding=utf8
 import unittest
 from flask import Flask, json, abort
+from flask.ext import restful
+
 from wsmeext.flask import signature
 from wsme.api import Response
 from wsme.types import Base, text
@@ -16,6 +19,7 @@ class Criterion(Base):
     value = text
 
 test_app = Flask(__name__)
+api = restful.Api(test_app)
 
 
 @test_app.route('/multiply')
@@ -76,6 +80,18 @@ def get_status_sig():
 @signature(int)
 def get_status_response():
     return Response(1, status_code=201)
+
+
+class RestFullApi(restful.Resource):
+    @signature(Model)
+    def get(self):
+        return Model(id=1, name=u"Gérard")
+
+    @signature(int, body=Model)
+    def post(self, model):
+        return model.id
+
+api.add_resource(RestFullApi, '/restful')
 
 
 class FlaskrTestCase(unittest.TestCase):
@@ -169,6 +185,28 @@ class FlaskrTestCase(unittest.TestCase):
              "faultcode": "Server",
              "faultstring": "integer division or modulo by zero"}
         )
+
+    def test_restful_get(self):
+        r = self.app.get('/restful', headers={'Accept': 'application/json'})
+        self.assertEqual(r.status_code, 200)
+
+        data = json.loads(r.data)
+
+        self.assertEqual(data['id'], 1)
+        self.assertEqual(data['name'], u"Gérard")
+
+    def test_restful_post(self):
+        r = self.app.post(
+            '/restful',
+            data=json.dumps({'id': 5, 'name': u'Huguette'}),
+            headers={
+                'Accept': 'application/json',
+                'Content-Type': 'application/json'})
+        self.assertEqual(r.status_code, 200)
+
+        data = json.loads(r.data)
+
+        self.assertEqual(data, 5)
 
 if __name__ == '__main__':
     test_app.run()

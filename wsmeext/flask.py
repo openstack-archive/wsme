@@ -3,6 +3,7 @@ from __future__ import absolute_import
 import functools
 import logging
 import sys
+import inspect
 
 import wsme
 import wsme.api
@@ -43,12 +44,16 @@ def signature(*args, **kw):
     sig = wsme.signature(*args, **kw)
 
     def decorator(f):
+        args = inspect.getargspec(f)[0]
+        ismethod = args and args[0] == 'self'
         sig(f)
         funcdef = wsme.api.FunctionDefinition.get(f)
         funcdef.resolve_types(wsme.types.registry)
 
         @functools.wraps(f)
         def wrapper(*args, **kwargs):
+            if ismethod:
+                self, args = args[0], args[1:]
             args, kwargs = wsme.rest.args.get_args(
                 funcdef, args, kwargs,
                 flask.request.args, flask.request.form,
@@ -62,6 +67,8 @@ def signature(*args, **kw):
             dataformat = get_dataformat()
 
             try:
+                if ismethod:
+                    args = [self] + list(args)
                 result = f(*args, **kwargs)
 
                 # NOTE: Support setting of status_code with default 20
