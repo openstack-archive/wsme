@@ -142,11 +142,11 @@ The default status codes returned by WSME are 200, 400 (if the client sends inva
 inputs) and 500 (for server-side errors).
 
 Since a proper Rest API should use different return codes (201, etc), one can
-use the 'status=' option of @signature to do so.
+use the 'status_code=' option of @signature to do so.
 
 .. code-block:: python
 
-    @signature(Author, body=Author, status=201)
+    @signature(Author, body=Author, status_code=201)
     def create_author(data):
         # ...
         return data
@@ -159,7 +159,7 @@ code:
 
 .. code-block:: python
 
-    @signature(Author, body=Author, status=202)
+    @signature(Author, body=Author, status_code=202)
     def update_author(data):
         # ...
         response = Response(data)
