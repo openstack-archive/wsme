@@ -1,8 +1,16 @@
 Changes
 =======
 
-0.6.1
------
+0.6.2 (next)
+------------
+
+* Flask adapter complex types now supports flask.ext.restful
+* Allow disabling complex types auto-register
+* Documentation edits
+* Various documentation build fixes
+
+0.6.1 (2014-05-02)
+------------------
 
 * Fix error: variable 'kw' referenced before assignment
 * Fix default handling for zero values
@@ -11,8 +19,8 @@ Changes
 * pecan: cleanup, use global vars and staticmethod
 * args_from_args() to work with an instance of UserType
 
-0.6
----
+0.6 (2014-02-06)
+----------------
 
 * Add 'readonly' parameter to wsattr
 * Fix typos in documents and comments
