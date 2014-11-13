@@ -14,6 +14,10 @@ class MyUserType(UserType):
     basetype = str
 
 
+class DictBasedUserType(UserType):
+    basetype = DictType(int, int)
+
+
 class TestProtocolsCommons(unittest.TestCase):
     def test_from_param_date(self):
         assert from_param(datetime.date, '2008-02-28') == \
@@ -54,6 +58,15 @@ class TestProtocolsCommons(unittest.TestCase):
 
     def test_from_params_dict_unset(self):
         assert from_params(DictType(int, str), {}, 'a', set()) is Unset
+
+    def test_from_params_usertype(self):
+        value = from_params(
+            DictBasedUserType(),
+            {'a[2]': '2'},
+            'a',
+            set()
+        )
+        self.assertEqual(value, {2: 2})
 
     def test_args_from_args_usertype(self):
 

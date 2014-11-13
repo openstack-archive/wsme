@@ -165,6 +165,14 @@ def dict_from_params(datatype, params, path, hit_paths):
         for key in keys))
 
 
+@from_params.when_type(UserType)
+def usertype_from_params(datatype, params, path, hit_paths):
+    value = from_params(datatype.basetype, params, path, hit_paths)
+    if value is not Unset:
+        return datatype.frombasetype(value)
+    return Unset
+
+
 def args_from_args(funcdef, args, kwargs):
     newargs = []
     for argdef, arg in zip(funcdef.arguments[:len(args)], args):
