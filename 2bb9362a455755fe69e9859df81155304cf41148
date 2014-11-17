@@ -1,0 +1,9 @@
+Verified+2: Jenkins
+Code-Review+2: Doug Hellmann <doug@doughellmann.com>
+Code-Review+2: Ryan Petrello <ryan@ryanpetrello.com>
+Workflow+1: Ryan Petrello <ryan@ryanpetrello.com>
+Submitted-by: Jenkins
+Submitted-at: Mon, 17 Nov 2014 22:17:37 +0000
+Reviewed-on: https://review.openstack.org/134351
+Project: stackforge/wsme
+Branch: refs/heads/master
