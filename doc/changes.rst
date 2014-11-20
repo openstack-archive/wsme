@@ -8,6 +8,7 @@ Changes
 * Allow disabling complex types auto-register
 * Documentation edits
 * Various documentation build fixes
+* Fix passing Dict and Array based UserType as params
 
 0.6.1 (2014-05-02)
 ------------------
