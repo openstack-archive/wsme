@@ -383,6 +383,9 @@ class SoapProtocol(Protocol):
             return kw
         msg = context.soap_message
         for param in msg:
+            # FIX for python2.6 (only for lxml)
+            if use_lxml and isinstance(param, ET._Comment):
+                continue
             name = param.tag[len(self.typenamespace) + 2:]
             arg = context.funcdef.get_arg(name)
             value = fromsoap(arg.datatype, param, {
