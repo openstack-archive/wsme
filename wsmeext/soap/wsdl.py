@@ -224,7 +224,7 @@ class WSDLGenerator(object):
             )
             ET.SubElement(
                 operation,
-                wsdl_ns('operation'),
+                soap_ns('operation'),
                 soapAction=soap_fname
             )
             ET.SubElement(
