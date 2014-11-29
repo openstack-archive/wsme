@@ -1,8 +1,18 @@
 Changes
 =======
 
-0.6.2 (next)
-------------
+0.6.4 (2014-11-20)
+------------------
+
+- Include tests in the source distribution
+
+0.6.3 (2014-11-19)
+------------------
+
+- Disable universal wheels
+
+0.6.2 (2014-11-18)
+------------------
 
 * Flask adapter complex types now supports flask.ext.restful
 * Allow disabling complex types auto-register
