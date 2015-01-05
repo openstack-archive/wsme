@@ -110,7 +110,7 @@ class WSDLGenerator(object):
                 type=self.soap_type(farg.datatype, True)
             )
             if not farg.mandatory:
-                element.set('minOccurs', 0)
+                element.set('minOccurs', '0')
 
         response_el = ET.Element(
             xs_ns('element'),
@@ -152,7 +152,7 @@ class WSDLGenerator(object):
         binding = ET.Element(
             wsdl_ns('binding'),
             name='%s_Binding' % self.service_name,
-            type='%s_PortType' % self.service_name
+            type='tns:%s_PortType' % self.service_name
         )
         ET.SubElement(
             binding,
@@ -224,7 +224,7 @@ class WSDLGenerator(object):
             )
             ET.SubElement(
                 operation,
-                wsdl_ns('operation'),
+                soap_ns('operation'),
                 soapAction=soap_fname
             )
             ET.SubElement(
