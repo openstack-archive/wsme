@@ -200,7 +200,7 @@ Value should be one of:"))
         app = webtest.TestApp(r.wsgiapp())
 
         res = app.get('/', expect_errors=True)
-        assert res.status_int == 500
+        assert res.status_int == 406, res.status_int
         print(res.body)
         assert res.body.find(
             b("None of the following protocols can handle this request")) != -1

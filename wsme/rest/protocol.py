@@ -2,6 +2,7 @@ import os.path
 import logging
 
 from wsme.utils import OrderedDict
+from wsme.exc import ClientSideError
 from wsme.protocol import CallContext, Protocol
 
 import wsme.rest
@@ -34,11 +35,28 @@ class RestProtocol(Protocol):
         for dataformat in self.dataformats:
             if request.path.endswith('.' + dataformat):
                 return True
-        if request.headers.get('Accept') in self.content_types:
+        if request.method in ['GET', 'HEAD']:
+            accept = request.headers.get('Accept')
+            if accept:
+                if accept in self.content_types:
+                    return True
+                error_message = ('Unacceptable Accept type: %s not in %s'
+                                 % (accept, self.content_types))
+                raise ClientSideError(error_message, status_code=406)
+            return False
+        elif request.method in ['PUT', 'POST']:
+            content_type = request.headers.get('Content-Type')
+            if content_type:
+                for ct in self.content_types:
+                    if request.headers.get('Content-Type', '').startswith(ct):
+                        return True
+                error_message = ('Unacceptable Content-Type: %s not in %s'
+                                 % (content_type, self.content_types))
+                raise ClientSideError(error_message, status_code=415)
+            else:
+                raise ClientSideError('missing Content-Type header')
+        elif request.method in ['DELETE']:
             return True
-        for ct in self.content_types:
-            if request.headers['Content-Type'].startswith(ct):
-                return True
         return False
 
     def iter_calls(self, request):
