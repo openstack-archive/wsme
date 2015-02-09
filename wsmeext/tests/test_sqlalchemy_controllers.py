@@ -136,11 +136,25 @@ class TestCRUDController():
         DBSession.flush()
         pid = p.id
         r = self.app.get('/person?ref.id=%s' % pid,
-                         headers={'Content-Type': 'application/json'})
+                         headers={'Accept': 'application/json'})
         r = json.loads(r.text)
         print(r)
         assert r['name'] == u('Pierre-Joseph')
         assert r['birthdate'] == u('1809-01-15')
+
+    def test_GET_bad_accept(self):
+        p = DBPerson(
+            name=u('Pierre-Joseph'),
+            birthdate=datetime.date(1809, 1, 15))
+        DBSession.add(p)
+        DBSession.flush()
+        pid = p.id
+        r = self.app.get('/person?ref.id=%s' % pid,
+                         headers={'Accept': 'text/plain'},
+                         status=406)
+        assert r.text == ("Unacceptable Accept type: text/plain not in "
+                          "['application/json', 'text/javascript', "
+                          "'application/javascript', 'text/xml']")
 
     def test_update(self):
         p = DBPerson(
