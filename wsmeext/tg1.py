@@ -9,9 +9,11 @@ import sys
 import cherrypy
 import webob
 from turbogears import expose, util
+import turbogears.view
 
 from wsme.rest import validate as wsvalidate
 import wsme.api
+import wsme.rest
 import wsme.rest.args
 import wsme.rest.json
 from wsme.utils import is_valid_code
@@ -128,8 +130,6 @@ class AutoXMLTemplate(object):
         return "text/xml"
 
 
-import turbogears.view
-
 turbogears.view.engines['wsmejson'] = AutoJSONTemplate(turbogears.view.stdvars)
 turbogears.view.engines['wsmexml'] = AutoXMLTemplate(turbogears.view.stdvars)
 
@@ -145,8 +145,6 @@ class Controller(object):
         cherrypy.response.header_list = res.headerlist
         cherrypy.response.status = res.status
         return res.body
-
-import wsme.rest
 
 
 def _scan_api(controller, path=[], objects=[]):
