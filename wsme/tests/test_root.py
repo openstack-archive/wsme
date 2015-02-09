@@ -38,4 +38,5 @@ class TestRoot(unittest.TestCase):
         res = root._handle_request(req)
         assert res.status_int == 500
         assert res.content_type == 'text/plain'
-        assert res.text == u('Error while selecting protocol: test'), req.text
+        assert (res.text ==
+                'Unexpected error while selecting protocol: test'), req.text

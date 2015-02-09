@@ -351,7 +351,7 @@ class TestRestJson(wsme.tests.protocol.RestOnlyProtocolTestCase):
 
     def test_GET(self):
         headers = {
-            'Content-Type': 'application/json',
+            'Accept': 'application/json',
         }
         res = self.app.get(
             '/crud?ref.id=1',
@@ -362,7 +362,58 @@ class TestRestJson(wsme.tests.protocol.RestOnlyProtocolTestCase):
         print(result)
         assert result['data']['id'] == 1
         assert result['data']['name'] == u("test")
-        assert result['message'] == "read"
+
+    def test_GET_complex_accept(self):
+        headers = {
+            'Accept': 'text/html,application/xml;q=0.9,*/*;q=0.8'
+        }
+        res = self.app.get(
+            '/crud?ref.id=1',
+            headers=headers,
+            expect_errors=False)
+        print("Received:", res.body)
+        result = json.loads(res.text)
+        print(result)
+        assert result['data']['id'] == 1
+        assert result['data']['name'] == u("test")
+
+    def test_GET_complex_choose_xml(self):
+        headers = {
+            'Accept': 'text/html,text/xml;q=0.9,*/*;q=0.8'
+        }
+        res = self.app.get(
+            '/crud?ref.id=1',
+            headers=headers,
+            expect_errors=False)
+        print("Received:", res.body)
+        assert res.content_type == 'text/xml'
+
+    def test_GET_complex_accept_no_match(self):
+        headers = {
+            'Accept': 'text/html,application/xml;q=0.9'
+        }
+        res = self.app.get(
+            '/crud?ref.id=1',
+            headers=headers,
+            status=406)
+        print("Received:", res.body)
+        assert res.body == ("Unacceptable Accept type: "
+                            "text/html, application/xml;q=0.9 not in "
+                            "['application/json', 'text/javascript', "
+                            "'application/javascript', 'text/xml']")
+
+    def test_GET_bad_simple_accept(self):
+        headers = {
+            'Accept': 'text/plain',
+        }
+        res = self.app.get(
+            '/crud?ref.id=1',
+            headers=headers,
+            status=406)
+        print("Received:", res.body)
+        assert res.body == ("Unacceptable Accept type: text/plain not in "
+                            "['application/json', 'text/javascript', "
+                            "'application/javascript', 'text/xml']")
 
     def test_POST(self):
         headers = {
@@ -380,6 +431,20 @@ class TestRestJson(wsme.tests.protocol.RestOnlyProtocolTestCase):
         assert result['data']['name'] == u("test")
         assert result['message'] == "update"
 
+    def test_POST_bad_content_type(self):
+        headers = {
+            'Content-Type': 'text/plain',
+        }
+        res = self.app.post(
+            '/crud',
+            json.dumps(dict(data=dict(id=1, name=u('test')))),
+            headers=headers,
+            status=415)
+        print("Received:", res.body)
+        assert res.body == ("Unacceptable Content-Type: text/plain not in "
+                            "['application/json', 'text/javascript', "
+                            "'application/javascript', 'text/xml']")
+
     def test_DELETE(self):
         res = self.app.delete(
             '/crud.json?ref.id=1',
@@ -393,7 +458,7 @@ class TestRestJson(wsme.tests.protocol.RestOnlyProtocolTestCase):
 
     def test_extra_arguments(self):
         headers = {
-            'Content-Type': 'application/json',
+            'Accept': 'application/json',
         }
         res = self.app.get(
             '/crud?ref.id=1&extraarg=foo',
