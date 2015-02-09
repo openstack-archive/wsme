@@ -2,7 +2,7 @@ import os.path
 import logging
 
 from wsme.utils import OrderedDict
-from wsme.protocol import CallContext, Protocol
+from wsme.protocol import CallContext, Protocol, media_type_accept
 
 import wsme.rest
 import wsme.rest.args
@@ -34,12 +34,7 @@ class RestProtocol(Protocol):
         for dataformat in self.dataformats:
             if request.path.endswith('.' + dataformat):
                 return True
-        if request.headers.get('Accept') in self.content_types:
-            return True
-        for ct in self.content_types:
-            if request.headers['Content-Type'].startswith(ct):
-                return True
-        return False
+        return media_type_accept(request, self.content_types)
 
     def iter_calls(self, request):
         context = CallContext(request)
