@@ -586,8 +586,8 @@ def inspect_class(class_):
             attrdef = attr
         else:
             if attr not in native_types and (
-                    inspect.isclass(attr)
-                    or isinstance(attr, (list, dict))):
+                    inspect.isclass(attr) or
+                    isinstance(attr, (list, dict))):
                 register_type(attr)
             attrdef = getattr(class_, '__wsattrclass__', wsattr)(attr)
 

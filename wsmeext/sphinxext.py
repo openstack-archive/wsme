@@ -490,8 +490,8 @@ class FunctionDocumenter(autodoc.MethodDocumenter):
 
     @staticmethod
     def can_document_member(member, membername, isattr, parent):
-        return (isinstance(parent, ServiceDocumenter)
-                and wsme.api.iswsmefunction(member))
+        return (isinstance(parent, ServiceDocumenter) and
+                wsme.api.iswsmefunction(member))
 
     def import_object(self):
         ret = super(FunctionDocumenter, self).import_object()
