@@ -2,7 +2,7 @@
 A SOAP implementation for wsme.
 Parts of the code were taken from the tgwebservices soap implmentation.
 """
-from __future__ import absolute_import, print_function
+from __future__ import absolute_import
 
 import pkg_resources
 import datetime
@@ -188,7 +188,8 @@ class SoapEncoder(object):
 
     @tosoap.when_object(wsme.types.bytes)
     def bytes_tosoap(self, datatype, tag, value):
-        print('bytes_tosoap', datatype, tag, value, type(value))
+        log.debug('(bytes_tosoap, %s, %s, %s, %s)', datatype,
+                  tag, value, type(value))
         if isinstance(value, wsme.types.bytes):
             value = value.decode('ascii')
         return self.make_soap_element(datatype, tag, value)
@@ -203,7 +204,7 @@ class SoapEncoder(object):
 
     @tosoap.when_object(wsme.types.binary)
     def binary_tosoap(self, datatype, tag, value):
-        print(datatype, tag, value)
+        log.debug("(%s, %s, %s)", datatype, tag, value)
         value = base64.encodestring(value) if value is not None else None
         if six.PY3:
             value = value.decode('ascii')
@@ -399,14 +400,14 @@ class SoapProtocol(Protocol):
         r = ET.Element('{%s}%sResponse' % (
             self.typenamespace, soap_fname(path, funcdef)
         ))
-        print('soap_response', funcdef.return_type, result)
+        log.debug('(soap_response, %s, %s)', funcdef.return_type, result)
         r.append(self.encoder.tosoap(
             funcdef.return_type, '{%s}result' % self.typenamespace, result
         ))
         return r
 
     def encode_result(self, context, result):
-        print('encode_result', result)
+        log.debug('(encode_result, %s)', result)
         if use_lxml:
             envelope = ET.Element(
                 Envelope_qn,
