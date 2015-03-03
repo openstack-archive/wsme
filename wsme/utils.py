@@ -1,5 +1,6 @@
 import decimal
 import datetime
+import pytz
 import re
 from six.moves import builtins, http_client
 
@@ -17,7 +18,7 @@ tz_re = r'((?P<tz_sign>[+-])(?P<tz_hour>\d{2}):(?P<tz_min>\d{2}))' + \
 datetime_re = re.compile(
     '%sT%s(%s)?' % (date_re, time_re, tz_re))
 date_re = re.compile(date_re)
-time_re = re.compile(time_re)
+time_re = re.compile('%s(%s)?' % (time_re, tz_re))
 
 
 if hasattr(builtins, '_'):
@@ -50,16 +51,17 @@ def parse_isotime(value):
             f = decimal.Decimal('0.' + m.group('sec_frac'))
             f = str(f.quantize(decimal.Decimal('0.000001')))
             ms = int(f[2:])
+        tz = _parse_tzparts(m.groupdict())
         return datetime.time(
             int(m.group('hour')),
             int(m.group('min')),
             int(m.group('sec')),
-            ms)
+            ms,
+            tz)
     except ValueError:
         raise ValueError("'%s' is a out-of-range time" % (value))
 
 
-# TODO handle timezone
 def parse_isodatetime(value):
     if dateutil:
         return dateutil.parser.parse(value)
@@ -72,6 +74,7 @@ def parse_isodatetime(value):
             f = decimal.Decimal('0.' + m.group('sec_frac'))
             f = f.quantize(decimal.Decimal('0.000001'))
             ms = int(str(f)[2:])
+        tz = _parse_tzparts(m.groupdict())
         return datetime.datetime(
             int(m.group('year')),
             int(m.group('month')),
@@ -79,9 +82,22 @@ def parse_isodatetime(value):
             int(m.group('hour')),
             int(m.group('min')),
             int(m.group('sec')),
-            ms)
+            ms,
+            tz)
     except ValueError:
         raise ValueError("'%s' is a out-of-range datetime" % (value))
+
+
+def _parse_tzparts(parts):
+    if 'tz_z' in parts and parts['tz_z'] == 'Z':
+        return pytz.UTC
+    if 'tz_min' not in parts or not parts['tz_min']:
+        return None
+
+    tz_minute_offset = (int(parts['tz_hour']) * 60 + int(parts['tz_min']))
+    tz_multiplier = -1 if parts['tz_sign'] == '-' else 1
+
+    return pytz.FixedOffset(tz_multiplier * tz_minute_offset)
 
 
 def is_valid_code(code_value):
