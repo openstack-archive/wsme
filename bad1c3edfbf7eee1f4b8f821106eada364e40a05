@@ -1,0 +1,10 @@
+Verified+2: Jenkins
+Code-Review+2: Julien Danjou <julien@danjou.info>
+Workflow+1: Julien Danjou <julien@danjou.info>
+Code-Review+1: Eoghan Glynn <eglynn@redhat.com>
+Code-Review+1: gordon chung <gord@live.ca>
+Submitted-by: Jenkins
+Submitted-at: Wed, 04 Mar 2015 16:01:41 +0000
+Reviewed-on: https://review.openstack.org/157005
+Project: stackforge/wsme
+Branch: refs/heads/master
