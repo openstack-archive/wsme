@@ -187,7 +187,8 @@ class Response(object):
     """
     Object to hold the "response" from a view function
     """
-    def __init__(self, obj, status_code=None, error=None):
+    def __init__(self, obj, status_code=None, error=None,
+                 return_type=wsme.types.Unset):
         #: Store the result object from the view
         self.obj = obj
 
@@ -198,6 +199,12 @@ class Response(object):
         #: Must be a dictionnary with the following keys: faultcode,
         #: faultstring and an optional debuginfo
         self.error = error
+
+        #: Return type
+        #: Type of the value returned by the function
+        #: If the return type is wsme.types.Unset it will be ignored
+        #: and the default return type will prevail.
+        self.return_type = return_type
 
 
 def format_exception(excinfo, debug=False):
