@@ -72,6 +72,8 @@ def wsexpose(*args, **kwargs):
 
         @functools.wraps(f)
         def callfunction(self, *args, **kwargs):
+            return_type = funcdef.return_type
+
             try:
                 args, kwargs = wsme.rest.args.get_args(
                     funcdef, args, kwargs, pecan.request.params, None,
@@ -85,6 +87,14 @@ def wsexpose(*args, **kwargs):
                 pecan.response.status = funcdef.status_code
                 if isinstance(result, wsme.api.Response):
                     pecan.response.status = result.status_code
+
+                    # NOTE(lucasagomes): If the return code is 204
+                    # (No Response) we have to make sure that we are not
+                    # returning anything in the body response and the
+                    # content-length is 0
+                    if result.status_code == 204:
+                        return_type = None
+
                     result = result.obj
 
             except:
@@ -106,13 +116,13 @@ def wsexpose(*args, **kwargs):
 
                 return data
 
-            if funcdef.return_type is None:
+            if return_type is None:
                 pecan.request.pecan['content_type'] = None
                 pecan.response.content_type = None
                 return ''
 
             return dict(
-                datatype=funcdef.return_type,
+                datatype=return_type,
                 result=result
             )
 

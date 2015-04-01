@@ -175,6 +175,14 @@ class TestWS(FunctionalTest):
         self.assertEqual(res.status_int, expected_status_code)
         self.assertEqual(res.status, expected_status)
 
+    def test_non_default_response_204(self):
+        res = self.app.get(
+            '/authors/912',
+        )
+        self.assertEqual(res.status_int, 204)
+        self.assertEqual(res.content_length, 0)
+        self.assertEqual(res.body, '')
+
     def test_serversideerror(self):
         expected_status_code = 500
         expected_status = http_response_messages[expected_status_code]

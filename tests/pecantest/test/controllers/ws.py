@@ -111,6 +111,9 @@ class AuthorsController(RestController):
         if id == 911:
             return wsme.api.Response(Author(),
                                      status_code=401)
+        if id == 912:
+            return wsme.api.Response(None, status_code=204)
+
         author = Author()
         author.id = id
         author.firstname = u"aname"
