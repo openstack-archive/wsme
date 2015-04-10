@@ -201,6 +201,7 @@ Value should be one of:"))
         app = webtest.TestApp(r.wsgiapp())
 
         res = app.get('/', expect_errors=True)
+        print(res.status_int)
         assert res.status_int == 406
         print(res.body)
         assert res.body.find(

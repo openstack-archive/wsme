@@ -149,6 +149,7 @@ class WSRoot(object):
                       request.body[:512] or
                       request.body) or '')
         protocol = None
+        error = ClientSideError(status_code=406)
         path = str(request.path)
         assert path.startswith(self._webpath)
         path = path[len(self._webpath) + 1:]
@@ -157,9 +158,16 @@ class WSRoot(object):
         else:
 
             for p in self.protocols:
-                if p.accept(request):
-                    protocol = p
-                    break
+                try:
+                    if p.accept(request):
+                        protocol = p
+                        break
+                except ClientSideError as e:
+                    error = e
+            # If we could not select a protocol, we raise the last exception
+            # that we got, or the default one.
+            if not protocol:
+                raise error
         return protocol
 
     def _do_call(self, protocol, context):
@@ -232,11 +240,6 @@ class WSRoot(object):
             msg = None
             error_status = 500
             protocol = self._select_protocol(request)
-            if protocol is None:
-                if request.method in ['GET', 'HEAD']:
-                    error_status = 406
-                elif request.method in ['POST', 'PUT', 'PATCH']:
-                    error_status = 415
         except ClientSideError as e:
             error_status = e.code
             msg = e.faultstring
@@ -248,7 +251,7 @@ class WSRoot(object):
             error_status = 500
 
         if protocol is None:
-            if msg is None:
+            if not msg:
                 msg = ("None of the following protocols can handle this "
                        "request : %s" % ','.join((
                            p.name for p in self.protocols)))
@@ -296,6 +299,10 @@ class WSRoot(object):
             else:
                 res.status = protocol.get_response_status(request)
                 res_content_type = protocol.get_response_contenttype(request)
+        except ClientSideError as e:
+            request.server_errorcount += 1
+            res.status = e.code
+            res.text = e.faultstring
         except Exception:
             infos = wsme.api.format_exception(sys.exc_info(), self._debug)
             request.server_errorcount += 1
