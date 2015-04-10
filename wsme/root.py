@@ -230,34 +230,20 @@ class WSRoot(object):
 
         try:
             msg = None
-            error_status = 500
             protocol = self._select_protocol(request)
-            if protocol is None:
-                if request.method in ['GET', 'HEAD']:
-                    error_status = 406
-                elif request.method in ['POST', 'PUT', 'PATCH']:
-                    error_status = 415
-        except ClientSideError as e:
-            error_status = e.code
-            msg = e.faultstring
-            protocol = None
         except Exception as e:
-            msg = ("Unexpected error while selecting protocol: %s" % str(e))
+            msg = ("Error while selecting protocol: %s" % str(e))
             log.exception(msg)
             protocol = None
-            error_status = 500
 
         if protocol is None:
             if msg is None:
                 msg = ("None of the following protocols can handle this "
                        "request : %s" % ','.join((
                            p.name for p in self.protocols)))
-            res.status = error_status
+            res.status = 500
             res.content_type = 'text/plain'
-            try:
-                res.text = u(msg)
-            except TypeError:
-                res.text = msg
+            res.text = u(msg)
             log.error(msg)
             return res
 
@@ -296,6 +282,10 @@ class WSRoot(object):
             else:
                 res.status = protocol.get_response_status(request)
                 res_content_type = protocol.get_response_contenttype(request)
+        except ClientSideError as e:
+            request.server_errorcount += 1
+            res.status = e.code
+            res.text = e.faultstring
         except Exception:
             infos = wsme.api.format_exception(sys.exc_info(), self._debug)
             request.server_errorcount += 1

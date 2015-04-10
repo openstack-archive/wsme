@@ -117,12 +117,15 @@ def getprotocol(name, **options):
 
 
 def media_type_accept(request, content_types):
-    """Return True if the requested media type is available.
+    """Validate media types against request.method.
 
     When request.method is GET or HEAD compare with the Accept header.
     When request.method is POST, PUT or PATCH compare with the Content-Type
     header.
     When request.method is DELETE media type is irrelevant, so return True.
+
+    The return value is unused, we either make it through or have an
+    exception.
     """
     if request.method in ['GET', 'HEAD']:
         if request.accept:
@@ -131,7 +134,6 @@ def media_type_accept(request, content_types):
             error_message = ('Unacceptable Accept type: %s not in %s'
                              % (request.accept, content_types))
             raise ClientSideError(error_message, status_code=406)
-        return False
     elif request.method in ['PUT', 'POST', 'PATCH']:
         content_type = request.headers.get('Content-Type')
         if content_type:
@@ -143,6 +145,4 @@ def media_type_accept(request, content_types):
             raise ClientSideError(error_message, status_code=415)
         else:
             raise ClientSideError('missing Content-Type header')
-    elif request.method in ['DELETE']:
-        return True
-    return False
+    return True

@@ -39,4 +39,24 @@ class TestRoot(unittest.TestCase):
         assert res.status_int == 500
         assert res.content_type == 'text/plain'
         assert (res.text ==
-                'Unexpected error while selecting protocol: test'), req.text
+                'Error while selecting protocol: test'), req.text
+
+    def test_protocol_selection_post_method(self):
+        import wsme.rest.protocol
+        import wsme.protocol
+
+        class P(wsme.protocol.Protocol):
+            name = "test"
+
+            def accept(self, r):
+                return True
+
+        root = WSRoot()
+        root.addprotocol(wsme.rest.protocol.RestProtocol())
+        root.addprotocol(P())
+        from webob import Request
+        req = Request.blank('/test?check=a&check=b&name=Bob')
+        req.headers['Content-Type'] = 'test/fake'
+        req.method = 'POST'
+        p = root._select_protocol(req)
+        assert p.name == "test"

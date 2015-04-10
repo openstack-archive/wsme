@@ -23,6 +23,7 @@ class RestProtocol(Protocol):
 
         self.dataformats = OrderedDict()
         self.content_types = []
+        self.dataformat_override = False
 
         for dataformat in dataformats:
             __import__('wsme.rest.' + dataformat)
@@ -33,10 +34,25 @@ class RestProtocol(Protocol):
     def accept(self, request):
         for dataformat in self.dataformats:
             if request.path.endswith('.' + dataformat):
+                self.dataformat_override = True
                 return True
-        return media_type_accept(request, self.content_types)
+        if request.accept:
+            if request.accept.best_match(self.content_types):
+                print 'accepting'
+                return True
+        for ct in self.content_types:
+            print 'ct', ct
+            if request.headers.get('Content-Type', '').startswith(ct):
+                return True
+        return False
 
     def iter_calls(self, request):
+
+        # Control for proper media type handling. A 406 or 415
+        # ClientSideError will be raise if there is no match.
+        if not self.dataformat_override:
+            media_type_accept(request, self.content_types)
+
         context = CallContext(request)
         context.outformat = None
         ext = os.path.splitext(request.path.split('/')[-1])[1]
