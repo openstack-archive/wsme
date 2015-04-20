@@ -216,7 +216,7 @@ def format_exception(excinfo, debug=False):
             else str(error)
         r = dict(faultcode="Client",
                  faultstring=faultstring)
-        log.warning("Client-side error: %s" % r['faultstring'])
+        log.debug("Client-side error: %s" % r['faultstring'])
         r['debuginfo'] = None
         return r
     else:
