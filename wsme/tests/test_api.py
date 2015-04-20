@@ -10,8 +10,9 @@ import webtest
 
 from wsme import WSRoot, expose, validate
 from wsme.rest import scan_api
-from wsme.api import FunctionArgument, FunctionDefinition
 from wsme import types
+from wsme import exc
+import wsme.api as wsme_api
 import wsme.types
 
 from wsme.tests.test_protocols import DummyProtocol
@@ -367,8 +368,51 @@ class TestFunctionDefinition(unittest.TestCase):
         def myfunc(self):
             pass
 
-        fd = FunctionDefinition(FunctionDefinition)
-        fd.arguments.append(FunctionArgument('a', int, True, None))
+        fd = wsme_api.FunctionDefinition(wsme_api.FunctionDefinition)
+        fd.arguments.append(wsme_api.FunctionArgument('a', int, True, None))
 
         assert fd.get_arg('a').datatype is int
         assert fd.get_arg('b') is None
+
+
+class TestFormatException(unittest.TestCase):
+
+    def _test_format_exception(self, exception, debug=False):
+        fake_exc_info = (None, exception, None)
+        return wsme_api.format_exception(fake_exc_info, debug=debug)
+
+    def test_format_client_exception(self):
+        faultstring = b'boom'
+        ret = self._test_format_exception(exc.ClientSideError(faultstring))
+        self.assertIsNone(ret['debuginfo'])
+        self.assertEqual('Client', ret['faultcode'])
+        self.assertEqual(faultstring, ret['faultstring'])
+
+    def test_format_client_exception_unicode(self):
+        faultstring = u'\xc3\xa3o'
+        ret = self._test_format_exception(exc.ClientSideError(faultstring))
+        self.assertIsNone(ret['debuginfo'])
+        self.assertEqual('Client', ret['faultcode'])
+        self.assertEqual(faultstring, ret['faultstring'])
+
+    def test_format_server_exception(self):
+        faultstring = b'boom'
+        ret = self._test_format_exception(Exception(faultstring))
+        self.assertIsNone(ret['debuginfo'])
+        self.assertEqual('Server', ret['faultcode'])
+        self.assertEqual(faultstring, ret['faultstring'])
+
+    def test_format_server_exception_unicode(self):
+        faultstring = u'\xc3\xa3o'
+        ret = self._test_format_exception(Exception(faultstring))
+        self.assertIsNone(ret['debuginfo'])
+        self.assertEqual('Server', ret['faultcode'])
+        self.assertEqual(faultstring, ret['faultstring'])
+
+    def test_format_server_exception_debug(self):
+        faultstring = b'boom'
+        ret = self._test_format_exception(Exception(faultstring), debug=True)
+        # assert debuginfo is populated
+        self.assertIsNotNone(ret['debuginfo'])
+        self.assertEqual('Server', ret['faultcode'])
+        self.assertEqual(faultstring, ret['faultstring'])

@@ -2,6 +2,7 @@ import traceback
 import functools
 import inspect
 import logging
+import six
 
 import wsme.exc
 import wsme.types
@@ -212,15 +213,15 @@ def format_exception(excinfo, debug=False):
     error = excinfo[1]
     code = getattr(error, 'code', None)
     if code and utils.is_valid_code(code) and utils.is_client_error(code):
-        faultstring = error.faultstring if hasattr(error, 'faultstring') \
-            else str(error)
+        faultstring = (error.faultstring if hasattr(error, 'faultstring')
+                       else six.text_type(error))
         r = dict(faultcode="Client",
                  faultstring=faultstring)
         log.debug("Client-side error: %s" % r['faultstring'])
         r['debuginfo'] = None
         return r
     else:
-        faultstring = str(error)
+        faultstring = six.text_type(error)
         debuginfo = "\n".join(traceback.format_exception(*excinfo))
 
         log.error('Server-side error: "%s". Detail: \n%s' % (
