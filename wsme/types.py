@@ -238,11 +238,15 @@ class IPv4AddressType(UserType):
         except ipaddress.AddressValueError:
             error = 'Value should be IPv4 format'
             raise ValueError(error)
+        else:
+            return value
 
 
 class IPv6AddressType(UserType):
     """
     A simple IPv6 type.
+
+    This type represents IPv6 addresses in the short format.
     """
     basetype = six.string_types
     name = "ipv6address"
@@ -254,6 +258,8 @@ class IPv6AddressType(UserType):
         except ipaddress.AddressValueError:
             error = 'Value should be IPv6 format'
             raise ValueError(error)
+        else:
+            return value
 
 
 class UuidType(UserType):
