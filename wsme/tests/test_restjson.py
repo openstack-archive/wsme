@@ -243,6 +243,15 @@ class TestRestJson(wsme.tests.protocol.RestOnlyProtocolTestCase):
         print(r)
         assert json.loads(r.text) == 2
 
+    def test_invalid_json_body(self):
+        r = self.app.post('/argtypes/setint.json', '{"value": 2',
+                          headers={"Content-Type": "application/json"},
+                          expect_errors=True)
+        print(r)
+        assert r.status_int == 400
+        assert json.loads(r.text)['faultstring'] == \
+            "Request is not in valid JSON format"
+
     def test_unknown_arg(self):
         r = self.app.post('/returntypes/getint.json', '{"a": 2}',
                           headers={"Content-Type": "application/json"},

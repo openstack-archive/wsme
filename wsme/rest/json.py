@@ -12,7 +12,7 @@ from simplegeneric import generic
 from wsme.types import Unset
 import wsme.types
 import wsme.utils
-from wsme.exc import UnknownArgument, InvalidInput
+from wsme.exc import ClientSideError, UnknownArgument, InvalidInput
 
 
 try:
@@ -211,12 +211,15 @@ def datetime_fromjson(datatype, value):
 
 
 def parse(s, datatypes, bodyarg, encoding='utf8'):
-    if hasattr(s, 'read'):
-        jdata = json.load(s)
-    else:
+    jload = json.load
+    if not hasattr(s, 'read'):
         if six.PY3 and isinstance(s, six.binary_type):
             s = s.decode(encoding)
-        jdata = json.loads(s)
+        jload = json.loads
+    try:
+        jdata = jload(s)
+    except ValueError:
+        raise ClientSideError("Request is not in valid JSON format")
     if bodyarg:
         argname = list(datatypes.keys())[0]
         kw = {argname: fromjson(datatypes[argname], jdata)}
