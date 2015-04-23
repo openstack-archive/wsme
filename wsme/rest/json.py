@@ -222,7 +222,10 @@ def parse(s, datatypes, bodyarg, encoding='utf8'):
         raise ClientSideError("Request is not in valid JSON format")
     if bodyarg:
         argname = list(datatypes.keys())[0]
-        kw = {argname: fromjson(datatypes[argname], jdata)}
+        try:
+            kw = {argname: fromjson(datatypes[argname], jdata)}
+        except ValueError as e:
+            raise InvalidInput(argname, jdata, e.message)
     else:
         kw = {}
         extra_args = []
@@ -230,7 +233,10 @@ def parse(s, datatypes, bodyarg, encoding='utf8'):
             if key not in datatypes:
                 extra_args.append(key)
             else:
-                kw[key] = fromjson(datatypes[key], jdata[key])
+                try:
+                    kw[key] = fromjson(datatypes[key], jdata[key])
+                except ValueError as e:
+                    raise InvalidInput(key, jdata[key], e.message)
         if extra_args:
             raise UnknownArgument(', '.join(extra_args))
     return kw

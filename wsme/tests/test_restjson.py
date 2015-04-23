@@ -9,10 +9,11 @@ try:
 except:
     import json  # noqa
 
-from wsme.rest.json import fromjson, tojson
+from wsme.rest.json import fromjson, tojson, parse
 from wsme.utils import parse_isodatetime, parse_isotime, parse_isodate
 from wsme.types import isarray, isdict, isusertype, register_type
 from wsme.rest import expose, validate
+from wsme.exc import InvalidInput
 
 
 import six
@@ -296,6 +297,36 @@ class TestRestJson(wsme.tests.protocol.RestOnlyProtocolTestCase):
         for dt in (str, int, datetime.date, datetime.time, datetime.datetime,
                    decimal.Decimal, [int], {int: int}):
             assert fromjson(dt, None) is None
+
+    def test_parse_valid_date(self):
+        j = parse('{"a": "2011-01-01"}', {'a': datetime.date}, False)
+        assert isinstance(j['a'], datetime.date)
+
+    def test_invalid_date_fromjson(self):
+        jdate = "2015-01-invalid"
+        try:
+            parse('{"a": "%s"}' % jdate, {'a': datetime.date}, False)
+            assert False
+        except Exception as e:
+            assert isinstance(e, InvalidInput)
+            assert e.fieldname == 'a'
+            assert e.value == jdate
+            assert e.msg == "'%s' is not a legal date value" % jdate
+
+    def test_parse_valid_date_bodyarg(self):
+        j = parse('"2011-01-01"', {'a': datetime.date}, True)
+        assert isinstance(j['a'], datetime.date)
+
+    def test_invalid_date_fromjson_bodyarg(self):
+        jdate = "2015-01-invalid"
+        try:
+            parse('"%s"' % jdate, {'a': datetime.date}, True)
+            assert False
+        except Exception as e:
+            assert isinstance(e, InvalidInput)
+            assert e.fieldname == 'a'
+            assert e.value == jdate
+            assert e.msg == "'%s' is not a legal date value" % jdate
 
     def test_nest_result(self):
         self.root.protocols[0].nest_result = True
