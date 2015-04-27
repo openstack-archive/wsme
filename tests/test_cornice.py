@@ -170,7 +170,6 @@ class WSMECorniceTestCase(unittest.TestCase):
             headers={'Accept': 'application/json'},
             expect_errors=True
         )
-        print resp.body
         self.assertEquals(resp.json['faultcode'], 'Client')
         self.assertEquals(resp.status_code, 400)
 
@@ -180,6 +179,5 @@ class WSMECorniceTestCase(unittest.TestCase):
             headers={'Accept': 'application/json'},
             expect_errors=True
         )
-        print resp.body
         self.assertEquals(resp.json['faultcode'], 'Client')
         self.assertEquals(resp.status_code, 401)

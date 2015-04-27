@@ -82,28 +82,24 @@ class TestController(unittest.TestCase):
             simplejson.dumps({'a': 5, 'b': 10}),
             {'Content-Type': 'application/json'}
         )
-        print response
         assert simplejson.loads(response.body) == 50
 
         response = self.app.post("/sub/add",
             simplejson.dumps({'a': 5, 'b': 10}),
             {'Content-Type': 'application/json'}
         )
-        print response
         assert simplejson.loads(response.body) == 15
 
         response = self.app.post("/multiply",
             simplejson.dumps({'a': 5, 'b': 10}),
             {'Content-Type': 'application/json', 'Accept': 'application/json'}
         )
-        print response
         assert simplejson.loads(response.body) == 50
 
         response = self.app.post("/multiply",
             simplejson.dumps({'a': 5, 'b': 10}),
             {'Content-Type': 'application/json', 'Accept': 'text/javascript'}
         )
-        print response
         assert simplejson.loads(response.body) == 50
 
         response = self.app.post("/multiply",
@@ -111,7 +107,6 @@ class TestController(unittest.TestCase):
             {'Content-Type': 'application/json',
              'Accept': 'text/xml'}
         )
-        print response
         assert response.body == "<result>50</result>"
 
     def test_custom_clientside_error(self):
@@ -144,16 +139,12 @@ class TestController(unittest.TestCase):
         ts.app = self.app
         ts.ws_path = '/ws/'
         ts.run()
-        #wsdl = self.app.get('/ws/api.wsdl').body
-        #print wsdl
-        #assert 'multiply' in wsdl
 
     def test_soap_call(self):
         ts = test_soap.TestSOAP('test_wsdl')
         ts.app = self.app
         ts.ws_path = '/ws/'
 
-        print ts.ws_path
         assert ts.call('multiply', a=5, b=10, _rt=int) == 50
 
     def test_scan_api_loops(self):
@@ -165,7 +156,6 @@ class TestController(unittest.TestCase):
         root = MyRoot()
 
         api = list(wsmeext.tg1._scan_api(root))
-        print(api)
 
         self.assertEquals(len(api), 0)
 

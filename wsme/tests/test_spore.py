@@ -14,8 +14,6 @@ class TestSpore(unittest.TestCase):
     def test_spore(self):
         spore = wsme.spore.getdesc(WSTestRoot())
 
-        print(spore)
-
         spore = json.loads(spore)
 
         assert len(spore['methods']) == 49, str(len(spore['methods']))

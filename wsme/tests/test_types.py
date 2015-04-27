@@ -45,7 +45,6 @@ class TestTypes(unittest.TestCase):
 
         assert len(Flat._wsme_attributes) == 4
         attrs = Flat._wsme_attributes
-        print(attrs)
 
         assert attrs[0].key == 'aint'
         assert attrs[0].name == 'aint'
@@ -76,13 +75,11 @@ class TestTypes(unittest.TestCase):
 
         types.register_type(ForcedOrder)
 
-        print(ForcedOrder._wsme_attributes)
         assert ForcedOrder._wsme_attributes[0].key == 'a2'
         assert ForcedOrder._wsme_attributes[1].key == 'a1'
         assert ForcedOrder._wsme_attributes[2].key == 'a3'
 
         c = gen_class()
-        print(c)
         types.register_type(c)
         del c._wsme_attributes
 
@@ -111,7 +108,6 @@ class TestTypes(unittest.TestCase):
 
         types.register_type(WithWSProp)
 
-        print(WithWSProp._wsme_attributes)
         assert len(WithWSProp._wsme_attributes) == 1
         a = WithWSProp._wsme_attributes[0]
         assert a.key == 'aint'

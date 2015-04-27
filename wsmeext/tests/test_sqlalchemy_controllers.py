@@ -98,7 +98,6 @@ class TestCRUDController():
         r = self.app.post('/person/create', json.dumps(data),
                           headers={'Content-Type': 'application/json'})
         r = json.loads(r.text)
-        print(r)
         assert r['name'] == u('Pierre-Joseph')
         assert r['birthdate'] == u('1809-01-15')
 
@@ -110,7 +109,6 @@ class TestCRUDController():
         r = self.app.put('/person', json.dumps(data),
                          headers={'Content-Type': 'application/json'})
         r = json.loads(r.text)
-        print(r)
         assert r['name'] == u('Pierre-Joseph')
         assert r['birthdate'] == u('1809-01-15')
 
@@ -124,7 +122,6 @@ class TestCRUDController():
         r = self.app.post('/person/read', '{"ref": {"id": %s}}' % pid,
                           headers={'Content-Type': 'application/json'})
         r = json.loads(r.text)
-        print(r)
         assert r['name'] == u('Pierre-Joseph')
         assert r['birthdate'] == u('1809-01-15')
 
@@ -138,7 +135,6 @@ class TestCRUDController():
         r = self.app.get('/person?ref.id=%s' % pid,
                          headers={'Accept': 'application/json'})
         r = json.loads(r.text)
-        print(r)
         assert r['name'] == u('Pierre-Joseph')
         assert r['birthdate'] == u('1809-01-15')
 
@@ -170,7 +166,6 @@ class TestCRUDController():
         r = self.app.post('/person/update', json.dumps(dict(data=data)),
                           headers={'Content-Type': 'application/json'})
         r = json.loads(r.text)
-        print(r)
         assert r['name'] == u('Pierre-Joseph Proudon')
         assert r['birthdate'] == u('1809-01-15')
 
@@ -188,7 +183,6 @@ class TestCRUDController():
         r = self.app.post('/person', json.dumps(dict(data=data)),
                           headers={'Content-Type': 'application/json'})
         r = json.loads(r.text)
-        print(r)
         assert r['name'] == u('Pierre-Joseph Proudon')
         assert r['birthdate'] == u('1809-01-15')
 
@@ -199,12 +193,11 @@ class TestCRUDController():
         DBSession.add(p)
         DBSession.flush()
         pid = p.id
-        r = self.app.post('/person/delete', json.dumps(
+        self.app.post('/person/delete', json.dumps(
             dict(ref=dict(id=pid))),
             headers={
                 'Content-Type': 'application/json'
             })
-        print(r)
         assert DBSession.query(DBPerson).get(pid) is None
 
     def test_DELETE(self):
@@ -214,9 +207,8 @@ class TestCRUDController():
         DBSession.add(p)
         DBSession.flush()
         pid = p.id
-        r = self.app.delete('/person?ref.id=%s' % pid,
-                            headers={'Content-Type': 'application/json'})
-        print(r)
+        self.app.delete('/person?ref.id=%s' % pid,
+                        headers={'Content-Type': 'application/json'})
         assert DBSession.query(DBPerson).get(pid) is None
 
     def test_nothing(self):

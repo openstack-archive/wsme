@@ -118,7 +118,6 @@ class FlaskrTestCase(unittest.TestCase):
     def test_array_parameter(self):
         resp = self.app.get('/models?q.op=%3D&q.attr=name&q.value=second')
         assert resp.status_code == 200
-        print resp.data
         self.assertEquals(
             resp.data, '[{"name": "second"}]'
         )

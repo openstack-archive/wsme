@@ -261,9 +261,7 @@ def fromsuds(dt, value):
     if wsme.types.isusertype(dt) and dt not in fromsuds_types:
         dt = dt.basetype
     if dt in fromsuds_types:
-        print(dt, value)
         value = fromsuds_types[dt](value)
-        print(value)
         return value
     if wsme.types.iscomplex(dt):
         d = {}
@@ -288,14 +286,12 @@ class TestSOAP(wsme.tests.protocol.ProtocolTestCase):
 
     def test_simple_call(self):
         message = build_soap_message('touch')
-        print(message)
         res = self.app.post(
             self.ws_path,
             message,
             headers={"Content-Type": "application/soap+xml; charset=utf-8"},
             expect_errors=True
         )
-        print(res.body)
         assert res.status.startswith('200')
 
     def call(self, fpath, _rt=None, _accept=None, _no_result_decode=False,
@@ -314,7 +310,6 @@ class TestSOAP(wsme.tests.protocol.ProtocolTestCase):
         kw = dict((
             (key, tosuds(self.sudsclient, value)) for key, value in kw.items()
         ))
-        print(kw)
         try:
             return fromsuds(_rt, m(**kw))
         except suds.WebFault as exc:
@@ -339,7 +334,6 @@ class TestSOAP(wsme.tests.protocol.ProtocolTestCase):
             params = ""
         methodname = ''.join([path[0]] + [i.capitalize() for i in path[1:]])
         message = build_soap_message(methodname, params)
-        print(message)
         headers = {"Content-Type": "application/soap+xml; charset=utf-8"}
         if _accept is not None:
             headers['Accept'] = _accept
@@ -349,20 +343,17 @@ class TestSOAP(wsme.tests.protocol.ProtocolTestCase):
             headers=headers,
             expect_errors=True
         )
-        print("Status: ", res.status, "Received:", res.body)
 
         if _no_result_decode:
             return res
 
         el = et.fromstring(res.body)
         body = el.find(body_qn)
-        print(body)
 
         if res.status_int == 200:
             response_tag = '{%s}%sResponse' % (typenamespace, methodname)
             r = body.find(response_tag)
             result = r.find('{%s}result' % typenamespace)
-            print("Result element: ", result)
             return fromsoap(result)
         elif res.status_int == 400:
             fault = body.find(fault_qn)
@@ -402,8 +393,6 @@ class TestSOAP(wsme.tests.protocol.ProtocolTestCase):
         methods = dict(methods)
 
         assert 'returntypesGettext' in methods
-        print(methods)
-
         assert methods['argtypesSettime'][0][0] == 'value'
 
     def test_return_nesteddict(self):
