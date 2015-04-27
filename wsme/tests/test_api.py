@@ -192,7 +192,6 @@ Value should be one of:"))
         app = webtest.TestApp(r.wsgiapp())
 
         res = app.get('/', expect_errors=True)
-        print(res.status, res.body)
         assert res.status_int == 400
 
     def test_no_available_protocol(self):
@@ -201,9 +200,7 @@ Value should be one of:"))
         app = webtest.TestApp(r.wsgiapp())
 
         res = app.get('/', expect_errors=True)
-        print(res.status_int)
         assert res.status_int == 406
-        print(res.body)
         assert res.body.find(
             b("None of the following protocols can handle this request")) != -1
 

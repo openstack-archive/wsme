@@ -52,12 +52,10 @@ def dumpxml(key, obj, datatype=None):
     elif type(obj) == dict:
         for name, value in obj.items():
             el.append(dumpxml(name, value))
-    print(obj, datatype, et.tostring(el))
     return el
 
 
 def loadxml(el, datatype):
-    print (el, datatype, len(el))
     if el.get('nil') == 'true':
         return None
     if isinstance(datatype, list):
@@ -90,10 +88,8 @@ def loadxml(el, datatype):
         for attr in datatype._wsme_attributes:
             name = attr.name
             child = el.find(name)
-            print (name, attr, child)
             if child is not None:
                 d[name] = loadxml(child, attr.datatype)
-        print (d)
         return d
     else:
         if datatype == wsme.types.binary:
@@ -137,7 +133,6 @@ class TestRestXML(wsme.tests.protocol.RestOnlyProtocolTestCase):
             content,
             headers=headers,
             expect_errors=True)
-        print ("Received:", res.body)
 
         if _no_result_decode:
             return res
@@ -167,7 +162,6 @@ class TestRestXML(wsme.tests.protocol.RestOnlyProtocolTestCase):
 
         language, sample = wsme.rest.xml.encode_sample_value(
             MyType, value, True)
-        print (language, sample)
 
         assert language == 'xml'
         assert sample == b("""<value>

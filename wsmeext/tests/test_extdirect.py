@@ -112,7 +112,6 @@ class TestExtDirectProtocol(wsme.tests.protocol.ProtocolTestCase):
             ns, action, fname = '', path[0], path[1]
         else:
             ns, action, fname = '.'.join(path[:-2]), path[-2], path[-1]
-        print(kw)
 
         args = [
             dict(
@@ -120,7 +119,6 @@ class TestExtDirectProtocol(wsme.tests.protocol.ProtocolTestCase):
                 for arg in arguments if arg.name in kw
             )
         ]
-        print("args =", args)
         data = json.dumps({
             'type': 'rpc',
             'tid': 0,
@@ -128,14 +126,11 @@ class TestExtDirectProtocol(wsme.tests.protocol.ProtocolTestCase):
             'method': fname,
             'data': args,
         })
-        print(data)
         headers = {'Content-Type': 'application/json'}
         if _accept:
             headers['Accept'] = _accept
         res = self.app.post('/extdirect/router/%s' % ns, data, headers=headers,
                             expect_errors=True)
-
-        print(res.body)
 
         if _no_result_decode:
             return res
@@ -155,7 +150,6 @@ class TestExtDirectProtocol(wsme.tests.protocol.ProtocolTestCase):
 
     def test_get_api(self):
         res = self.app.get('/app/api.js')
-        print(res.body)
         assert res.body
 
     def test_positional(self):
@@ -171,8 +165,6 @@ class TestExtDirectProtocol(wsme.tests.protocol.ProtocolTestCase):
         })
         headers = {'Content-Type': 'application/json'}
         res = self.app.post('/extdirect/router', data, headers=headers)
-
-        print(res.body)
 
         data = json.loads(res.text)
         assert data['type'] == 'rpc'
@@ -193,11 +185,8 @@ class TestExtDirectProtocol(wsme.tests.protocol.ProtocolTestCase):
             'method': 'getbytes',
             'data': []
         }])
-        print(data)
         headers = {'Content-Type': 'application/json'}
         res = self.app.post('/extdirect/router', data, headers=headers)
-
-        print(res.body)
 
         rdata = json.loads(res.text)
 
@@ -224,7 +213,6 @@ class TestExtDirectProtocol(wsme.tests.protocol.ProtocolTestCase):
             body,
             headers={'Content-Type': 'application/x-www-form-urlencoded'}
         )
-        print (r)
 
         assert json.loads(r.text) == {
             "tid": "1",

@@ -47,7 +47,6 @@ def prepare_value(value, datatype):
 
 
 def prepare_result(value, datatype):
-    print(value, datatype)
     if value is None:
         return None
     if datatype == wsme.types.binary:
@@ -85,7 +84,6 @@ def prepare_result(value, datatype):
     if datatype == wsme.types.bytes:
         return value.encode('ascii')
     if type(value) != datatype:
-        print(type(value), datatype)
         return datatype(value)
     return value
 
@@ -108,13 +106,11 @@ class MiniCrud(object):
     @expose(CRUDResult, method='PUT')
     @validate(Obj)
     def create(self, data):
-        print(repr(data))
         return CRUDResult(data, u('create'))
 
     @expose(CRUDResult, method='GET', ignore_extra_args=True)
     @validate(Obj)
     def read(self, ref):
-        print(repr(ref))
         if ref.id == 1:
             ref.name = u('test')
         return CRUDResult(ref, u('read'))
@@ -122,18 +118,15 @@ class MiniCrud(object):
     @expose(CRUDResult, method='POST')
     @validate(Obj)
     def update(self, data):
-        print(repr(data))
         return CRUDResult(data, u('update'))
 
     @expose(CRUDResult, wsme.types.text, body=Obj)
     def update_with_body(self, msg, data):
-        print(repr(data))
         return CRUDResult(data, msg)
 
     @expose(CRUDResult, method='DELETE')
     @validate(Obj)
     def delete(self, ref):
-        print(repr(ref))
         if ref.id == 1:
             ref.name = u('test')
         return CRUDResult(ref, u('delete'))
@@ -172,7 +165,6 @@ class TestRestJson(wsme.tests.protocol.RestOnlyProtocolTestCase):
             content,
             headers=headers,
             expect_errors=True)
-        print("Received:", res.body)
 
         if _no_result_decode:
             return res
@@ -196,12 +188,10 @@ class TestRestJson(wsme.tests.protocol.RestOnlyProtocolTestCase):
 
     def test_keyargs(self):
         r = self.app.get('/argtypes/setint.json?value=2')
-        print(r)
         assert json.loads(r.text) == 2
 
         nestedarray = 'value[0].inner.aint=54&value[1].inner.aint=55'
         r = self.app.get('/argtypes/setnestedarray.json?' + nestedarray)
-        print(r)
         assert json.loads(r.text) == [
             {'inner': {'aint': 54}},
             {'inner': {'aint': 55}}]
@@ -217,7 +207,6 @@ class TestRestJson(wsme.tests.protocol.RestOnlyProtocolTestCase):
             body,
             headers={'Content-Type': 'application/x-www-form-urlencoded'}
         )
-        print(r)
 
         assert json.loads(r.text) == [
             {'inner': {'aint': 54}},
@@ -227,7 +216,6 @@ class TestRestJson(wsme.tests.protocol.RestOnlyProtocolTestCase):
         r = self.app.post('/argtypes/setint.json?value=2', '{"value": 2}',
                           headers={"Content-Type": "application/json"},
                           expect_errors=True)
-        print(r)
         assert r.status_int == 400
         assert json.loads(r.text)['faultstring'] == \
             "Parameter value was given several times"
@@ -235,20 +223,17 @@ class TestRestJson(wsme.tests.protocol.RestOnlyProtocolTestCase):
     def test_inline_body(self):
         params = urlencode({'__body__': '{"value": 4}'})
         r = self.app.get('/argtypes/setint.json?' + params)
-        print(r)
         assert json.loads(r.text) == 4
 
     def test_empty_body(self):
         params = urlencode({'__body__': ''})
         r = self.app.get('/returntypes/getint.json?' + params)
-        print(r)
         assert json.loads(r.text) == 2
 
     def test_invalid_json_body(self):
         r = self.app.post('/argtypes/setint.json', '{"value": 2',
                           headers={"Content-Type": "application/json"},
                           expect_errors=True)
-        print(r)
         assert r.status_int == 400
         assert json.loads(r.text)['faultstring'] == \
             "Request is not in valid JSON format"
@@ -257,14 +242,12 @@ class TestRestJson(wsme.tests.protocol.RestOnlyProtocolTestCase):
         r = self.app.post('/returntypes/getint.json', '{"a": 2}',
                           headers={"Content-Type": "application/json"},
                           expect_errors=True)
-        print(r)
         assert r.status_int == 400
         assert json.loads(r.text)['faultstring'].startswith(
             "Unknown argument:"
         )
 
         r = self.app.get('/returntypes/getint.json?a=2', expect_errors=True)
-        print(r)
         assert r.status_int == 400
         assert json.loads(r.text)['faultstring'].startswith(
             "Unknown argument:"
@@ -331,7 +314,6 @@ class TestRestJson(wsme.tests.protocol.RestOnlyProtocolTestCase):
     def test_nest_result(self):
         self.root.protocols[0].nest_result = True
         r = self.app.get('/returntypes/getint.json')
-        print(r)
         assert json.loads(r.text) == {"result": 2}
 
     def test_encode_sample_value(self):
@@ -346,7 +328,6 @@ class TestRestJson(wsme.tests.protocol.RestOnlyProtocolTestCase):
         v.astr = 's'
 
         r = wsme.rest.json.encode_sample_value(MyType, v, True)
-        print(r)
         assert r[0] == ('javascript')
         assert r[1] == json.dumps({'aint': 4, 'astr': 's'}, ensure_ascii=False,
                                   indent=4, sort_keys=True)
@@ -382,9 +363,7 @@ class TestRestJson(wsme.tests.protocol.RestOnlyProtocolTestCase):
             content,
             headers=headers,
             expect_errors=False)
-        print("Received:", res.body)
         result = json.loads(res.text)
-        print(result)
         assert result['data']['id'] == 1
         assert result['data']['name'] == u("test")
         assert result['message'] == "create"
@@ -397,9 +376,7 @@ class TestRestJson(wsme.tests.protocol.RestOnlyProtocolTestCase):
             '/crud?ref.id=1',
             headers=headers,
             expect_errors=False)
-        print("Received:", res.body)
         result = json.loads(res.text)
-        print(result)
         assert result['data']['id'] == 1
         assert result['data']['name'] == u("test")
 
@@ -411,9 +388,7 @@ class TestRestJson(wsme.tests.protocol.RestOnlyProtocolTestCase):
             '/crud?ref.id=1',
             headers=headers,
             expect_errors=False)
-        print("Received:", res.body)
         result = json.loads(res.text)
-        print(result)
         assert result['data']['id'] == 1
         assert result['data']['name'] == u("test")
 
@@ -425,7 +400,6 @@ class TestRestJson(wsme.tests.protocol.RestOnlyProtocolTestCase):
             '/crud?ref.id=1',
             headers=headers,
             expect_errors=False)
-        print("Received:", res.body)
         assert res.content_type == 'text/xml'
 
     def test_GET_complex_accept_no_match(self):
@@ -436,7 +410,6 @@ class TestRestJson(wsme.tests.protocol.RestOnlyProtocolTestCase):
             '/crud?ref.id=1',
             headers=headers,
             status=406)
-        print("Received:", res.body)
         assert res.body == ("Unacceptable Accept type: "
                             "text/html, application/xml;q=0.9 not in "
                             "['application/json', 'text/javascript', "
@@ -450,7 +423,6 @@ class TestRestJson(wsme.tests.protocol.RestOnlyProtocolTestCase):
             '/crud?ref.id=1',
             headers=headers,
             status=406)
-        print("Received:", res.body)
         assert res.body == ("Unacceptable Accept type: text/plain not in "
                             "['application/json', 'text/javascript', "
                             "'application/javascript', 'text/xml']")
@@ -464,9 +436,7 @@ class TestRestJson(wsme.tests.protocol.RestOnlyProtocolTestCase):
             json.dumps(dict(data=dict(id=1, name=u('test')))),
             headers=headers,
             expect_errors=False)
-        print("Received:", res.body)
         result = json.loads(res.text)
-        print(result)
         assert result['data']['id'] == 1
         assert result['data']['name'] == u("test")
         assert result['message'] == "update"
@@ -480,7 +450,6 @@ class TestRestJson(wsme.tests.protocol.RestOnlyProtocolTestCase):
             json.dumps(dict(data=dict(id=1, name=u('test')))),
             headers=headers,
             status=415)
-        print("Received:", res.body)
         assert res.body == ("Unacceptable Content-Type: text/plain not in "
                             "['application/json', 'text/javascript', "
                             "'application/javascript', 'text/xml']")
@@ -489,9 +458,7 @@ class TestRestJson(wsme.tests.protocol.RestOnlyProtocolTestCase):
         res = self.app.delete(
             '/crud.json?ref.id=1',
             expect_errors=False)
-        print("Received:", res.body)
         result = json.loads(res.text)
-        print(result)
         assert result['data']['id'] == 1
         assert result['data']['name'] == u("test")
         assert result['message'] == "delete"
@@ -504,9 +471,7 @@ class TestRestJson(wsme.tests.protocol.RestOnlyProtocolTestCase):
             '/crud?ref.id=1&extraarg=foo',
             headers=headers,
             expect_errors=False)
-        print("Received:", res.body)
         result = json.loads(res.text)
-        print(result)
         assert result['data']['id'] == 1
         assert result['data']['name'] == u("test")
         assert result['message'] == "read"
@@ -520,9 +485,7 @@ class TestRestJson(wsme.tests.protocol.RestOnlyProtocolTestCase):
             json.dumps(dict(id=1, name=u('test'))),
             headers=headers,
             expect_errors=False)
-        print("Received:", res.body)
         result = json.loads(res.text)
-        print(result)
         assert result['data']['id'] == 1
         assert result['data']['name'] == u("test")
         assert result['message'] == "hello"
