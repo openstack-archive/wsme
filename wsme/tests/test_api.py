@@ -383,7 +383,7 @@ class TestFormatException(unittest.TestCase):
         return wsme_api.format_exception(fake_exc_info, debug=debug)
 
     def test_format_client_exception(self):
-        faultstring = b'boom'
+        faultstring = 'boom'
         ret = self._test_format_exception(exc.ClientSideError(faultstring))
         self.assertIsNone(ret['debuginfo'])
         self.assertEqual('Client', ret['faultcode'])
@@ -397,7 +397,7 @@ class TestFormatException(unittest.TestCase):
         self.assertEqual(faultstring, ret['faultstring'])
 
     def test_format_server_exception(self):
-        faultstring = b'boom'
+        faultstring = 'boom'
         ret = self._test_format_exception(Exception(faultstring))
         self.assertIsNone(ret['debuginfo'])
         self.assertEqual('Server', ret['faultcode'])
@@ -411,7 +411,7 @@ class TestFormatException(unittest.TestCase):
         self.assertEqual(faultstring, ret['faultstring'])
 
     def test_format_server_exception_debug(self):
-        faultstring = b'boom'
+        faultstring = 'boom'
         ret = self._test_format_exception(Exception(faultstring), debug=True)
         # assert debuginfo is populated
         self.assertIsNotNone(ret['debuginfo'])
