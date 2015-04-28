@@ -560,9 +560,11 @@ class WSMEDomain(Domain):
     }
 
     def clear_doc(self, docname):
-        for name, value in self.data['types'].items():
+        keys = list(self.data['types'].keys())
+        for key in keys:
+            value = self.data['types'][key]
             if value == docname:
-                del self.data['types'][name]
+                del self.data['types'][key]
 
     def resolve_xref(self, env, fromdocname, builder,
                      type, target, node, contnode):

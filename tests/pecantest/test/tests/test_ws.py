@@ -180,7 +180,7 @@ class TestWS(FunctionalTest):
             '/authors/913',
         )
         self.assertEqual(res.status_int, 200)
-        self.assertEqual(res.body, '"foo"')
+        self.assertEqual(res.body, b'"foo"')
         self.assertEqual(res.content_length, 5)
 
     def test_non_default_response_return_type_no_content(self):
@@ -188,7 +188,7 @@ class TestWS(FunctionalTest):
             '/authors/912',
         )
         self.assertEqual(res.status_int, 204)
-        self.assertEqual(res.body, '')
+        self.assertEqual(res.body, b'')
         self.assertEqual(res.content_length, 0)
 
     def test_serversideerror(self):

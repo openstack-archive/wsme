@@ -437,10 +437,10 @@ class TestRestJson(wsme.tests.protocol.RestOnlyProtocolTestCase):
             headers=headers,
             status=406)
         print("Received:", res.body)
-        assert res.body == ("Unacceptable Accept type: "
-                            "text/html, application/xml;q=0.9 not in "
-                            "['application/json', 'text/javascript', "
-                            "'application/javascript', 'text/xml']")
+        assert res.body == b("Unacceptable Accept type: "
+                             "text/html, application/xml;q=0.9 not in "
+                             "['application/json', 'text/javascript', "
+                             "'application/javascript', 'text/xml']")
 
     def test_GET_bad_simple_accept(self):
         headers = {
@@ -451,9 +451,9 @@ class TestRestJson(wsme.tests.protocol.RestOnlyProtocolTestCase):
             headers=headers,
             status=406)
         print("Received:", res.body)
-        assert res.body == ("Unacceptable Accept type: text/plain not in "
-                            "['application/json', 'text/javascript', "
-                            "'application/javascript', 'text/xml']")
+        assert res.body == b("Unacceptable Accept type: text/plain not in "
+                             "['application/json', 'text/javascript', "
+                             "'application/javascript', 'text/xml']")
 
     def test_POST(self):
         headers = {
@@ -481,9 +481,9 @@ class TestRestJson(wsme.tests.protocol.RestOnlyProtocolTestCase):
             headers=headers,
             status=415)
         print("Received:", res.body)
-        assert res.body == ("Unacceptable Content-Type: text/plain not in "
-                            "['application/json', 'text/javascript', "
-                            "'application/javascript', 'text/xml']")
+        assert res.body == b("Unacceptable Content-Type: text/plain not in "
+                             "['application/json', 'text/javascript', "
+                             "'application/javascript', 'text/xml']")
 
     def test_DELETE(self):
         res = self.app.delete(
