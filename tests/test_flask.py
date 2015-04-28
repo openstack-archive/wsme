@@ -105,7 +105,7 @@ class FlaskrTestCase(unittest.TestCase):
 
     def test_multiply(self):
         r = self.app.get('/multiply?a=2&b=5')
-        assert r.data == '10'
+        assert r.data == b'10', r.data
 
     def test_get_model(self):
         resp = self.app.get('/models/test')
@@ -118,9 +118,9 @@ class FlaskrTestCase(unittest.TestCase):
     def test_array_parameter(self):
         resp = self.app.get('/models?q.op=%3D&q.attr=name&q.value=second')
         assert resp.status_code == 200
-        print resp.data
+        print(resp.data)
         self.assertEquals(
-            resp.data, '[{"name": "second"}]'
+            resp.data, b'[{"name": "second"}]'
         )
 
     def test_post_model(self):
@@ -154,9 +154,9 @@ class FlaskrTestCase(unittest.TestCase):
             headers={'Accept': 'application/xml'}
         )
         assert r.status_code == 403, r.status_code
-        assert r.data == ('<error><faultcode>Client</faultcode>'
-                          '<faultstring>403: Forbidden</faultstring>'
-                          '<debuginfo /></error>')
+        assert r.data == (b'<error><faultcode>Client</faultcode>'
+                          b'<faultstring>403: Forbidden</faultstring>'
+                          b'<debuginfo /></error>')
 
     def test_custom_non_http_clientside_error(self):
         r = self.app.get(
@@ -171,20 +171,17 @@ class FlaskrTestCase(unittest.TestCase):
             headers={'Accept': 'application/xml'}
         )
         assert r.status_code == 412, r.status_code
-        assert r.data == ('<error><faultcode>Client</faultcode>'
-                          '<faultstring>FOO!</faultstring>'
-                          '<debuginfo /></error>')
+        assert r.data == (b'<error><faultcode>Client</faultcode>'
+                          b'<faultstring>FOO!</faultstring>'
+                          b'<debuginfo /></error>')
 
     def test_serversideerror(self):
         r = self.app.get('/divide_by_zero')
         assert r.status_code == 500
         data = json.loads(r.data)
-        self.assertEquals(
-            data,
-            {"debuginfo": None,
-             "faultcode": "Server",
-             "faultstring": "integer division or modulo by zero"}
-        )
+        self.assertEquals(data['debuginfo'], None)
+        self.assertEquals(data['faultcode'], 'Server')
+        self.assertIn('by zero', data['faultstring'])
 
     def test_restful_get(self):
         r = self.app.get('/restful', headers={'Accept': 'application/json'})

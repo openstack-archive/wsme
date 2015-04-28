@@ -225,7 +225,7 @@ def parse(s, datatypes, bodyarg, encoding='utf8'):
         try:
             kw = {argname: fromjson(datatypes[argname], jdata)}
         except ValueError as e:
-            raise InvalidInput(argname, jdata, e.message)
+            raise InvalidInput(argname, jdata, e.args[0])
     else:
         kw = {}
         extra_args = []
@@ -236,7 +236,7 @@ def parse(s, datatypes, bodyarg, encoding='utf8'):
                 try:
                     kw[key] = fromjson(datatypes[key], jdata[key])
                 except ValueError as e:
-                    raise InvalidInput(key, jdata[key], e.message)
+                    raise InvalidInput(key, jdata[key], e.args[0])
         if extra_args:
             raise UnknownArgument(', '.join(extra_args))
     return kw
