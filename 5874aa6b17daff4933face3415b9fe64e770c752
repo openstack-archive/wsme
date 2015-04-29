@@ -1,0 +1,10 @@
+Verified+2: Jenkins
+Code-Review+1: Chris Krelle <nobodycam@gmail.com>
+Code-Review+2: Chris Dent <chdent@redhat.com>
+Workflow+1: Chris Dent <chdent@redhat.com>
+Code-Review+1: Stéphane Bisinger <stephane.bisinger@gmail.com>
+Submitted-by: Jenkins
+Submitted-at: Wed, 29 Apr 2015 11:16:43 +0000
+Reviewed-on: https://review.openstack.org/176046
+Project: stackforge/wsme
+Branch: refs/heads/master
