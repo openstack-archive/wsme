@@ -65,6 +65,11 @@ class NamedAttrsObject(object):
     attr_2 = wsme.types.wsattr(int, name='attr.2')
 
 
+class ExtendedInt(wsme.types.UserType):
+    basetype = int
+    name = "Extended integer"
+
+
 class NestedInnerApi(object):
     @expose(bool)
     def deepfunction(self):
@@ -305,6 +310,12 @@ class ArgTypes(object):
         self.assertEquals(type(value), NamedAttrsObject)
         self.assertEquals(value.attr_1, 10)
         self.assertEquals(value.attr_2, 20)
+        return value
+
+    @expose(ExtendedInt())
+    @validate(ExtendedInt())
+    def setextendedint(self, value):
+        self.assertEquals(isinstance(value, ExtendedInt.basetype), True)
         return value
 
 

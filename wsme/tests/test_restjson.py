@@ -11,9 +11,9 @@ except:
 
 from wsme.rest.json import fromjson, tojson, parse
 from wsme.utils import parse_isodatetime, parse_isotime, parse_isodate
-from wsme.types import isarray, isdict, isusertype, register_type
+from wsme.types import isarray, isdict, isusertype, register_type, UserType
 from wsme.rest import expose, validate
-from wsme.exc import InvalidInput
+from wsme.exc import ClientSideError, InvalidInput
 
 
 import six
@@ -89,6 +89,10 @@ def prepare_result(value, datatype):
         return datatype(value)
     return value
 
+
+class CustomInt(UserType):
+    basetype = int
+    name = "custom integer"
 
 class Obj(wsme.types.Base):
     id = int
@@ -270,6 +274,15 @@ class TestRestJson(wsme.tests.protocol.RestOnlyProtocolTestCase):
             "Unknown argument:"
         )
 
+    def test_set_extended_int(self):
+        r = self.app.post(
+            '/argtypes/setextendedint',
+            '{"value": 3}',
+            headers={"Content-Type": "application/json"}
+        )
+        self.assertEqual(r.status_int, 200)
+        self.assertEqual(r.json, 3)
+
     def test_unset_attrs(self):
         class AType(object):
             attr = int
@@ -327,6 +340,52 @@ class TestRestJson(wsme.tests.protocol.RestOnlyProtocolTestCase):
             assert e.fieldname == 'a'
             assert e.value == jdate
             assert e.msg == "'%s' is not a legal date value" % jdate
+
+    def test_valid_simple_custom_type_fromjson(self):
+        value = 2
+        i = parse('{"a": %d}' % value, {'a': CustomInt()}, False)
+        self.assertEqual(i, {'a': 2})
+        self.assertIsInstance(i['a'], int)
+
+    def test_valid_simple_custom_type_fromjson_bodyarg(self):
+        value = 2
+        i = parse('%d' % value, {'a': CustomInt()}, True)
+        self.assertEqual(i, {'a': 2})
+        self.assertIsInstance(i['a'], int)
+
+    def test_valid_simple_custom_type_fromjson_bodyarg(self):
+        value = 2
+        i = parse('%d' % value, {'a': CustomInt()}, True)
+        self.assertEqual(i, {'a': 2})
+        self.assertIsInstance(i['a'], int)
+
+    def test_invalid_simple_custom_type_fromjson(self):
+        value = '2b'
+        try:
+            i = parse('{"a": "%s"}' % value, {'a': CustomInt()}, False)
+            self.assertEqual(i, {'a': 2})
+        except ClientSideError as e:
+            self.assertIsInstance(e, InvalidInput)
+            self.assertEqual(e.fieldname, 'a')
+            self.assertEqual(e.value, value)
+            self.assertEqual(
+                e.msg,
+                "invalid literal for int() with base 10: '%s'" % value
+            )
+
+    def test_invalid_simple_custom_type_fromjson_bodyarg(self):
+        value = '2b'
+        try:
+            i = parse('"%s"' % value, {'a': CustomInt()}, True)
+            self.assertEqual(i, {'a': 2})
+        except ClientSideError as e:
+            self.assertIsInstance(e, InvalidInput)
+            self.assertEqual(e.fieldname, 'a')
+            self.assertEqual(e.value, value)
+            self.assertEqual(
+                e.msg,
+                "invalid literal for int() with base 10: '%s'" % value
+            )
 
     def test_nest_result(self):
         self.root.protocols[0].nest_result = True
