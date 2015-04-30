@@ -70,6 +70,11 @@ class CustomObject(object):
     name = wsme.types.text
 
 
+class ExtendedInt(wsme.types.UserType):
+    basetype = int
+    name = "Extended integer"
+
+
 class NestedInnerApi(object):
     @expose(bool)
     def deepfunction(self):
@@ -322,6 +327,12 @@ class ArgTypes(object):
         self.assertIsInstance(value, CustomObject)
         self.assertIsInstance(value.name, wsme.types.text)
         self.assertIsInstance(value.aint, int)
+        return value
+
+    @expose(ExtendedInt())
+    @validate(ExtendedInt())
+    def setextendedint(self, value):
+        self.assertEquals(isinstance(value, ExtendedInt.basetype), True)
         return value
 
 
