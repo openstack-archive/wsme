@@ -122,7 +122,7 @@ class FunctionDefinition(object):
 
     def set_arg_types(self, argspec, arg_types):
         args, varargs, keywords, defaults = argspec
-        if args[0] == 'self':
+        if len(args) > 0 and args[0] == 'self':
             args = args[1:]
         arg_types = list(arg_types)
         if self.body_type is not None:
