@@ -182,6 +182,14 @@ def text_fromjson(datatype, value):
     return value
 
 
+@fromjson.when_object(*six.integer_types + (bool, float))
+def builtin_fromjson(datatype, value):
+    """Convert string object to built-in types int, long, bool or float."""
+    if value is None:
+        return None
+    return datatype(value)
+
+
 @fromjson.when_object(decimal.Decimal)
 def decimal_fromjson(datatype, value):
     if value is None:
