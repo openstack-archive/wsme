@@ -27,6 +27,8 @@ accept_content_types = [
     'text/javascript',
     'application/javascript'
 ]
+ENUM_TRUE = ('true', 't', 'yes', 'y', 'on', '1')
+ENUM_FALSE = ('false', 'f', 'no', 'n', 'off', '0')
 
 
 @generic
@@ -180,6 +182,28 @@ def text_fromjson(datatype, value):
     if value is not None and isinstance(value, wsme.types.bytes):
         return wsme.types.text(value)
     return value
+
+
+@fromjson.when_object(*six.integer_types + (float,))
+def numeric_fromjson(datatype, value):
+    """Convert string object to built-in types int, long or float."""
+    if value is None:
+        return None
+    return datatype(value)
+
+
+@fromjson.when_object(bool)
+def bool_fromjson(datatype, value):
+    """Convert to bool, restricting strings to just unambiguous values."""
+    if value is None:
+        return None
+    if isinstance(value, six.integer_types + (bool,)):
+        return bool(value)
+    if value in ENUM_TRUE:
+        return True
+    if value in ENUM_FALSE:
+        return False
+    raise ValueError("Value not an unambiguous boolean: %s" % value)
 
 
 @fromjson.when_object(decimal.Decimal)
