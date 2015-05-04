@@ -65,6 +65,11 @@ class NamedAttrsObject(object):
     attr_2 = wsme.types.wsattr(int, name='attr.2')
 
 
+class CustomObject(object):
+    aint = int
+    name = wsme.types.text
+
+
 class NestedInnerApi(object):
     @expose(bool)
     def deepfunction(self):
@@ -165,6 +170,10 @@ class ArgTypes(object):
     def assertEquals(self, a, b):
         if not (a == b):
             raise AssertionError('%s != %s' % (a, b))
+
+    def assertIsInstance(self, value, v_type):
+        assert isinstance(value, v_type), ("%s is not instance of type %s" %
+                                           (value, v_type))
 
     @expose(wsme.types.bytes)
     @validate(wsme.types.bytes)
@@ -305,6 +314,14 @@ class ArgTypes(object):
         self.assertEquals(type(value), NamedAttrsObject)
         self.assertEquals(value.attr_1, 10)
         self.assertEquals(value.attr_2, 20)
+        return value
+
+    @expose(CustomObject)
+    @validate(CustomObject)
+    def setcustomobject(self, value):
+        self.assertIsInstance(value, CustomObject)
+        self.assertIsInstance(value.name, wsme.types.text)
+        self.assertIsInstance(value.aint, int)
         return value
 
 

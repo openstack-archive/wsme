@@ -13,7 +13,7 @@ from wsme.rest.json import fromjson, tojson, parse
 from wsme.utils import parse_isodatetime, parse_isotime, parse_isodate
 from wsme.types import isarray, isdict, isusertype, register_type
 from wsme.rest import expose, validate
-from wsme.exc import InvalidInput
+from wsme.exc import ClientSideError, InvalidInput
 
 
 import six
@@ -270,6 +270,15 @@ class TestRestJson(wsme.tests.protocol.RestOnlyProtocolTestCase):
             "Unknown argument:"
         )
 
+    def test_set_custom_object(self):
+        r = self.app.post(
+            '/argtypes/setcustomobject',
+            '{"value": {"aint": 2, "name": "test"}}',
+            headers={"Content-Type": "application/json"}
+        )
+        self.assertEqual(r.status_int, 200)
+        self.assertEqual(r.json, {'aint': 2, 'name': 'test'})
+
     def test_unset_attrs(self):
         class AType(object):
             attr = int
@@ -327,6 +336,107 @@ class TestRestJson(wsme.tests.protocol.RestOnlyProtocolTestCase):
             assert e.fieldname == 'a'
             assert e.value == jdate
             assert e.msg == "'%s' is not a legal date value" % jdate
+
+    def test_valid_str_to_builtin_fromjson(self):
+        types = six.integer_types + (bool, float)
+        value = '2'
+        for t in types:
+            for ba in True, False:
+                jd = '%s' if ba else '{"a": %s}'
+                i = parse(jd % value, {'a': t}, ba)
+                self.assertEqual(
+                    i, {'a': t(value)},
+                    "Parsed value does not correspond for %s: "
+                    "%s != {'a': %s}" % (
+                        t, repr(i), repr(t(value))
+                    )
+                )
+                self.assertIsInstance(i['a'], t)
+
+    def test_valid_int_fromjson(self):
+        value = 2
+        for ba in True, False:
+            jd = '%d' if ba else '{"a": %d}'
+            i = parse(jd % value, {'a': int}, ba)
+            self.assertEqual(i, {'a': 2})
+            self.assertIsInstance(i['a'], int)
+
+    def test_valid_num_to_float_fromjson(self):
+        values = 2, 2.3
+        for v in values:
+            for ba in True, False:
+                jd = '%f' if ba else '{"a": %f}'
+                i = parse(jd % v, {'a': float}, ba)
+                self.assertEqual(i, {'a': float(v)})
+                self.assertIsInstance(i['a'], float)
+
+    def test_invalid_str_to_buitin_fromjson(self):
+        types = six.integer_types + (float, bool)
+        value = '2a'
+        for t in types:
+            for ba in True, False:
+                jd = '"%s"' if ba else '{"a": "%s"}'
+                try:
+                    parse(jd % value, {'a': t}, ba)
+                    assert False, (
+                        "Value '%s' should not parse correctly for %s." %
+                        (value, t)
+                    )
+                except ClientSideError as e:
+                    self.assertIsInstance(e, InvalidInput)
+                    self.assertEqual(e.fieldname, 'a')
+                    self.assertEqual(e.value, value)
+
+    def test_ambiguous_to_bool(self):
+        amb_values = ('', 'randomstring', '2', '-32', 'not true')
+        for value in amb_values:
+            for ba in True, False:
+                jd = '"%s"' if ba else '{"a": "%s"}'
+                try:
+                    parse(jd % value, {'a': bool}, ba)
+                    assert False, (
+                        "Value '%s' should not parse correctly for %s." %
+                        (value, bool)
+                    )
+                except ClientSideError as e:
+                    self.assertIsInstance(e, InvalidInput)
+                    self.assertEqual(e.fieldname, 'a')
+                    self.assertEqual(e.value, value)
+
+    def test_true_strings_to_bool(self):
+        true_values = ('true', 't', 'yes', 'y', 'on', '1')
+        for value in true_values:
+            for ba in True, False:
+                jd = '"%s"' if ba else '{"a": "%s"}'
+                i = parse(jd % value, {'a': bool}, ba)
+                self.assertIsInstance(i['a'], bool)
+                self.assertTrue(i['a'])
+
+    def test_false_strings_to_bool(self):
+        false_values = ('false', 'f', 'no', 'n', 'off', '0')
+        for value in false_values:
+            for ba in True, False:
+                jd = '"%s"' if ba else '{"a": "%s"}'
+                i = parse(jd % value, {'a': bool}, ba)
+                self.assertIsInstance(i['a'], bool)
+                self.assertFalse(i['a'])
+
+    def test_true_ints_to_bool(self):
+        true_values = (1, 5, -3)
+        for value in true_values:
+            for ba in True, False:
+                jd = '%d' if ba else '{"a": %d}'
+                i = parse(jd % value, {'a': bool}, ba)
+                self.assertIsInstance(i['a'], bool)
+                self.assertTrue(i['a'])
+
+    def test_false_ints_to_bool(self):
+        value = 0
+        for ba in True, False:
+            jd = '%d' if ba else '{"a": %d}'
+            i = parse(jd % value, {'a': bool}, ba)
+            self.assertIsInstance(i['a'], bool)
+            self.assertFalse(i['a'])
 
     def test_nest_result(self):
         self.root.protocols[0].nest_result = True

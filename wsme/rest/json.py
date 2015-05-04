@@ -182,6 +182,30 @@ def text_fromjson(datatype, value):
     return value
 
 
+@fromjson.when_object(*six.integer_types + (float,))
+def numeric_fromjson(datatype, value):
+    """Convert string object to built-in types int, long or float."""
+    if value is None:
+        return None
+    return datatype(value)
+
+
+@fromjson.when_object(bool)
+def numeric_fromjson(datatype, value):
+    """Convert to bool, restricting strings to just unambiguous values."""
+    true_values = ('true', 't', 'yes', 'y', 'on', '1')
+    false_values = ('false', 'f', 'no', 'n', 'off', '0')
+    if value is None:
+        return None
+    if isinstance(value, six.integer_types + (bool,)):
+        return bool(value)
+    if value in true_values:
+        return True
+    if value in false_values:
+        return False
+    raise ValueError("Value not an unambiguous boolean: %s" % value)
+
+
 @fromjson.when_object(decimal.Decimal)
 def decimal_fromjson(datatype, value):
     if value is None:
