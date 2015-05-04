@@ -65,6 +65,11 @@ class NamedAttrsObject(object):
     attr_2 = wsme.types.wsattr(int, name='attr.2')
 
 
+class CustomObject(object):
+    aint = int
+    name = wsme.types.text
+
+
 class NestedInnerApi(object):
     @expose(bool)
     def deepfunction(self):
@@ -305,6 +310,14 @@ class ArgTypes(object):
         self.assertEquals(type(value), NamedAttrsObject)
         self.assertEquals(value.attr_1, 10)
         self.assertEquals(value.attr_2, 20)
+        return value
+
+    @expose(CustomObject)
+    @validate(CustomObject)
+    def setcustomobject(self, value):
+        self.assertEquals(isinstance(value, CustomObject), True)
+        self.assertEquals(isinstance(value.name, wsme.types.text), True)
+        self.assertEquals(isinstance(value.aint, int), True)
         return value
 
 
