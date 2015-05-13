@@ -62,3 +62,18 @@ class UnknownFunction(ClientSideError):
     @property
     def faultstring(self):
         return _(six.u("Unknown function name: %s")) % (self.name)
+
+
+class UnknownAttribute(ClientSideError):
+    def __init__(self, fieldname, attributes, msg=''):
+        self.fieldname = fieldname
+        self.attributes = attributes
+        super(UnknownAttribute, self).__init__(msg)
+
+    @property
+    def faultstring(self):
+        error = _("Unknown attribute for argument %(argn)s: %(attrs)s")
+        if len(self.attributes) > 1:
+            error = _("Unknown attributes for argument %(argn)s: %(attrs)s")
+        str_attrs = ", ".join(self.attributes)
+        return error % {'argn': self.fieldname, 'attrs': str_attrs}
