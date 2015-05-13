@@ -100,6 +100,10 @@ class Obj(wsme.types.Base):
     name = wsme.types.text
 
 
+class NestedObj(wsme.types.Base):
+    o = Obj
+
+
 class CRUDResult(object):
     data = Obj
     message = wsme.types.text
@@ -476,6 +480,37 @@ class TestRestJson(wsme.tests.protocol.RestOnlyProtocolTestCase):
                     "invalid literal for int() with base 10: '%s'" % value
                 )
 
+    def test_parse_unexpected_attribute(self):
+        o = {
+            "id": "1",
+            "name": "test",
+            "other": "unknown",
+            "other2": "still unknown",
+        }
+        for ba in True, False:
+            jd = o if ba else {"o": o}
+            try:
+                parse(json.dumps(jd), {'o': Obj}, ba)
+                raise AssertionError("Object should not parse correcty.")
+            except wsme.exc.UnknownAttribute as e:
+                self.assertEqual(e.attributes, set(['other', 'other2']))
+
+    def test_parse_unexpected_nested_attribute(self):
+        no = {
+            "o": {
+                "id": "1",
+                "name": "test",
+                "other": "unknown",
+            },
+        }
+        for ba in False, True:
+            jd = no if ba else {"no": no}
+            try:
+                parse(json.dumps(jd), {'no': NestedObj}, ba)
+            except wsme.exc.UnknownAttribute as e:
+                self.assertEqual(e.attributes, set(['other']))
+                self.assertEqual(e.fieldname, "no.o")
+
     def test_nest_result(self):
         self.root.protocols[0].nest_result = True
         r = self.app.get('/returntypes/getint.json')
@@ -658,6 +693,33 @@ class TestRestJson(wsme.tests.protocol.RestOnlyProtocolTestCase):
         assert result['data']['id'] == 1
         assert result['data']['name'] == u("test")
         assert result['message'] == "read"
+
+    def test_unexpected_extra_arg(self):
+        headers = {
+            'Content-Type': 'application/json',
+        }
+        data = {"id": 1, "name": "test"}
+        content = json.dumps({"data": data, "other": "unexpected"})
+        res = self.app.put(
+            '/crud',
+            content,
+            headers=headers,
+            expect_errors=True)
+        self.assertEqual(res.status_int, 400)
+
+    def test_unexpected_extra_attribute(self):
+        """Expect a failure if we send an unexpected object attribute."""
+        headers = {
+            'Content-Type': 'application/json',
+        }
+        data = {"id": 1, "name": "test", "other": "unexpected"}
+        content = json.dumps({"data": data})
+        res = self.app.put(
+            '/crud',
+            content,
+            headers=headers,
+            expect_errors=True)
+        self.assertEqual(res.status_int, 400)
 
     def test_body_arg(self):
         headers = {
