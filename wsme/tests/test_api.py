@@ -259,19 +259,19 @@ Value should be one of:"))
             'Accept': 'application/json'
         })
 
-        self.assertEquals(res.body, b('10'))
+        self.assertEqual(res.body, b('10'))
 
         res = app.get('/mul_float?a=1.2&b=2.9', headers={
             'Accept': 'application/json'
         })
 
-        self.assertEquals(res.body, b('3.48'))
+        self.assertEqual(res.body, b('3.48'))
 
         res = app.get('/mul_string?a=hello&b=2', headers={
             'Accept': 'application/json'
         })
 
-        self.assertEquals(res.body, b('"hellohello"'))
+        self.assertEqual(res.body, b('"hellohello"'))
 
     def test_wsattr_mandatory(self):
         class ComplexType(object):
