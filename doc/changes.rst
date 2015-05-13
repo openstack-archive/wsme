@@ -1,6 +1,21 @@
 Changes
 =======
 
+0.7.0 (2015-05-13)
+------------------
+
+* Ensure UserType objects are converted to basetype
+* Convert built-in types when passed as strings
+* Multiple protocol accept or content-type matching
+* Raise an InvalidInput if you get a ValueError from JSON data
+* Remove unsupported python versions from setup.cfg
+* Clean up setup.py and add requirements.txt
+* Add full MIT license
+* Fix i18n when formatting exception
+* Cleanup up logging
+* Make it possible to use the Response to return a non-default return type
+* several fixes for SOAP protocol
+
 0.6.4 (2014-11-20)
 ------------------
 
