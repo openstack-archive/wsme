@@ -116,8 +116,7 @@ def datetime_tojson(datatype, value):
 
 @generic
 def fromjson(datatype, value):
-    """
-    A generic converter from json base types to python datatype.
+    """A generic converter from json base types to python datatype.
 
     If a non-complex user specific type is to be used in the api,
     a specific fromjson should be added::
@@ -135,7 +134,18 @@ def fromjson(datatype, value):
         return None
     if wsme.types.iscomplex(datatype):
         obj = datatype()
-        for attrdef in wsme.types.list_attributes(datatype):
+        attributes = wsme.types.list_attributes(datatype)
+
+        # Here we check that all the attributes in the value are also defined
+        # in our type definition, otherwise we raise an Error.
+        v_keys = set(value.keys())
+        a_keys = set(adef.name for adef in attributes)
+        if not v_keys <= a_keys:
+            raise ValueError(
+                "Unexpected attributes: %s" % ", ".join(v_keys - a_keys)
+            )
+
+        for attrdef in attributes:
             if attrdef.name in value:
                 val_fromjson = fromjson(attrdef.datatype, value[attrdef.name])
                 if getattr(attrdef, 'readonly', False):
@@ -145,6 +155,7 @@ def fromjson(datatype, value):
             elif attrdef.mandatory:
                 raise InvalidInput(attrdef.name, None,
                                    "Mandatory field missing.")
+
         return wsme.types.validate_value(datatype, obj)
     elif wsme.types.isusertype(datatype):
         value = datatype.frombasetype(

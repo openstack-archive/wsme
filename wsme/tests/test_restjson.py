@@ -659,6 +659,33 @@ class TestRestJson(wsme.tests.protocol.RestOnlyProtocolTestCase):
         assert result['data']['name'] == u("test")
         assert result['message'] == "read"
 
+    def test_unexpected_extra_arg(self):
+        headers = {
+            'Content-Type': 'application/json',
+        }
+        data = {"id": 1, "name": "test"}
+        content = json.dumps({"data": data, "other": "unexpected"})
+        res = self.app.put(
+            '/crud',
+            content,
+            headers=headers,
+            expect_errors=True)
+        self.assertEqual(res.status_int, 400)
+
+    def test_unexpected_extra_attribute(self):
+        """Expect a failure if we send an unexpected object attribute."""
+        headers = {
+            'Content-Type': 'application/json',
+        }
+        data = {"id": 1, "name": "test", "other": "unexpected"}
+        content = json.dumps({"data": data})
+        res = self.app.put(
+            '/crud',
+            content,
+            headers=headers,
+            expect_errors=True)
+        self.assertEqual(res.status_int, 400)
+
     def test_body_arg(self):
         headers = {
             'Content-Type': 'application/json',
