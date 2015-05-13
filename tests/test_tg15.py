@@ -148,7 +148,7 @@ class TestController(testutil.TGTest):
         api = list(wsmeext.tg1._scan_api(root))
         print(api)
 
-        self.assertEquals(len(api), 0)
+        self.assertEqual(len(api), 0)
 
     def test_scan_api_maxlen(self):
         class ARoot(object):
@@ -167,11 +167,11 @@ class TestController(testutil.TGTest):
         self.assertRaises(ValueError, list, wsmeext.tg1._scan_api(root))
 
     def test_templates_content_type(self):
-        self.assertEquals(
+        self.assertEqual(
             "application/json",
             wsmeext.tg1.AutoJSONTemplate().get_content_type('dummy')
         )
-        self.assertEquals(
+        self.assertEqual(
             "text/xml",
             wsmeext.tg1.AutoXMLTemplate().get_content_type('dummy')
         )
