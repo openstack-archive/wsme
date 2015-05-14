@@ -118,7 +118,7 @@ class FlaskrTestCase(unittest.TestCase):
     def test_array_parameter(self):
         resp = self.app.get('/models?q.op=%3D&q.attr=name&q.value=second')
         assert resp.status_code == 200
-        self.assertEquals(
+        self.assertEqual(
             resp.data, b'[{"name": "second"}]'
         )
 
@@ -178,8 +178,8 @@ class FlaskrTestCase(unittest.TestCase):
         r = self.app.get('/divide_by_zero')
         assert r.status_code == 500
         data = json.loads(r.data)
-        self.assertEquals(data['debuginfo'], None)
-        self.assertEquals(data['faultcode'], 'Server')
+        self.assertEqual(data['debuginfo'], None)
+        self.assertEqual(data['faultcode'], 'Server')
         self.assertIn('by zero', data['faultstring'])
 
     def test_restful_get(self):
