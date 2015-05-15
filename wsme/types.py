@@ -3,16 +3,12 @@ import datetime
 import decimal
 import inspect
 import logging
+import netaddr
 import re
 import six
 import sys
 import uuid
 import weakref
-
-try:
-    import ipaddress
-except ImportError:
-    import ipaddr as ipaddress
 
 from wsme import exc
 
@@ -234,8 +230,8 @@ class IPv4AddressType(UserType):
     @staticmethod
     def validate(value):
         try:
-            ipaddress.IPv4Address(value)
-        except ipaddress.AddressValueError:
+            netaddr.IPAddress(value, version=4, flags=netaddr.INET_PTON)
+        except netaddr.AddrFormatError:
             error = 'Value should be IPv4 format'
             raise ValueError(error)
         else:
@@ -254,8 +250,8 @@ class IPv6AddressType(UserType):
     @staticmethod
     def validate(value):
         try:
-            ipaddress.IPv6Address(value)
-        except ipaddress.AddressValueError:
+            netaddr.IPAddress(value, version=6, flags=netaddr.INET_PTON)
+        except netaddr.AddrFormatError:
             error = 'Value should be IPv6 format'
             raise ValueError(error)
         else:
