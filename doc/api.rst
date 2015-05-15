@@ -9,7 +9,7 @@ Public API
 
 .. module:: wsme
 
-.. autoclass:: signature([return_type, [arg0_type, [arg1_type, ... ] ] ], body=None, status=None)
+.. autoclass:: signature([return_type, [arg0_type, [arg1_type, ... ] ] ], body=None, status_code=None)
 
 .. autoclass:: wsme.types.Base
 .. autoclass:: wsattr
