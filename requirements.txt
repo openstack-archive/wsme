@@ -1,4 +1,4 @@
 six>=1.9.0
 WebOb>=1.2.3
 simplegeneric
-ipaddr
+netaddr>=0.7.12
