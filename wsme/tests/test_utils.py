@@ -1,5 +1,6 @@
 import datetime
 import unittest
+import pytz
 
 from wsme import utils
 
@@ -26,6 +27,11 @@ class TestUtils(unittest.TestCase):
         good_times = [
             ('12:03:54', datetime.time(12, 3, 54)),
             ('23:59:59.000004', datetime.time(23, 59, 59, 4)),
+            ('01:02:03+00:00', datetime.time(1, 2, 3, 0, pytz.UTC)),
+            ('01:02:03+23:59', datetime.time(1, 2, 3, 0,
+                                             pytz.FixedOffset(1439))),
+            ('01:02:03-23:59', datetime.time(1, 2, 3, 0,
+                                             pytz.FixedOffset(-1439))),
         ]
         ill_formatted_times = [
             '24-12-2004'
@@ -33,6 +39,8 @@ class TestUtils(unittest.TestCase):
         out_of_range_times = [
             '32:12:00',
             '00:54:60',
+            '01:02:03-24:00',
+            '01:02:03+24:00',
         ]
         for s, t in good_times:
             assert utils.parse_isotime(s) == t
@@ -42,16 +50,27 @@ class TestUtils(unittest.TestCase):
     def test_parse_isodatetime(self):
         good_datetimes = [
             ('2008-02-12T12:03:54',
-                datetime.datetime(2008, 2, 12, 12, 3, 54)),
+             datetime.datetime(2008, 2, 12, 12, 3, 54)),
             ('2012-05-14T23:59:59.000004',
-                datetime.datetime(2012, 5, 14, 23, 59, 59, 4)),
+             datetime.datetime(2012, 5, 14, 23, 59, 59, 4)),
+            ('1856-07-10T01:02:03+00:00',
+             datetime.datetime(1856, 7, 10, 1, 2, 3, 0, pytz.UTC)),
+            ('1856-07-10T01:02:03+23:59',
+             datetime.datetime(1856, 7, 10, 1, 2, 3, 0,
+                               pytz.FixedOffset(1439))),
+            ('1856-07-10T01:02:03-23:59',
+             datetime.datetime(1856, 7, 10, 1, 2, 3, 0,
+                               pytz.FixedOffset(-1439))),
         ]
         ill_formatted_datetimes = [
-            '24-12-2004'
+            '24-12-2004',
+            '1856-07-10+33:00'
         ]
         out_of_range_datetimes = [
             '2008-02-12T32:12:00',
             '2012-13-12T00:54:60',
+            '1856-07-10T01:02:03-24:00',
+            '1856-07-10T01:02:03+24:00',
         ]
         for s, t in good_datetimes:
             assert utils.parse_isodatetime(s) == t
