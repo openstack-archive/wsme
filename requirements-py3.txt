@@ -1,3 +1,4 @@
 six>=1.9.0
 WebOb>=1.2.3
 simplegeneric
+pytz
