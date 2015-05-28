@@ -84,6 +84,23 @@ Cornice
     Declare the parameters of a function and returns a function suitable for
     cornice (ie that takes a request and returns a response).
 
+Configuration
+~~~~~~~~~~~~~
+
+To use WSME with Cornice you have to add a configuration option to your Pyramid application.
+
+.. code-block:: python
+
+    from pyramid.config import Configurator
+
+
+    def make_app():
+        config = Configurator()
+        config.include("cornice")
+        config.include("wsmeext.cornice")  # This includes WSME cornice support
+        # ...
+        return config.make_wsgi_app()
+
 Example
 ~~~~~~~
 
