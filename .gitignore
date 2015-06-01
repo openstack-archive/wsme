@@ -24,3 +24,6 @@ WSME.egg-info/
 AUTHORS
 ChangeLog
 pbr*.egg
+
+# Cross-test logs
+cross-test-*.log
