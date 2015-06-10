@@ -117,6 +117,11 @@ class AuthorsController(RestController):
         if id == 913:
             return wsme.api.Response('foo', status_code=200, return_type=text)
 
+        if id == 914:
+            r = wsme.types.File(content='file content', filename='author.json')
+            return wsme.api.Response(r, status_code=200,
+                                     return_type=wsme.types.File)
+
         author = Author()
         author.id = id
         author.firstname = u"aname"

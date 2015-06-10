@@ -2,6 +2,7 @@ from __future__ import absolute_import
 
 import functools
 import inspect
+import mimetypes
 import sys
 
 import wsme
@@ -10,6 +11,7 @@ import wsme.rest.json
 import wsme.rest.xml
 
 import pecan
+from webob.static import FileIter
 
 from wsme.utils import is_valid_code
 
@@ -122,6 +124,13 @@ def wsexpose(*args, **kwargs):
             if return_type is None:
                 pecan.request.pecan['content_type'] = None
                 pecan.response.content_type = None
+                return ''
+            elif return_type is wsme.types.File:
+                pecan.request.pecan['content_type'] = None
+                if result.filename is not None:
+                    pecan.response.headers['Content-Disposition'] = (
+                        'attachment; filename="%s"' % result.filename)
+                pecan.response.app_iter = FileIter(result.file)
                 return ''
 
             return dict(
