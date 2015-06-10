@@ -191,6 +191,18 @@ class TestWS(FunctionalTest):
         self.assertEqual(res.body, b'')
         self.assertEqual(res.content_length, 0)
 
+    def test_serving_file(self):
+        res = self.app.get(
+            '/authors/914',
+        )
+        self.assertEqual(res.status_int, 200)
+        # Assert the body is the raw content of the file and not a
+        # encoded string
+        self.assertEqual(res.body, b'file content')
+        self.assertEqual(res.content_length, 12)
+        self.assertEqual(res.headers['Content-Disposition'],
+                         'attachment; filename="author.json"')
+
     def test_serversideerror(self):
         expected_status_code = 500
         expected_status = http_response_messages[expected_status_code]
