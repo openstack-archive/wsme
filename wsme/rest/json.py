@@ -156,6 +156,8 @@ def fromjson(datatype, value):
 def array_fromjson(datatype, value):
     if value is None:
         return None
+    if not isinstance(value, list):
+        raise ValueError("Value not a list: %s" % value)
     return [fromjson(datatype.item_type, item) for item in value]
 
 
