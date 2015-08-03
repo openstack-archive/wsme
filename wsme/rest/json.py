@@ -156,6 +156,8 @@ def fromjson(datatype, value):
 def array_fromjson(datatype, value):
     if value is None:
         return None
+    if not isinstance(value, list):
+        raise ValueError("Value not a valid list: %s" % value)
     return [fromjson(datatype.item_type, item) for item in value]
 
 
@@ -163,6 +165,8 @@ def array_fromjson(datatype, value):
 def dict_fromjson(datatype, value):
     if value is None:
         return None
+    if not isinstance(value, dict):
+        raise ValueError("Value not a valid dict: %s" % value)
     return dict((
         (fromjson(datatype.key_type, item[0]),
             fromjson(datatype.value_type, item[1]))
