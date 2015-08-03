@@ -11,7 +11,8 @@ except:
 
 from wsme.rest.json import fromjson, tojson, parse
 from wsme.utils import parse_isodatetime, parse_isotime, parse_isodate
-from wsme.types import isarray, isdict, isusertype, register_type, UserType
+from wsme.types import isarray, isdict, isusertype, register_type
+from wsme.types import UserType, ArrayType, DictType
 from wsme.rest import expose, validate
 from wsme.exc import ClientSideError, InvalidInput
 
@@ -324,6 +325,28 @@ class TestRestJson(wsme.tests.protocol.RestOnlyProtocolTestCase):
     def test_parse_valid_date(self):
         j = parse('{"a": "2011-01-01"}', {'a': datetime.date}, False)
         assert isinstance(j['a'], datetime.date)
+
+    def test_invalid_list_fromjson(self):
+        jlist = "invalid"
+        try:
+            parse('{"a": "%s"}' % jlist, {'a': ArrayType(str)}, False)
+            assert False
+        except Exception as e:
+            assert isinstance(e, InvalidInput)
+            assert e.fieldname == 'a'
+            assert e.value == jlist
+            assert e.msg == "Value not a valid list: %s" % jlist
+
+    def test_invalid_dict_fromjson(self):
+        jdict = "invalid"
+        try:
+            parse('{"a": "%s"}' % jdict, {'a': DictType(str, str)}, False)
+            assert False
+        except Exception as e:
+            assert isinstance(e, InvalidInput)
+            assert e.fieldname == 'a'
+            assert e.value == jdict
+            assert e.msg == "Value not a valid dict: %s" % jdict
 
     def test_invalid_date_fromjson(self):
         jdate = "2015-01-invalid"
