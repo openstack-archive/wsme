@@ -181,8 +181,10 @@ def args_from_args(funcdef, args, kwargs):
         except Exception:
             if isinstance(argdef.datatype, UserType):
                 datatype_name = argdef.datatype.name
-            else:
+            elif isinstance(argdef.datatype, type):
                 datatype_name = argdef.datatype.__name__
+            else:
+                datatype_name = argdef.datatype.__class__.__name__
             raise InvalidInput(
                 argdef.name,
                 arg,
