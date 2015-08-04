@@ -257,6 +257,8 @@ def parse(s, datatypes, bodyarg, encoding='utf8'):
     else:
         kw = {}
         extra_args = []
+        if not isinstance(jdata, dict):
+            raise ClientSideError("Request must be a JSON dict")
         for key in jdata:
             if key not in datatypes:
                 extra_args.append(key)

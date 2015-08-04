@@ -335,6 +335,14 @@ class TestRestJson(wsme.tests.protocol.RestOnlyProtocolTestCase):
         j = parse('{"a": "2011-01-01"}', {'a': datetime.date}, False)
         assert isinstance(j['a'], datetime.date)
 
+    def test_invalid_root_dict_fromjson(self):
+        try:
+            parse('["invalid"]', {'a': ArrayType(str)}, False)
+            assert False
+        except Exception as e:
+            assert isinstance(e, ClientSideError)
+            assert e.msg == "Request must be a JSON dict"
+
     def test_invalid_list_fromjson(self):
         jlist = "invalid"
         try:
