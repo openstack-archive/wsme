@@ -233,7 +233,8 @@ def args_from_body(funcdef, body, mimetype):
     elif mimetype in restxml.accept_content_types:
         dataformat = restxml
     else:
-        raise ValueError("Unknown mimetype: %s" % mimetype)
+        raise ClientSideError("Unknown mimetype: %s" % mimetype,
+                              status_code=415)
 
     try:
         kw = dataformat.parse(

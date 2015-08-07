@@ -203,6 +203,7 @@ class WSRoot(object):
             infos = wsme.api.format_exception(sys.exc_info(), self._debug)
             if isinstance(e, ClientSideError):
                 request.client_errorcount += 1
+                request.client_last_status_code = e.code
             else:
                 request.server_errorcount += 1
             return protocol.encode_error(context, infos)
@@ -266,6 +267,7 @@ class WSRoot(object):
 
         request.calls = []
         request.client_errorcount = 0
+        request.client_last_status_code = None
         request.server_errorcount = 0
 
         try:
@@ -290,7 +292,9 @@ class WSRoot(object):
                 if hasattr(protocol, 'get_response_status'):
                     res.status = protocol.get_response_status(request)
                 else:
-                    if request.client_errorcount:
+                    if request.client_errorcount == 1:
+                        res.status = request.client_last_status_code
+                    elif request.client_errorcount:
                         res.status = 400
                     elif request.server_errorcount:
                         res.status = 500
