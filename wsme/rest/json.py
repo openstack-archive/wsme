@@ -1,6 +1,4 @@
-"""
-REST+Json protocol implementation.
-"""
+"""REST+Json protocol implementation."""
 from __future__ import absolute_import
 import datetime
 import decimal
@@ -9,10 +7,10 @@ import six
 
 from simplegeneric import generic
 
-from wsme.types import Unset
+import wsme.exc
 import wsme.types
+from wsme.types import Unset
 import wsme.utils
-from wsme.exc import ClientSideError, UnknownArgument, InvalidInput
 
 
 try:
@@ -116,8 +114,7 @@ def datetime_tojson(datatype, value):
 
 @generic
 def fromjson(datatype, value):
-    """
-    A generic converter from json base types to python datatype.
+    """A generic converter from json base types to python datatype.
 
     If a non-complex user specific type is to be used in the api,
     a specific fromjson should be added::
@@ -135,16 +132,31 @@ def fromjson(datatype, value):
         return None
     if wsme.types.iscomplex(datatype):
         obj = datatype()
-        for attrdef in wsme.types.list_attributes(datatype):
+        attributes = wsme.types.list_attributes(datatype)
+
+        # Here we check that all the attributes in the value are also defined
+        # in our type definition, otherwise we raise an Error.
+        v_keys = set(value.keys())
+        a_keys = set(adef.name for adef in attributes)
+        if not v_keys <= a_keys:
+            raise wsme.exc.UnknownAttribute(None, v_keys - a_keys)
+
+        for attrdef in attributes:
             if attrdef.name in value:
-                val_fromjson = fromjson(attrdef.datatype, value[attrdef.name])
+                try:
+                    val_fromjson = fromjson(attrdef.datatype,
+                                            value[attrdef.name])
+                except wsme.exc.UnknownAttribute as e:
+                    e.add_fieldname(attrdef.name)
+                    raise
                 if getattr(attrdef, 'readonly', False):
-                    raise InvalidInput(attrdef.name, val_fromjson,
-                                       "Cannot set read only field.")
+                    raise wsme.exc.InvalidInput(attrdef.name, val_fromjson,
+                                                "Cannot set read only field.")
                 setattr(obj, attrdef.key, val_fromjson)
             elif attrdef.mandatory:
-                raise InvalidInput(attrdef.name, None,
-                                   "Mandatory field missing.")
+                raise wsme.exc.InvalidInput(attrdef.name, None,
+                                            "Mandatory field missing.")
+
         return wsme.types.validate_value(datatype, obj)
     elif wsme.types.isusertype(datatype):
         value = datatype.frombasetype(
@@ -247,13 +259,18 @@ def parse(s, datatypes, bodyarg, encoding='utf8'):
     try:
         jdata = jload(s)
     except ValueError:
-        raise ClientSideError("Request is not in valid JSON format")
+        raise wsme.exc.ClientSideError("Request is not in valid JSON format")
     if bodyarg:
         argname = list(datatypes.keys())[0]
         try:
             kw = {argname: fromjson(datatypes[argname], jdata)}
         except ValueError as e:
-            raise InvalidInput(argname, jdata, e.args[0])
+            raise wsme.exc.InvalidInput(argname, jdata, e.args[0])
+        except wsme.exc.UnknownAttribute as e:
+            # We only know the fieldname at this level, not in the
+            # called function. We fill in this information here.
+            e.add_fieldname(argname)
+            raise
     else:
         kw = {}
         extra_args = []
@@ -264,9 +281,14 @@ def parse(s, datatypes, bodyarg, encoding='utf8'):
                 try:
                     kw[key] = fromjson(datatypes[key], jdata[key])
                 except ValueError as e:
-                    raise InvalidInput(key, jdata[key], e.args[0])
+                    raise wsme.exc.InvalidInput(key, jdata[key], e.args[0])
+                except wsme.exc.UnknownAttribute as e:
+                    # We only know the fieldname at this level, not in the
+                    # called function. We fill in this information here.
+                    e.add_fieldname(key)
+                    raise
         if extra_args:
-            raise UnknownArgument(', '.join(extra_args))
+            raise wsme.exc.UnknownArgument(', '.join(extra_args))
     return kw
 
 
