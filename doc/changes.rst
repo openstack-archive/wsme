@@ -1,6 +1,20 @@
 Changes
 =======
 
+0.8.0 (2015-08-25)
+------------------
+
+Changes that may break your app:
+
+* Returns 400 if unexpected attributes are added to complex types (#1277571).
+
+Other changes:
+
+* Returns 415 when Content-Type is invalid (#1419110)
+* Returns 400 if a complex input type is not a json object (#1423634)
+* Fix error reports with ArrayType and DictType invalid inputs (#1428185, #1428628)
+* Update README
+
 0.7.0 (2015-05-13)
 ------------------
 
