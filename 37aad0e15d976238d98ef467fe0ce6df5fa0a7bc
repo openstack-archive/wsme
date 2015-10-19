@@ -1,0 +1,10 @@
+Verified+2: Jenkins
+Code-Review+2: Chris Dent <chdent@redhat.com>
+Workflow+1: Chris Dent <chdent@redhat.com>
+Code-Review+1: venkatamahesh <venkatamaheshkotha@gmail.com>
+Code-Review+1: Clint Adams <clint@gcfm.net>
+Submitted-by: Jenkins
+Submitted-at: Mon, 19 Oct 2015 09:05:03 +0000
+Reviewed-on: https://review.openstack.org/236619
+Project: openstack/wsme
+Branch: refs/heads/master
