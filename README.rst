@@ -101,9 +101,9 @@ Contribute
 ~~~~~~~~~~
 
 * Documentation: http://packages.python.org/WSME/
-* Source: http://git.openstack.org/cgit/stackforge/wsme
+* Source: http://git.openstack.org/cgit/openstack/wsme
 * Bugs: https://bugs.launchpad.net/wsme/+bugs
-* Code review: https://review.openstack.org/#/q/project:stackforge/wsme,n,z
+* Code review: https://review.openstack.org/#/q/project:openstack/wsme,n,z
 
 .. _Changelog: http://packages.python.org/WSME/changes.html
 .. _python-wsme mailinglist: http://groups.google.com/group/python-wsme

@@ -340,5 +340,3 @@ Pyramid
 
 The recommended way of using WSME inside Pyramid is to use
 :ref:`adapter-cornice`.
-
-
