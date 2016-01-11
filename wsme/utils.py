@@ -104,6 +104,8 @@ def is_valid_code(code_value):
     """
     This function checks if incoming value in http response codes range.
     """
+    http_client.responses[
+        http_client.UNPROCESSABLE_ENTITY] = 'Unprocessable Entity'
     return code_value in http_client.responses
 
 

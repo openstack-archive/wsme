@@ -82,6 +82,13 @@ class TestUtils(unittest.TestCase):
             "Valid status code not detected"
         )
 
+    def test_validator_with_valid_422_code(self):
+        valid_code = 422
+        self.assertTrue(
+            utils.is_valid_code(valid_code),
+            "Valid status code not detected"
+        )
+
     def test_validator_with_invalid_int_code(self):
         invalid_int_code = 648
         self.assertFalse(
