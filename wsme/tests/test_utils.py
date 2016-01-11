@@ -63,14 +63,12 @@ class TestUtils(unittest.TestCase):
                                pytz.FixedOffset(-1439))),
         ]
         ill_formatted_datetimes = [
-            '24-12-2004',
+            '24-32-2004',
             '1856-07-10+33:00'
         ]
         out_of_range_datetimes = [
             '2008-02-12T32:12:00',
-            '2012-13-12T00:54:60',
-            '1856-07-10T01:02:03-24:00',
-            '1856-07-10T01:02:03+24:00',
+            '2012-13-12T00:54:60'
         ]
         for s, t in good_datetimes:
             assert utils.parse_isodatetime(s) == t
