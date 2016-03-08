@@ -1,0 +1,9 @@
+Code-Review+2: Chris Dent <cdent@anticdent.org>
+Code-Review+2: Julien Danjou <julien@danjou.info>
+Workflow+1: Chris Dent <cdent@anticdent.org>
+Verified+2: Jenkins
+Submitted-by: Jenkins
+Submitted-at: Tue, 08 Mar 2016 11:40:36 +0000
+Reviewed-on: https://review.openstack.org/218659
+Project: openstack/wsme
+Branch: refs/heads/master
