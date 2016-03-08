@@ -487,7 +487,7 @@ class wsattr(object):
     def __set__(self, instance, value):
         try:
             value = validate_value(self.datatype, value)
-        except ValueError as e:
+        except (ValueError, TypeError) as e:
             raise exc.InvalidInput(self.name, value, six.text_type(e))
         dataholder = self._get_dataholder(instance)
         if value is Unset:
