@@ -103,14 +103,14 @@ class WSMECorniceTestCase(unittest.TestCase):
         resp = self.app.get('/users')
         self.assertEqual(
             resp.body,
-            '[{"id": 1, "name": "first"}]'
+            b'[{"id": 1, "name": "first"}]'
         )
 
     def test_get_xml_list(self):
         resp = self.app.get('/users', headers={"Accept": "text/xml"})
         self.assertEqual(
             resp.body,
-            '<result><item><id>1</id><name>first</name></item></result>'
+           b'<result><item><id>1</id><name>first</name></item></result>'
         )
 
     def test_post_json_data(self):
@@ -121,7 +121,7 @@ class WSMECorniceTestCase(unittest.TestCase):
         )
         self.assertEqual(
             resp.body,
-            '{"id": 2, "name": "new"}'
+            b'{"id": 2, "name": "new"}'
         )
 
     def test_post_xml_data(self):
@@ -132,7 +132,7 @@ class WSMECorniceTestCase(unittest.TestCase):
         )
         self.assertEqual(
             resp.body,
-            '<result><id>2</id><name>new</name></result>'
+            b'<result><id>2</id><name>new</name></result>'
         )
 
     def test_pass_request(self):
@@ -170,7 +170,6 @@ class WSMECorniceTestCase(unittest.TestCase):
             headers={'Accept': 'application/json'},
             expect_errors=True
         )
-        print resp.body
         self.assertEqual(resp.json['faultcode'], 'Client')
         self.assertEqual(resp.status_code, 400)
 
@@ -180,6 +179,5 @@ class WSMECorniceTestCase(unittest.TestCase):
             headers={'Accept': 'application/json'},
             expect_errors=True
         )
-        print resp.body
         self.assertEqual(resp.json['faultcode'], 'Client')
         self.assertEqual(resp.status_code, 401)
