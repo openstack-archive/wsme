@@ -206,6 +206,19 @@ Value: 'v3'. Value should be one of: v., v.",
         self.assertRaises(exc.InvalidInput, setattr, obj, 'alist', 12)
         self.assertRaises(exc.InvalidInput, setattr, obj, 'alist', [2, 'a'])
 
+    def test_attribute_validation_minimum(self):
+        class ATypeInt(object):
+            attr = types.IntegerType(minimum=1, maximum=5)
+
+        types.register_type(ATypeInt)
+
+        obj = ATypeInt()
+        obj.attr = 2
+
+        # comparison between 'zero' value and intger minimum (1) raises a
+        # TypeError which must be wrapped into an InvalidInput exception
+        self.assertRaises(exc.InvalidInput, setattr, obj, 'attr', 'zero')
+
     def test_text_attribute_conversion(self):
         class SType(object):
             atext = types.text
