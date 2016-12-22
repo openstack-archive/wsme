@@ -28,6 +28,7 @@ class NS(object):
     def qn(self, name):
         return '{%s}%s' % (self.url, name)
 
+
 wsdl_ns = NS("http://schemas.xmlsoap.org/wsdl/")
 soap_ns = NS("http://schemas.xmlsoap.org/wsdl/soap/")
 xs_ns = NS("http://www.w3.org/2001/XMLSchema")

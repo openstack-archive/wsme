@@ -43,6 +43,7 @@ class XMLRenderer(object):
             namespace['datatype']
         )
 
+
 pecan.templating._builtin_renderers['wsmejson'] = JSonRenderer
 pecan.templating._builtin_renderers['wsmexml'] = XMLRenderer
 
