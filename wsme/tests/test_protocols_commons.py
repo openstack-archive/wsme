@@ -93,6 +93,31 @@ class TestProtocolsCommons(unittest.TestCase):
         else:
             self.fail('Should have thrown an InvalidInput')
 
+    def test_args_from_args_custom_exc(self):
+
+        class FakeType(UserType):
+            name = 'fake-type'
+            basetype = int
+
+            def validate(self, value):
+                if value < 10:
+                    raise ValueError('should be greater than 10')
+
+            def frombasetype(self, value):
+                self.validate(value)
+
+        fake_type = FakeType()
+        fd = FunctionDefinition(FunctionDefinition)
+        fd.arguments.append(FunctionArgument('fake-arg', fake_type, True, 0))
+
+        try:
+            args_from_args(fd, [9], {})
+        except InvalidInput as e:
+            assert fake_type.name in str(e)
+            assert 'Error: should be greater than 10' in str(e)
+        else:
+            self.fail('Should have thrown an InvalidInput')
+
     def test_args_from_args_array_type(self):
         fake_type = ArrayType(MyBaseType)
         fd = FunctionDefinition(FunctionDefinition)

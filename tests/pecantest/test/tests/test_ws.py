@@ -91,7 +91,8 @@ class TestWS(FunctionalTest):
         self.assertEqual(
             a['faultstring'],
             "Invalid input for field/attribute author_id. "
-            "Value: 'foobar'. unable to convert to int")
+            "Value: 'foobar'. unable to convert to int. Error: invalid "
+            "literal for int() with base 10: 'foobar'")
 
     def test_clientsideerror(self):
         expected_status_code = 400
