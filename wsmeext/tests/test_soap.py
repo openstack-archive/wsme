@@ -28,6 +28,7 @@ class XDecimal(suds.xsd.sxbuiltin.XBuiltin):
                 return str(value)
             return value
 
+
 suds.xsd.sxbuiltin.Factory.tags['decimal'] = XDecimal
 
 
@@ -82,6 +83,7 @@ class SudsCache(suds.cache.Cache):
 
     def clear(self, id):
         self.d = {}
+
 
 sudscache = SudsCache()
 
@@ -200,6 +202,7 @@ def tosuds(client, value):
 def read_bool(value):
     return value == 'true'
 
+
 soap_types = {
     'xs:string': wsme.types.text,
     'xs:int': int,
@@ -243,6 +246,7 @@ def tobytes(value):
 def tobin(value):
     value = base64.decodestring(value.encode())
     return value
+
 
 fromsuds_types = {
     wsme.types.binary: tobin,

@@ -148,6 +148,7 @@ class MiniCrud(object):
             ref.name = u('test')
         return CRUDResult(ref, u('delete'))
 
+
 wsme.tests.protocol.WSTestRoot.crud = MiniCrud()
 
 
