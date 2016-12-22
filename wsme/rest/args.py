@@ -178,7 +178,7 @@ def args_from_args(funcdef, args, kwargs):
     for argdef, arg in zip(funcdef.arguments[:len(args)], args):
         try:
             newargs.append(from_param(argdef.datatype, arg))
-        except Exception:
+        except Exception as e:
             if isinstance(argdef.datatype, UserType):
                 datatype_name = argdef.datatype.name
             elif isinstance(argdef.datatype, type):
@@ -188,7 +188,8 @@ def args_from_args(funcdef, args, kwargs):
             raise InvalidInput(
                 argdef.name,
                 arg,
-                "unable to convert to %s" % datatype_name)
+                "unable to convert to %(datatype)s, error is: %(error)s" % {
+                    'datatype': datatype_name, 'error': e})
     newkwargs = {}
     for argname, value in kwargs.items():
         newkwargs[argname] = from_param(
