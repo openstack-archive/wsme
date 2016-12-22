@@ -135,6 +135,7 @@ class BinaryType(UserType):
             return None
         return base64.decodestring(value)
 
+
 #: The binary almost-native type
 binary = BinaryType()
 
@@ -324,6 +325,7 @@ class UnsetType(object):
 
     def __repr__(self):
         return 'Unset'
+
 
 Unset = UnsetType()
 
@@ -740,6 +742,7 @@ class Registry(object):
         else:
             type_ = self.register(type_)
         return type_
+
 
 # Default type registry
 registry = Registry()

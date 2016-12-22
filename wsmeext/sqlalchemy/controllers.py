@@ -91,6 +91,7 @@ class CRUDControllerBase(object):
         self.__dbsession__.flush()
         return None
 
+
 CRUDController = CRUDControllerMeta(
     'CRUDController', (CRUDControllerBase,), {}
 )
