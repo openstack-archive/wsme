@@ -1,0 +1,8 @@
+Code-Review+2: Lucas Alvares Gomes <lucasagomes@gmail.com>
+Workflow+1: Lucas Alvares Gomes <lucasagomes@gmail.com>
+Verified+2: Jenkins
+Submitted-by: Jenkins
+Submitted-at: Wed, 04 Jan 2017 14:58:41 +0000
+Reviewed-on: https://review.openstack.org/416574
+Project: openstack/wsme
+Branch: refs/heads/master
