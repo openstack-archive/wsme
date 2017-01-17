@@ -224,7 +224,7 @@ class TestExtDirectProtocol(wsme.tests.protocol.ProtocolTestCase):
             body,
             headers={'Content-Type': 'application/x-www-form-urlencoded'}
         )
-        print (r)
+        print(r)
 
         assert json.loads(r.text) == {
             "tid": "1",
