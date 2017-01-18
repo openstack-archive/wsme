@@ -361,6 +361,8 @@ class ServiceDocumenter(autodoc.ClassDocumenter):
 
     def format_name(self):
         path = find_service_path(self.env, self.object)
+        if path is None:
+            return
         return '/' + '/'.join(path)
 
 
