@@ -2,7 +2,7 @@
 A SOAP implementation for wsme.
 Parts of the code were taken from the tgwebservices soap implmentation.
 """
-from __future__ import absolute_import
+from __future__ import absolute_import, print_function
 
 import pkg_resources
 import datetime
