@@ -181,13 +181,13 @@ class TestTypes(unittest.TestCase):
         obj.a = 'v1'
         assert obj.a == 'v1', repr(obj.a)
 
-        self.assertRaisesRegexp(exc.InvalidInput,
-                                "Invalid input for field/attribute a. \
+        self.assertRaisesRegex(exc.InvalidInput,
+                               "Invalid input for field/attribute a. \
 Value: 'v3'. Value should be one of: v., v.",
-                                setattr,
-                                obj,
-                                'a',
-                                'v3')
+                               setattr,
+                               obj,
+                               'a',
+                               'v3')
 
     def test_attribute_validation(self):
         class AType(object):
