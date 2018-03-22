@@ -270,7 +270,7 @@ Options
 
 :namespace: Base namespace of the api. Used for the provider definition.
 :params_notation: Default notation for function call parameters. Can be
-    overriden for individual functions by adding the
+    overridden for individual functions by adding the
     ``extdirect_params_notation`` extra option to @expose.
 
     The possible notations are :
