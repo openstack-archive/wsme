@@ -144,14 +144,14 @@ Value should be one of:"))
         class Loop(object):
             pass
 
-        l = Loop()
+        ell = Loop()
         for i in range(0, 21):
             nl = Loop()
-            nl.l = l
-            l = nl
+            nl.ell = ell
+            ell = nl
 
         class MyRoot(WSRoot):
-            loop = l
+            loop = ell
 
         r = MyRoot()
 

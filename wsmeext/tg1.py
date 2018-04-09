@@ -61,7 +61,7 @@ def wsexpose(*args, **kwargs):
                 kwargs[funcdef.pass_request] = cherrypy.request
             try:
                 result = f(self, *args, **kwargs)
-            except:
+            except Exception:
                 try:
                     exception_info = sys.exc_info()
                     orig_exception = exception_info[1]

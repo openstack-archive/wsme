@@ -13,7 +13,7 @@ from wsme.rest.xml import fromxml, toxml
 
 try:
     import xml.etree.ElementTree as et
-except:
+except ImportError:
     import cElementTree as et  # noqa
 
 

@@ -6,7 +6,7 @@ import wsme.tests.protocol
 
 try:
     import simplejson as json
-except:
+except ImportError:
     import json  # noqa
 
 from wsme.rest.json import fromjson, tojson, parse
