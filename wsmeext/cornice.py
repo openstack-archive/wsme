@@ -126,7 +126,7 @@ def signature(*args, **kwargs):
                     'datatype': funcdef.return_type,
                     'result': result
                 }
-            except:
+            except Exception:
                 try:
                     exception_info = sys.exc_info()
                     orig_exception = exception_info[1]

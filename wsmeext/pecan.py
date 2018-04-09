@@ -101,7 +101,7 @@ def wsexpose(*args, **kwargs):
 
                     result = result.obj
 
-            except:
+            except Exception:
                 try:
                     exception_info = sys.exc_info()
                     orig_exception = exception_info[1]

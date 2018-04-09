@@ -104,7 +104,7 @@ class TestExtDirectProtocol(wsme.tests.protocol.ProtocolTestCase):
         try:
             func, funcdef, args = self.root._lookup_function(path)
             arguments = funcdef.arguments
-        except:
+        except Exception:
             arguments = []
         if len(path) == 1:
             ns, action, fname = '', '', path[0]
