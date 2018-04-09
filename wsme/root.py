@@ -191,7 +191,7 @@ class WSRoot(object):
             try:
                 result = context.func(*args, **kw)
                 txn.commit()
-            except:
+            except Exception:
                 txn.abort()
                 raise
 
@@ -352,7 +352,7 @@ class WSRoot(object):
                 try:
                     lexer = get_lexer_for_mimetype(ct)
                     break
-                except:
+                except Exception:
                     pass
 
             if lexer is None:

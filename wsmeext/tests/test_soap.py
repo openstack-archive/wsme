@@ -8,7 +8,7 @@ import wsme.tests.protocol
 
 try:
     import xml.etree.ElementTree as et
-except:
+except ImportError:
     import cElementTree as et  # noqa
 
 import suds.cache
@@ -78,7 +78,7 @@ class SudsCache(suds.cache.Cache):
     def purge(self, id):
         try:
             del self.d[id]
-        except:
+        except KeyError:
             pass
 
     def clear(self, id):
@@ -148,7 +148,7 @@ array_types = {
 }
 
 if not six.PY3:
-    array_types[long] = "Long_Array"
+    array_types[long] = "Long_Array"  # noqa
 
 
 def tosoap(tag, value):
@@ -206,7 +206,7 @@ def read_bool(value):
 soap_types = {
     'xs:string': wsme.types.text,
     'xs:int': int,
-    'xs:long': int if six.PY3 else long,
+    'xs:long': int if six.PY3 else long,  # noqa
     'xs:float': float,
     'xs:decimal': decimal.Decimal,
     'xs:boolean': read_bool,

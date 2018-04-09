@@ -446,8 +446,8 @@ Value: 'v3'. Value should be one of: v., v.",
         assert c.s == six.u('test')
 
     def test_array_eq(self):
-        l = [types.ArrayType(str)]
-        assert types.ArrayType(str) in l
+        ell = [types.ArrayType(str)]
+        assert types.ArrayType(str) in ell
 
     def test_array_sample(self):
         s = types.ArrayType(str).sample()

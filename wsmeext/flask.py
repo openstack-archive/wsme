@@ -85,7 +85,7 @@ def signature(*args, **kw):
                 )
                 res.mimetype = dataformat.content_type
                 res.status_code = status_code
-            except:
+            except Exception:
                 try:
                     exception_info = sys.exc_info()
                     orig_exception = exception_info[1]

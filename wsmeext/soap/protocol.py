@@ -64,7 +64,7 @@ type_registry = {
 }
 
 if not six.PY3:
-    type_registry[long] = "xs:long"
+    type_registry[long] = "xs:long"  # noqa
 
 array_registry = {
     wsme.types.text: "String_Array",
@@ -75,7 +75,7 @@ array_registry = {
 }
 
 if not six.PY3:
-    array_registry[long] = "Long_Array"
+    array_registry[long] = "Long_Array"  # noqa
 
 
 def soap_array(datatype, ns):
@@ -462,7 +462,7 @@ class SoapProtocol(Protocol):
         r = self.encoder.make_soap_element(datatype, 'value', value)
         if format:
             xml_indent(r)
-        return ('xml', unicode(r))
+        return ('xml', six.text_type(r))
 
 
 def xml_indent(elem, level=0):

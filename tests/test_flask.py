@@ -163,6 +163,7 @@ class FlaskrTestCase(unittest.TestCase):
             headers={'Accept': 'application/json'}
         )
         assert r.status_code == 412, r.status_code
+        assert r.data == 'moo', 'data is %s' % r.data
         assert json.loads(r.data)['faultstring'] == 'FOO!'
 
         r = self.app.get(
