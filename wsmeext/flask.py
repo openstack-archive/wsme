@@ -87,7 +87,7 @@ def signature(*args, **kw):
                 res.status_code = status_code
             except:
                 try:
-                    exception_info = sys.exc_info()
+                    exception_info = sys.exc_info() or None
                     orig_exception = exception_info[1]
                     orig_code = getattr(orig_exception, 'code', None)
                     data = wsme.api.format_exception(exception_info)
@@ -95,10 +95,10 @@ def signature(*args, **kw):
                     del exception_info
 
                 res = flask.make_response(dataformat.encode_error(None, data))
-                if data['faultcode'] == 'client':
-                    res.status_code = 400
-                elif orig_code and is_valid_code(orig_code):
+                if orig_code and is_valid_code(orig_code):
                     res.status_code = orig_code
+                elif data['faultcode'].lower() == 'client':
+                    res.status_code = 400
                 else:
                     res.status_code = 500
             return res
