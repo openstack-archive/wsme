@@ -1,7 +1,7 @@
 # encoding=utf8
 import unittest
 from flask import Flask, json, abort
-from flask.ext import restful
+import flask_restful as restful
 
 from wsmeext.flask import signature
 from wsme.api import Response
