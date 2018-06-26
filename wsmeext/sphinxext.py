@@ -211,8 +211,11 @@ class TypeDocumenter(autodoc.ClassDocumenter):
     def add_directive_header(self, sig):
         super(TypeDocumenter, self).add_directive_header(sig)
         # remove the :module: option that was added by ClassDocumenter
-        if ':module:' in self.directive.result[-1]:
-            self.directive.result.pop()
+        result_len = len(self.directive.result)
+        for index, item in zip(reversed(range(result_len)),
+                               reversed(self.directive.result)):
+            if ':module:' in item:
+                self.directive.result.pop(index)
 
     def import_object(self):
         if super(TypeDocumenter, self).import_object():
@@ -353,8 +356,11 @@ class ServiceDocumenter(autodoc.ClassDocumenter):
     def add_directive_header(self, sig):
         super(ServiceDocumenter, self).add_directive_header(sig)
         # remove the :module: option that was added by ClassDocumenter
-        if ':module:' in self.directive.result[-1]:
-            self.directive.result.pop()
+        result_len = len(self.directive.result)
+        for index, item in zip(reversed(range(result_len)),
+                               reversed(self.directive.result)):
+            if ':module:' in item:
+                self.directive.result.pop(index)
 
     def format_signature(self):
         return u''
@@ -532,8 +538,11 @@ class FunctionDocumenter(autodoc.MethodDocumenter):
     def add_directive_header(self, sig):
         super(FunctionDocumenter, self).add_directive_header(sig)
         # remove the :module: option that was added by ClassDocumenter
-        if ':module:' in self.directive.result[-1]:
-            self.directive.result.pop()
+        result_len = len(self.directive.result)
+        for index, item in zip(reversed(range(result_len)),
+                               reversed(self.directive.result)):
+            if ':module:' in item:
+                self.directive.result.pop(index)
 
 
 class WSMEDomain(Domain):
