@@ -353,8 +353,9 @@ class ServiceDocumenter(autodoc.ClassDocumenter):
     def add_directive_header(self, sig):
         super(ServiceDocumenter, self).add_directive_header(sig)
         # remove the :module: option that was added by ClassDocumenter
-        if ':module:' in self.directive.result[-1]:
-            self.directive.result.pop()
+        for index, item in enumerate(self.directive.result):
+            if ':module:' in item:
+                self.directive.result.pop(index)
 
     def format_signature(self):
         return u''
