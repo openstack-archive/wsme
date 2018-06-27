@@ -1,0 +1,9 @@
+Code-Review+2: Chris Dent <cdent@anticdent.org>
+Code-Review+2: Doug Hellmann <doug@doughellmann.com>
+Workflow+1: Doug Hellmann <doug@doughellmann.com>
+Verified+2: Zuul
+Submitted-by: Zuul
+Submitted-at: Wed, 27 Jun 2018 14:21:19 +0000
+Reviewed-on: https://review.openstack.org/578136
+Project: openstack/wsme
+Branch: refs/heads/master
