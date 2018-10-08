@@ -3,6 +3,7 @@ from wsme import WSRoot
 from wsmeext.tg11 import wsexpose, wsvalidate
 import wsmeext.tg1
 
+from six.moves import xrange
 from turbogears.controllers import RootController
 import cherrypy
 
