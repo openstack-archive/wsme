@@ -159,7 +159,7 @@ class TestController(testutil.TGTest):
             return c
 
         c = ARoot
-        for n in xrange(55):
+        for n in range(55):
             subc = make_subcontrollers(n)
             c.sub = subc()
             c = subc
