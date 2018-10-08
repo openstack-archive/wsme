@@ -4,6 +4,7 @@ from wsme import WSRoot
 from turbogears.controllers import RootController
 import cherrypy
 
+from six.moves import xrange
 from wsmeext.tests import test_soap
 
 import simplejson
