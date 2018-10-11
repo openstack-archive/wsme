@@ -1,0 +1,13 @@
+Code-Review+2: Dougal Matthews <dougal@redhat.com>
+Code-Review+1: Andriy Shevchenko <huang.zhiping@99cloud.net>
+Code-Review+1: zhulingjie <easyzlj@gmail.com>
+Code-Review+1: 98k <18552437190@163.com>
+Code-Review+1: Nguyen Van Trung <trungnv@vn.fujitsu.com>
+Code-Review+2: Michael Johnson <johnsomor@gmail.com>
+Workflow+1: Michael Johnson <johnsomor@gmail.com>
+Verified+2: Zuul
+Submitted-by: Zuul
+Submitted-at: Thu, 11 Oct 2018 16:38:41 +0000
+Reviewed-on: https://review.openstack.org/606751
+Project: openstack/wsme
+Branch: refs/heads/master
