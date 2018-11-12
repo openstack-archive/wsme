@@ -102,7 +102,7 @@ def array_from_params(datatype, params, path, hit_paths):
 
     if iscomplex(datatype.item_type):
         attributes = set()
-        r = re.compile('^%s\.(?P<attrname>[^\.])' % re.escape(path))
+        r = re.compile(r'^%s\.(?P<attrname>[^\.])' % re.escape(path))
         for p in params.keys():
             m = r.match(p)
             if m:
@@ -127,7 +127,7 @@ def array_from_params(datatype, params, path, hit_paths):
             return value
 
     indexes = set()
-    r = re.compile('^%s\[(?P<index>\d+)\]' % re.escape(path))
+    r = re.compile(r'^%s\[(?P<index>\d+)\]' % re.escape(path))
 
     for p in params.keys():
         m = r.match(p)
@@ -149,7 +149,7 @@ def array_from_params(datatype, params, path, hit_paths):
 def dict_from_params(datatype, params, path, hit_paths):
 
     keys = set()
-    r = re.compile('^%s\[(?P<key>[a-zA-Z0-9_\.]+)\]' % re.escape(path))
+    r = re.compile(r'^%s\[(?P<key>[a-zA-Z0-9_\.]+)\]' % re.escape(path))
 
     for p in params.keys():
         m = r.match(p)
