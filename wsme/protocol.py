@@ -126,7 +126,7 @@ def media_type_accept(request, content_types):
     """
     if request.method in ['GET', 'HEAD']:
         if request.accept:
-            if request.accept.best_match(content_types):
+            if request.accept.acceptable_offers(content_types):
                 return True
             error_message = ('Unacceptable Accept type: %s not in %s'
                              % (request.accept, content_types))
