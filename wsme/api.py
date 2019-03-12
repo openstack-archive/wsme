@@ -179,7 +179,7 @@ class signature(object):
         fd.return_type = self.return_type
         fd.set_options(**self.options)
         if self.arg_types:
-                fd.set_arg_types(argspec, self.arg_types)
+            fd.set_arg_types(argspec, self.arg_types)
         return func
 
 
