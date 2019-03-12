@@ -1,6 +1,13 @@
 Changes
 =======
 
+0.10.0 (future)
+---------------
+
+Changes that may break your app:
+
+* SQLAlchemy < 0.7 is no longer tested.
+
 0.8.0 (2015-08-25)
 ------------------
 
