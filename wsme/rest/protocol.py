@@ -41,7 +41,10 @@ class RestProtocol(Protocol):
         context.outformat = None
         ext = os.path.splitext(request.path.split('/')[-1])[1]
         inmime = request.content_type
-        outmime = request.accept.best_match(self.content_types)
+        try:
+            outmime = request.accept.acceptable_offers(self.content_types)[0]
+        except IndexError:
+            outmime = None
 
         outformat = None
         informat = None

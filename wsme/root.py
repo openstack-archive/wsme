@@ -317,7 +317,11 @@ class WSRoot(object):
             # Attempt to correctly guess what content-type we should return.
             ctypes = [ct for ct in protocol.content_types if ct]
             if ctypes:
-                res_content_type = request.accept.best_match(ctypes)
+                try:
+                    offers = request.accept.acceptable_offers(ctypes)
+                    res_content_type = offers[0]
+                except IndexError:
+                    res_content_type = None
 
         # If not we will attempt to convert the body to an accepted
         # output format.
