@@ -1,0 +1,8 @@
+Code-Review+2: Dmitry Tantsur <divius.inside@gmail.com>
+Workflow+1: Dmitry Tantsur <divius.inside@gmail.com>
+Verified+2: Zuul
+Submitted-by: Zuul
+Submitted-at: Wed, 13 Mar 2019 10:11:33 +0000
+Reviewed-on: https://review.openstack.org/642871
+Project: openstack/wsme
+Branch: refs/heads/master
