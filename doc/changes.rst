@@ -1,6 +1,12 @@
 Changes
 =======
 
+0.9.4 (future)
+--------------
+
+* SQLAlchemy support is deprecated and will be removed in one of the next
+  releases. It has never actually worked to begin with.
+
 0.8.0 (2015-08-25)
 ------------------
 
