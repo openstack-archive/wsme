@@ -13,7 +13,7 @@ from sphinx.util.docfields import Field
 from sphinx.util.nodes import make_refnode
 
 from sphinx.roles import XRefRole
-from sphinx.locale import l_, _
+from sphinx.locale import _
 
 from docutils.parsers.rst import Directive
 from docutils.parsers.rst import directives
@@ -159,7 +159,7 @@ class TypeDirective(PyClasslike):
 
 class AttributeDirective(PyClassmember):
     doc_field_types = [
-        Field('datatype', label=l_('Type'), has_arg=False,
+        Field('datatype', label=_('Type'), has_arg=False,
               names=('type', 'datatype'))
     ]
 
@@ -240,7 +240,7 @@ class TypeDocumenter(autodoc.ClassDocumenter):
             if protocols:
                 sample_obj = make_sample_object(self.object)
                 content.extend([
-                    l_(u'Data samples:'),
+                    _(u'Data samples:'),
                     u'',
                     u'.. cssclass:: toggle',
                     u''
@@ -444,7 +444,7 @@ def document_function(funcdef, docstrings=None, protocols=['restjson']):
                 make_sample_object(arg.datatype)
             ))
         codesamples.extend([
-            u':%s:' % l_(u'Parameters samples'),
+            u':%s:' % _(u'Parameters samples'),
             u'    .. cssclass:: toggle',
             u''
         ])
@@ -463,7 +463,7 @@ def document_function(funcdef, docstrings=None, protocols=['restjson']):
 
         if funcdef.return_type:
             codesamples.extend([
-                u':%s:' % l_(u'Return samples'),
+                u':%s:' % _(u'Return samples'),
                 u'    .. cssclass:: toggle',
                 u''
             ])
@@ -550,8 +550,8 @@ class WSMEDomain(Domain):
     label = 'WSME'
 
     object_types = {
-        'type': ObjType(l_('type'), 'type', 'obj'),
-        'service': ObjType(l_('service'), 'service', 'obj')
+        'type': ObjType(_('type'), 'type', 'obj'),
+        'service': ObjType(_('service'), 'service', 'obj')
     }
 
     directives = {
